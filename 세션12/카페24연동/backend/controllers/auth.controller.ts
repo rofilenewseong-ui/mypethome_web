@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import crypto from 'crypto';
 import { authService } from '../services/auth.service';
 import { AuthRequest } from '../types';
 import { env } from '../config/env';
@@ -76,7 +77,7 @@ export class AuthController {
 
       const result = await authService.googleAuth(profile);
       res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);
-      res.json({ success: true, data: { accessToken: result.accessToken, user: result.user } });
+      res.json({ success: true, data: { accessToken: result.accessToken, refreshToken: result.refreshToken, user: result.user } });
     } catch (error) { next(error); }
   }
 
@@ -87,7 +88,7 @@ export class AuthController {
         res.status(503).json({ success: false, error: 'Cafe24 OAuth가 설정되지 않았습니다.' });
         return;
       }
-      const state = Math.random().toString(36).substring(2, 15);
+      const state = crypto.randomBytes(24).toString('hex');
       const url = cafe24Service.getAuthorizationUrl(state);
       res.json({ success: true, data: { url, state } });
     } catch (error) { next(error); }
@@ -104,7 +105,7 @@ export class AuthController {
       const profile = await cafe24Service.authenticateCustomer(code);
       const result = await authService.cafe24Auth(profile);
       res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);
-      res.json({ success: true, data: { accessToken: result.accessToken, user: result.user } });
+      res.json({ success: true, data: { accessToken: result.accessToken, refreshToken: result.refreshToken, user: result.user } });
     } catch (error) { next(error); }
   }
 

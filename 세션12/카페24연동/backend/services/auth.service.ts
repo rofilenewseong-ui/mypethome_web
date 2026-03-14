@@ -167,20 +167,26 @@ export class AuthService {
     return this.generateTokens({ id: userRef.id, email: profile.email || '', role: 'USER' });
   }
 
-  /** 아크릴 세트 구매 보상: 크레딧 120 지급 */
+  /** 아크릴 세트 구매 보상: 크레딧 120 지급 (트랜잭션으로 중복 방지) */
   private async grantAcrylicSetReward(userRef: admin.firestore.DocumentReference, userId: string) {
-    await userRef.update({
-      credits: admin.firestore.FieldValue.increment(120),
-      isVerified: true,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+    await db.runTransaction(async (txn) => {
+      const doc = await txn.get(userRef);
+      if (doc.data()?.isVerified) return; // 이미 지급됨 → 스킵
 
-    await db.collection('creditTransactions').add({
-      userId,
-      amount: 120,
-      type: 'CAFE24_ACRYLIC_SET',
-      description: '카페24 아크릴 세트 구매 보상',
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      txn.update(userRef, {
+        credits: admin.firestore.FieldValue.increment(120),
+        isVerified: true,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      const txnRef = db.collection('creditTransactions').doc();
+      txn.set(txnRef, {
+        userId,
+        amount: 120,
+        type: 'CAFE24_ACRYLIC_SET',
+        description: '카페24 아크릴 세트 구매 보상',
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
     });
   }
 

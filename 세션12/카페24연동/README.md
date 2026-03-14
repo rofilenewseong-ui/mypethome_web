@@ -13,6 +13,7 @@
 | **아크릴세트 구매 검증** | 주문 내역 조회 → 풀세트 구매 시 120C 자동 지급 |
 | **Webhook 자동 충전** | 카페24 주문 완료 → HMAC 검증 → 크레딧 자동 충전 |
 | **상품코드 발급** | 주문별 고유 상품코드 생성 (중복 방지) |
+| **PC 접속 차단** | 일반 유저는 모바일만, 관리자(ADMIN)는 PC도 허용 |
 
 ---
 
@@ -36,6 +37,8 @@
 │       ├── auth.schema.ts            ← 인증 요청 검증 (Zod)
 │       └── webhook.schema.ts         ← Webhook 요청 검증 (Zod)
 ├── frontend/
+│   ├── middleware.ts                 ← PC 접속 차단 미들웨어
+│   ├── mobile-only/page.tsx          ← "모바일에서 접속해주세요" 안내 페이지
 │   └── cafe24/
 │       ├── auth/page.tsx             ← 로그인 페이지 (Cafe24 + Google + Dev)
 │       └── callback/page.tsx         ← OAuth 콜백 처리 페이지
@@ -60,6 +63,8 @@ apps/api/src/schemas/auth.schema.ts
 apps/api/src/schemas/webhook.schema.ts
 apps/web/src/app/cafe24/auth/page.tsx
 apps/web/src/app/cafe24/callback/page.tsx
+apps/web/src/app/mobile-only/page.tsx
+apps/web/src/middleware.ts
 ```
 
 ---
@@ -214,3 +219,41 @@ npm run dev
 
 카페24 자사몰 메인 페이지에 "마이펫홈 바로가기" 배너를 추가하여
 사용자를 PetHolo `/entry` 페이지로 유도합니다.
+
+---
+
+## PC 접속 차단 (모바일 전용)
+
+### 동작 방식
+
+```
+사용자 접속
+    │
+    ▼
+Next.js middleware.ts (서버에서 실행)
+    │
+    ├── User-Agent → 모바일 → ✅ 통과
+    │
+    └── User-Agent → PC:
+          ├── petholo_role 쿠키 = 'admin' → ✅ 통과 (관리자)
+          └── 쿠키 없음 또는 'user' → ❌ /mobile-only 리다이렉트
+```
+
+### 관리자 PC 접속 허용 방법
+
+1. Firestore에서 해당 유저의 `role` 필드를 `'ADMIN'`으로 변경
+2. 해당 유저가 모바일에서 로그인 (쿠키 자동 설정)
+3. 이후 PC에서도 접속 가능
+
+### 파일 배치
+
+```
+apps/web/src/middleware.ts              ← 새 파일
+apps/web/src/app/mobile-only/page.tsx   ← 새 파일
+```
+
+### 보안 참고
+
+- PC 차단은 **UX 제어**이며 보안 경계가 아닙니다
+- 실제 API 보안은 JWT 토큰으로 처리됩니다
+- `petholo_role` 쿠키는 클라이언트에서 설정되므로 우회 가능하지만, 일반 사용자가 의도적으로 우회할 가능성은 낮습니다

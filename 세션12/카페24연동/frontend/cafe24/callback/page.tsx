@@ -22,9 +22,9 @@ function Cafe24CallbackContent() {
         return;
       }
 
-      // CSRF state 검증
+      // CSRF state 검증 (양쪽 모두 존재해야 통과)
       const savedState = sessionStorage.getItem('cafe24_oauth_state');
-      if (state && savedState && state !== savedState) {
+      if (!state || !savedState || state !== savedState) {
         setError('보안 검증에 실패했습니다. 다시 시도해주세요.');
         sessionStorage.removeItem('cafe24_oauth_state');
         return;
@@ -33,10 +33,10 @@ function Cafe24CallbackContent() {
 
       try {
         const { data } = await authApi.cafe24Auth(code);
-        const { accessToken, user } = data.data;
+        const { accessToken, refreshToken, user } = data.data;
 
-        // 로그인 처리
-        loginWithToken(accessToken, user);
+        // 로그인 처리 (refreshToken 포함)
+        loginWithToken(accessToken, user, refreshToken);
 
         // 펫 보유 여부로 분기
         try {

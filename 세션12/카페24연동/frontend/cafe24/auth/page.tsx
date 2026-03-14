@@ -81,8 +81,8 @@ export default function Cafe24AuthPage() {
     setError(null);
     try {
       const { data } = await authApi.googleAuth(accessToken);
-      const { accessToken: jwt, user } = data.data;
-      loginWithToken(jwt, user);
+      const { accessToken: jwt, refreshToken, user } = data.data;
+      loginWithToken(jwt, user, refreshToken);
       router.replace('/entry');
     } catch (err: unknown) {
       console.error('Google login failed:', err);

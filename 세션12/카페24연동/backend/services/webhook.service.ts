@@ -8,12 +8,21 @@ import { logger } from '../utils/logger';
 
 export class WebhookService {
   verifySignature(payload: string, signature: string): boolean {
-    if (!env.CAFE24_WEBHOOK_SECRET) return true; // dev mode
+    if (!env.CAFE24_WEBHOOK_SECRET) {
+      if (env.isProd) {
+        logger.error('CAFE24_WEBHOOK_SECRET is not configured in production!');
+        return false;
+      }
+      return true; // dev mode only
+    }
     const expected = crypto
       .createHmac('sha256', env.CAFE24_WEBHOOK_SECRET)
       .update(payload)
       .digest('hex');
-    return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
+    const sigBuf = Buffer.from(signature);
+    const expectedBuf = Buffer.from(expected);
+    if (sigBuf.length !== expectedBuf.length) return false;
+    return crypto.timingSafeEqual(sigBuf, expectedBuf);
   }
 
   async handleCafe24Order(orderData: {

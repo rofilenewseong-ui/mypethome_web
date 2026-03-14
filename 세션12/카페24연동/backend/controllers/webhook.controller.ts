@@ -6,7 +6,8 @@ export class WebhookController {
   async cafe24OrderComplete(req: Request, res: Response, next: NextFunction) {
     try {
       const signature = req.headers['x-cafe24-signature'] as string || '';
-      const payload = JSON.stringify(req.body);
+      const rawBody = (req as Request & { rawBody?: Buffer }).rawBody;
+      const payload = rawBody ? rawBody.toString('utf8') : JSON.stringify(req.body);
 
       if (!webhookService.verifySignature(payload, signature)) {
         logger.warn('Webhook: Invalid Cafe24 signature');
