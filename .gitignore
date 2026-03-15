@@ -1,0 +1,64 @@
+# ============================================
+# PetHolo Monorepo .gitignore
+# ============================================
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+.next/
+out/
+*.tsbuildinfo
+
+# Environment & Secrets (절대 커밋 금지!)
+.env
+.env.local
+.env.*.local
+*.secret.*
+firebase-service-account.json
+service-account*.json
+*-credentials.json
+
+# Uploaded files & Media (GitHub에 올리지 않음)
+uploads/
+*.mp4
+*.mov
+*.avi
+*.webm
+*.gif
+*.wav
+*.mp3
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Logs
+*.log
+logs/
+
+# Test & Coverage
+coverage/
+.nyc_output/
+
+# Claude / Agent internals
+.agent/
+.agents/
+.claude/
+
+# Sensitive files
+Key*.zip
+
+# Misc
+*.tgz
+*.lock
+!pnpm-lock.yaml

@@ -1,0 +1,25 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // 기본: 모든 접근 차단
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+
+    // 펫 사진: 인증된 사용자만 업로드, 모든 인증 사용자 읽기
+    match /pets/{userId}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // 생성된 이미지 (AI): 서버에서만 쓰기, 인증 사용자 읽기
+    match /generated/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+  }
+}

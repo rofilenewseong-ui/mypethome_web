@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MY PET HOME - 온보딩 가이드</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: #0f0f0f;
+    color: #e8e8e8;
+    line-height: 1.7;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a0e00 0%, #0f1a0a 50%, #0a0f1a 100%);
+    position: relative;
+    overflow: hidden;
+    padding: 40px 20px;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(139,105,20,0.15) 0%, transparent 70%);
+    top: -200px; right: -200px;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(45,80,22,0.12) 0%, transparent 70%);
+    bottom: -150px; left: -150px;
+  }
+  .hero-badge {
+    background: rgba(139,105,20,0.2);
+    border: 1px solid rgba(139,105,20,0.4);
+    padding: 6px 20px;
+    border-radius: 50px;
+    font-size: 13px;
+    color: #d4a843;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
+  }
+  .hero h1 {
+    font-size: 56px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #d4a843, #8B6914, #d4a843);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-sub {
+    font-size: 20px;
+    color: #888;
+    margin-bottom: 50px;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-stats {
+    display: flex;
+    gap: 40px;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-stat {
+    text-align: center;
+  }
+  .hero-stat-num {
+    font-size: 48px;
+    font-weight: 800;
+    color: #d4a843;
+  }
+  .hero-stat-label {
+    font-size: 13px;
+    color: #777;
+    margin-top: 4px;
+  }
+
+  /* ===== SECTION ===== */
+  .section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 80px 30px;
+  }
+  .section-header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+  .section-num {
+    font-size: 13px;
+    color: #d4a843;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-size: 36px;
+    font-weight: 800;
+    margin-bottom: 12px;
+  }
+  .section-desc {
+    font-size: 16px;
+    color: #777;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* ===== DIVIDER ===== */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(139,105,20,0.3), transparent);
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* ===== TECH STACK ===== */
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .stack-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 28px;
+    transition: all 0.3s;
+  }
+  .stack-card:hover {
+    border-color: rgba(139,105,20,0.3);
+    background: rgba(139,105,20,0.05);
+  }
+  .stack-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+  .stack-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .stack-card p {
+    font-size: 13px;
+    color: #888;
+  }
+  .stack-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.06);
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    color: #aaa;
+    margin-top: 8px;
+  }
+
+  /* ===== ARCHITECTURE ===== */
+  .arch-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+  }
+  .arch-box {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 30px 24px;
+    text-align: center;
+    min-width: 180px;
+    position: relative;
+  }
+  .arch-box.highlight {
+    border-color: rgba(139,105,20,0.4);
+    background: rgba(139,105,20,0.08);
+  }
+  .arch-box-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+  .arch-box h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .arch-box p {
+    font-size: 12px;
+    color: #888;
+  }
+  .arch-arrow {
+    font-size: 24px;
+    color: #555;
+    padding: 0 8px;
+  }
+
+  /* ===== PROJECT TREE ===== */
+  .tree-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .tree-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 28px;
+  }
+  .tree-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .tree-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .tree-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .tree-card h3 span {
+    font-size: 12px;
+    color: #888;
+    font-weight: 400;
+    display: block;
+  }
+  .tree-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    font-size: 13px;
+    color: #bbb;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .tree-item:last-child { border: none; }
+  .tree-item-icon {
+    width: 20px;
+    text-align: center;
+    font-size: 12px;
+  }
+  .tree-item-count {
+    margin-left: auto;
+    font-size: 11px;
+    background: rgba(255,255,255,0.06);
+    padding: 2px 8px;
+    border-radius: 10px;
+    color: #888;
+  }
+
+  /* ===== SETUP STEPS ===== */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .step {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: rgba(139,105,20,0.15);
+    border: 1px solid rgba(139,105,20,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 800;
+    color: #d4a843;
+    flex-shrink: 0;
+  }
+  .step-content {
+    flex: 1;
+  }
+  .step-content h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .step-code {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    color: #d4a843;
+    margin-top: 8px;
+    overflow-x: auto;
+  }
+  .step-note {
+    font-size: 12px;
+    color: #777;
+    margin-top: 6px;
+  }
+
+  /* ===== FLOW ===== */
+  .flow-container {
+    display: flex;
+    gap: 0;
+    align-items: stretch;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .flow-step {
+    flex: 1;
+    min-width: 160px;
+    max-width: 200px;
+    text-align: center;
+    padding: 24px 16px;
+    position: relative;
+  }
+  .flow-step-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8B6914, #d4a843);
+    color: #000;
+    font-weight: 800;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+  }
+  .flow-step h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .flow-step p {
+    font-size: 11px;
+    color: #777;
+    line-height: 1.5;
+  }
+  .flow-arrow-h {
+    display: flex;
+    align-items: center;
+    color: #555;
+    font-size: 20px;
+    padding: 0 4px;
+  }
+
+  /* ===== ENDPOINTS TABLE ===== */
+  .ep-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .ep-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .ep-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .ep-card-icon {
+    font-size: 20px;
+  }
+  .ep-card h4 {
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .ep-card-count {
+    margin-left: auto;
+    font-size: 20px;
+    font-weight: 800;
+    color: #d4a843;
+  }
+  .ep-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 12px;
+  }
+  .ep-method {
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 36px;
+    text-align: center;
+  }
+  .ep-method.get { background: rgba(34,197,94,0.15); color: #22c55e; }
+  .ep-method.post { background: rgba(59,130,246,0.15); color: #3b82f6; }
+  .ep-method.put { background: rgba(234,179,8,0.15); color: #eab308; }
+  .ep-method.del { background: rgba(239,68,68,0.15); color: #ef4444; }
+  .ep-path { color: #bbb; font-family: monospace; font-size: 11px; }
+  .ep-desc { color: #777; font-size: 11px; margin-left: auto; }
+
+  /* ===== PAGES TABLE ===== */
+  .pages-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+  }
+  .page-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 20px 16px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .page-card:hover {
+    border-color: rgba(139,105,20,0.3);
+    transform: translateY(-2px);
+  }
+  .page-card.hold {
+    border-color: rgba(234,179,8,0.3);
+    background: rgba(234,179,8,0.04);
+  }
+  .page-icon {
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+  .page-name {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .page-route {
+    font-size: 10px;
+    color: #666;
+    font-family: monospace;
+  }
+  .page-badges {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+  .page-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  .page-badge.api { background: rgba(34,197,94,0.15); color: #22c55e; }
+  .page-badge.demo { background: rgba(59,130,246,0.15); color: #3b82f6; }
+  .page-badge.auth { background: rgba(168,85,247,0.15); color: #a855f7; }
+  .page-badge.wait { background: rgba(234,179,8,0.2); color: #eab308; }
+
+  /* ===== CREDIT SYSTEM ===== */
+  .credit-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+  }
+  .tier-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 36px;
+    text-align: center;
+  }
+  .tier-card.silver {
+    border-color: rgba(139,105,20,0.4);
+    background: linear-gradient(135deg, rgba(139,105,20,0.1), rgba(45,80,22,0.05));
+  }
+  .tier-name {
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 8px;
+  }
+  .tier-card.silver .tier-name { color: #d4a843; }
+  .tier-title {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+  .tier-features {
+    text-align: left;
+    list-style: none;
+    padding: 0;
+  }
+  .tier-features li {
+    padding: 8px 0;
+    font-size: 14px;
+    color: #aaa;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tier-features li::before {
+    content: '✓';
+    color: #4ade80;
+    font-weight: 700;
+  }
+  .tier-features li.disabled::before {
+    content: '✗';
+    color: #555;
+  }
+  .tier-features li.disabled {
+    color: #555;
+  }
+
+  .cost-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 40px;
+  }
+  .cost-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+  }
+  .cost-amount {
+    font-size: 32px;
+    font-weight: 800;
+    color: #d4a843;
+  }
+  .cost-unit {
+    font-size: 14px;
+    color: #888;
+  }
+  .cost-label {
+    font-size: 13px;
+    color: #aaa;
+    margin-top: 6px;
+  }
+
+  /* ===== ENV VARS ===== */
+  .env-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .env-group {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .env-group h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .env-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    font-size: 12px;
+  }
+  .env-item:last-child { border: none; }
+  .env-key {
+    font-family: monospace;
+    color: #d4a843;
+    font-size: 11px;
+  }
+  .env-val {
+    color: #777;
+    font-size: 11px;
+  }
+  .env-required {
+    color: #ef4444;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .env-optional {
+    color: #555;
+    font-size: 10px;
+  }
+
+  /* ===== PROGRESS ===== */
+  .progress-section {
+    background: linear-gradient(135deg, rgba(139,105,20,0.08), rgba(45,80,22,0.05));
+    border-radius: 24px;
+    padding: 50px;
+    text-align: center;
+  }
+  .progress-bar-container {
+    background: rgba(0,0,0,0.3);
+    border-radius: 20px;
+    height: 32px;
+    max-width: 600px;
+    margin: 30px auto;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8B6914, #d4a843);
+    border-radius: 20px;
+    width: 93%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 14px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #000;
+  }
+  .progress-items {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+  }
+  .progress-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+  }
+  .progress-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .progress-dot.done { background: #4ade80; }
+  .progress-dot.wait { background: #eab308; }
+
+  /* ===== AUTH FLOW DIAGRAM ===== */
+  .auth-flow {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 20px;
+    padding: 40px;
+    margin-top: 30px;
+  }
+  .auth-flow h4 {
+    text-align: center;
+    font-size: 16px;
+    margin-bottom: 30px;
+    color: #d4a843;
+  }
+  .auth-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .auth-box {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 13px;
+    text-align: center;
+  }
+  .auth-box.gold {
+    border-color: rgba(139,105,20,0.4);
+    background: rgba(139,105,20,0.1);
+    color: #d4a843;
+  }
+  .auth-box.green {
+    border-color: rgba(34,197,94,0.3);
+    background: rgba(34,197,94,0.08);
+    color: #4ade80;
+  }
+  .auth-arrow-down {
+    color: #555;
+    font-size: 18px;
+    text-align: center;
+    margin: 4px 0;
+  }
+
+  /* ===== TROUBLESHOOT ===== */
+  .trouble-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .trouble-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .trouble-card h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #ef4444;
+  }
+  .trouble-card .error-msg {
+    font-family: monospace;
+    font-size: 11px;
+    color: #888;
+    background: rgba(0,0,0,0.3);
+    padding: 6px 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+  }
+  .trouble-card .solution {
+    font-size: 13px;
+    color: #4ade80;
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    text-align: center;
+    padding: 60px 20px;
+    color: #444;
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== HERO ==================== -->
+<section class="hero">
+  <div class="hero-badge">Developer Onboarding Guide</div>
+  <h1>MY PET HOME</h1>
+  <p class="hero-sub">반려동물 추억 홀로그램 영상 플랫폼</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-num">15</div>
+      <div class="hero-stat-label">프론트엔드 페이지</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">40</div>
+      <div class="hero-stat-label">API 엔드포인트</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">9</div>
+      <div class="hero-stat-label">백엔드 서비스</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">93%</div>
+      <div class="hero-stat-label">완성도</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TECH STACK ==================== -->
+<div class="divider"></div>
+<section class="section">
+  <div class="section-header">
+    <div class="section-num">01</div>
+    <h2 class="section-title">기술 스택</h2>
+    <p class="section-desc">프로젝트에서 사용하는 핵심 기술들</p>
+  </div>
+  <div class="stack-grid">
+    <div class="stack-card">
+      <div class="stack-icon" style="background:rgba(59,130,246,0.15);">&#9883;</div>
+      <h3>Next.js 16 + React 19</h3>
+      <p>App Router 기반 프론트엔드. 15개 페이지, Tailwind CSS 스타일링</p>
+      <span class="stack-tag">TypeScript 5.9</span>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon" style="background:rgba(34,197,94,0.15);">&#9881;</div>
+      <h3>Express 5</h3>
+      <p>REST API 백엔드. 11개 라우트 모듈, JWT 인증, 미들웨어 스택</p>
+      <span class="stack-tag">TypeScript 5.9</span>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon" style="background:rgba(234,179,8,0.15);">&#9730;</div>
+      <h3>Firebase</h3>
+      <p>Firestore DB + Auth + Storage. Admin SDK로 서버사이드 연동</p>
+      <span class="stack-tag">Admin 13.7.0</span>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon" style="background:rgba(168,85,247,0.15);">&#10024;</div>
+      <h3>Gemini AI</h3>
+      <p>반려동물 사진으로 시작 프레임 이미지 3장 생성</p>
+      <span class="stack-tag">Google GenAI</span>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon" style="background:rgba(239,68,68,0.15);">&#9654;</div>
+      <h3>Kling AI</h3>
+      <p>시작 프레임 이미지를 동영상으로 변환. 비동기 폴링 처리</p>
+      <span class="stack-tag">Image-to-Video</span>
+    </div>
+    <div class="stack-card">
+      <div class="stack-icon" style="background:rgba(59,130,246,0.15);">&#9741;</div>
+      <h3>인프라</h3>
+      <p>Docker + Vercel + GitHub Actions CI. pnpm 모노레포 구조</p>
+      <span class="stack-tag">pnpm workspace</span>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ARCHITECTURE ==================== -->
+<div class="divider"></div>
+<section class="section">
+  <div class="section-header">
+    <div class="section-num">02</div>
+    <h2 class="section-title">아키텍처</h2>
+    <p class="section-desc">전체 시스템 구성과 데이터 흐름</p>
+  </div>
+  <div class="arch-flow">
+    <div class="arch-box">
+      <div class="arch-box-icon">&#128241;</div>
+      <h4>Next.js 프론트</h4>
+      <p>:3000</p>
+    </div>
+    <div class="arch-arrow">&#10132;</div>
+    <div class="arch-box highlight">
+      <div class="arch-box-icon">&#9881;</div>
+      <h4>Express API</h4>
+      <p>:4000</p>
+    </div>
+    <div class="arch-arrow">&#10132;</div>
+    <div class="arch-box">
+      <div class="arch-box-icon">&#9730;</div>
+      <h4>Firestore DB</h4>
+      <p>NoSQL</p>
+    </div>
+  </div>
+  <div class="arch-flow" style="margin-top:10px">
+    <div class="arch-box">
+      <div class="arch-box-icon">&#10024;</div>
+      <h4>Gemini AI</h4>
+      <p>이미지 생성</p>
+    </div>
+    <div class="arch-arrow">&#10132;</div>
+    <div class="arch-box highlight">
+      <div class="arch-box-icon">&#9881;</div>
+      <h4>Express API</h4>
+      <p>오케스트레이션</p>
+    </div>
+    <div class="arch-arrow">&#10132;</div>
+    <div class="arch-box">
+      <div class="arch-box-icon">&#9654;</div>
+      <h4>Kling AI</h4>
+      <p>영상 변환</p>
+    </div>
+    <div class="arch-arrow">&#10132;</div>
+    <div class="arch-box">
+      <div class="arch-box-icon">&#9729;</div>
+      <h4>S3 Storage</h4>
+      <p>파일 저장</p>
+    </div>
+  </div>
+
+  <!-- Auth Flow -->
+  <div class="auth-flow">
+    <h4>&#128274; 인증 흐름</h4>
+    <div class="auth-row">
+      <div class="auth-box">회원가입 / 로그인</div>
+      <span class="arch-arrow">&#10132;</span>
+      <div class="auth-box gold">POST /api/auth/login</div>
+      <span class="arch-arrow">&#10132;</span>
+      <div class="auth-box green">JWT 발급 (access 15m + refresh 7d)</div>
+    </div>
+    <div class="auth-arrow-down">&#8595;</div>
+    <div class="auth-row">
+      <div class="auth-box">localStorage에 토큰 저장</div>
+      <span class="arch-arrow">&#10132;</span>
+      <div class="auth-box">Axios 인터셉터가 자동 첨부</div>
+      <span class="arch-arrow">&#10132;</span>
+      <div class="auth-box gold">401 시 자동 갱신</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PROJECT STRUCTURE ==================== -->
+<div class="divider"></div>
+<section class="section">
+  <div class="section-header">
+    <div class="section-num">03</div>
+    <h2 class="section-title">프로젝트 구조</h2>
+    <p class="section-desc">모노레포 디렉토리 구성</p>
+  </div>
+  <div class="tree-container">
+    <div class="tree-card">
+      <div class="tree-card-header">
+        <div class="tree-card-icon" style="background:rgba(59,130,246,0.15);color:#3b82f6;">&#128193;</div>
+        <h3>apps/web <span>Next.js 프론트엔드</span></h3>
+      </div>
+      <div class="tree-item"><span class="tree-item-icon">&#128196;</span> src/app/ <span class="tree-item-count">15 pages</span></div>
+      <div class="tree-item"><span class="tree-item-icon">&#9881;</span> src/components/ <span class="tree-item-count">7 files</span></div>
+      <div class="tree-item"><span class="tree-item-icon">&#128230;</span> src/stores/ <span class="tree-item-count">1 store</span></div>
+      <div class="tree-item"><span class="tree-item-icon">&#128279;</span> src/lib/api.ts <span class="tree-item-count">42 methods</span></div>
+      <div class="tree-item"><span class="tree-item-icon">&#9881;</span> next.config.ts</div>
+      <div class="tree-item"><span class="tree-item-icon">&#9729;</span> vercel.json</div>
+    </div>
+    <div class="tree-card">
+      <div class="tree-card-header">
+        <div class="tree-card-icon" style="background:rgba(34,197,94,0.15);color:#22c55e;">&#128193;</div>
+        <h3>apps/api <span>Express 백엔드</span></h3>
+      </div>
+      <div class="tree-item"><span class="tree-item-icon">&#128268;</span> src/routes/ <span class="tree-item-count">11 modules</span></div>
+      <div class="tree-item"><span class="tree-item-icon">&#127918;</span> src/controllers/ <span class="tree-item-count">12 files</span></div>
+      <div class="tree-item"><span class="tree-item-icon">&#9881;</span> src/services/ <span class="tree-item-count">9 files</span></div>
+      <div class="tree-item"><span class="tree-item-icon">&#128737;</span> src/middleware/ <span class="tree-item-count">auth, rate, error</span></div>
+      <div class="tree-item"><span class="tree-item-icon">&#9881;</span> src/config/ <span class="tree-item-count">env, firebase</span></div>
+      <div class="tree-item"><span class="tree-item-icon">&#128295;</span> src/utils/ <span class="tree-item-count">jwt, logger</span></div>
+      <div class="tree-item"><span class="tree-item-icon">&#129514;</span> tests/ <span class="tree-item-count">25 tests</span></div>
+      <div class="tree-item"><span class="tree-item-icon">&#128051;</span> Dockerfile</div>
+    </div>
+    <div class="tree-card">
+      <div class="tree-card-header">
+        <div class="tree-card-icon" style="background:rgba(168,85,247,0.15);color:#a855f7;">&#128193;</div>
+        <h3>Root <span>모노레포 설정</span></h3>
+      </div>
+      <div class="tree-item"><span class="tree-item-icon">&#128230;</span> packages/shared/ <span class="tree-item-count">types</span></div>
+      <div class="tree-item"><span class="tree-item-icon">&#128051;</span> docker-compose.yml</div>
+      <div class="tree-item"><span class="tree-item-icon">&#9881;</span> .github/workflows/ci.yml</div>
+      <div class="tree-item"><span class="tree-item-icon">&#128196;</span> pnpm-workspace.yaml</div>
+      <div class="tree-item"><span class="tree-item-icon">&#128196;</span> package.json</div>
+      <div class="tree-item"><span class="tree-item-icon">&#128196;</span> PROGRESS.md</div>
+      <div class="tree-item"><span class="tree-item-icon">&#128196;</span> CHANGELOG.md</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SETUP ==================== -->
+<div class="divider"></div>
+<section class="section">
+  <div class="section-header">
+    <div class="section-num">04</div>
+    <h2 class="section-title">개발 환경 세팅</h2>
+    <p class="section-desc">5단계로 바로 시작하기</p>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>사전 준비</h4>
+        <div class="step-note">Node.js 18+, pnpm 9+ 필요</div>
+        <div class="step-code">npm install -g pnpm</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>의존성 설치</h4>
+        <div class="step-code">git clone &lt;repo-url&gt; petholo && cd petholo && pnpm install</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>환경 변수 설정</h4>
+        <div class="step-code">cp .env.example apps/api/.env</div>
+        <div class="step-note">Firebase 인증 정보, JWT 키, API 키 등 설정 (아래 섹션 참고)</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Firebase 서비스 계정</h4>
+        <div class="step-code">cp /path/to/firebase-service-account.json apps/api/</div>
+        <div class="step-note">Firebase Console에서 다운로드한 JSON 파일</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h4>실행!</h4>
+        <div class="step-code">pnpm dev</div>
+        <div class="step-note">프론트 :3000 + 백엔드 :4000 동시 실행</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== ENV VARS ==================== -->
+<div class="divider"></div>
+<section class="section">
+  <div class="section-header">
+    <div class="section-num">05</div>
+    <h2 class="section-title">환경 변수</h2>
+    <p class="section-desc">apps/api/.env 에 설정</p>
+  </div>
+  <div class="env-grid">
+    <div class="env-group">
+      <h4>&#128274; 서버 기본</h4>
+      <div class="env-item"><span class="env-key">PORT</span><span class="env-val">4000</span></div>
+      <div class="env-item"><span class="env-key">NODE_ENV</span><span class="env-val">development</span></div>
+      <div class="env-item"><span class="env-key">CORS_ORIGIN</span><span class="env-val">http://localhost:3000</span></div>
+    </div>
+    <div class="env-group">
+      <h4>&#128273; JWT 인증 <span class="env-required">필수</span></h4>
+      <div class="env-item"><span class="env-key">JWT_SECRET</span><span class="env-val">your-secret</span></div>
+      <div class="env-item"><span class="env-key">JWT_REFRESH_SECRET</span><span class="env-val">your-refresh</span></div>
+      <div class="env-item"><span class="env-key">JWT_EXPIRES_IN</span><span class="env-val">15m</span></div>
+      <div class="env-item"><span class="env-key">JWT_REFRESH_EXPIRES_IN</span><span class="env-val">7d</span></div>
+    </div>
+    <div class="env-group">
+      <h4>&#9730; Firebase <span class="env-required">필수</span></h4>
+      <div class="env-item"><span class="env-key">FIREBASE_PROJECT_ID</span><span class="env-val">mypethome-e117c</span></div>
+      <div class="env-item"><span class="env-key">FIREBASE_CLIENT_EMAIL</span><span class="env-val">xxx@iam...</span></div>
+      <div class="env-item"><span class="env-key">FIREBASE_PRIVATE_KEY</span><span class="env-val">"-----BEGIN..."</span></div>
+      <div class="env-item"><span class="env-key">FIREBASE_STORAGE_BUCKET</span><span class="env-val">*.appspot.com</span></div>
+    </div>
+    <div class="env-group">
+      <h4>&#128100; Google OAuth <span class="env-optional">선택</span></h4>
+      <div class="env-item"><span class="env-key">GOOGLE_CLIENT_ID</span><span class="env-val">-</span></div>
+      <div class="env-item"><span class="env-key">GOOGLE_CLIENT_SECRET</span><span class="env-val">-</span></div>
+      <div class="env-item"><span class="env-key">GOOGLE_CALLBACK_URL</span><span class="env-val">localhost:4000/api/auth/google/callback</span></div>
+    </div>
+    <div class="env-group">
+      <h4>&#10024; AI API <span class="env-optional">선택</span></h4>
+      <div class="env-item"><span class="env-key">NANOBANANA_API_KEY</span><span class="env-val">-</span></div>
+      <div class="env-item"><span class="env-key">KLING_API_KEY</span><span class="env-val">-</span></div>
+      <div class="env-item"><span class="env-key">KLING_API_URL</span><span class="env-val">https://api.kling.ai</span></div>
+    </div>
+    <div class="env-group">
+      <h4>&#9729; S3 스토리지 <span class="env-optional">선택</span></h4>
+      <div class="env-item"><span class="env-key">STORAGE_PROVIDER</span><span class="env-val">firebase</span></div>
+      <div class="env-item"><span class="env-key">S3_ENDPOINT</span><span class="env-val">localhost:9000</span></div>
+      <div class="env-item"><span class="env-key">S3_BUCKET</span><span class="env-val">petholo-uploads</span></div>
+      <div class="env-item"><span class="env-key">S3_ACCESS_KEY / S3_SECRET_KEY</span><span class="env-val">-</span></div>
+    </div>
+  </div>
+  <div style="margin-top:20px;padding:16px 20px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:12px;font-size:13px;color:#7cb3f5;">
+    &#128161; <strong>프론트엔드</strong>: apps/web/.env.local 에 <code style="color:#d4a843;">NEXT_PUBLIC_API_URL=http://localhost:4000/api</code> 설정
+  </div>
+</section>
+
+<!-- ==================== PAGES ==================== -->
+<div class="divider"></div>
+<section class="section">
+  <div class="section-header">
+    <div class="section-num">06</div>
+    <h2 class="section-title">프론트엔드 페이지</h2>
+    <p class="section-desc">15개 페이지 — 모두 API + 데모 폴백 지원</p>
+  </div>
+  <div class="pages-grid">
+    <div class="page-card">
+      <div class="page-icon">&#127968;</div>
+      <div class="page-name">랜딩</div>
+      <div class="page-route">/</div>
+      <div class="page-badges"><span class="page-badge demo">DEMO</span></div>
+    </div>
+    <div class="page-card">
+      <div class="page-icon">&#128274;</div>
+      <div class="page-name">로그인/가입</div>
+      <div class="page-route">/auth</div>
+      <div class="page-badges"><span class="page-badge api">API</span></div>
+    </div>
+    <div class="page-card">
+      <div class="page-icon">&#127969;</div>
+      <div class="page-name">홈</div>
+      <div class="page-route">/home</div>
+      <div class="page-badges"><span class="page-badge api">API</span><span class="page-badge demo">DEMO</span></div>
+    </div>
+    <div class="page-card">
+      <div class="page-icon">&#128054;</div>
+      <div class="page-name">펫 관리</div>
+      <div class="page-route">/pets/manage</div>
+      <div class="page-badges"><span class="page-badge api">API</span><span class="page-badge demo">DEMO</span></div>
+    </div>
+    <div class="page-card">
+      <div class="page-icon">&#10133;</div>
+      <div class="page-name">펫 등록</div>
+      <div class="page-route">/pets/register</div>
+      <div class="page-badges"><span class="page-badge api">API</span></div>
+    </div>
+    <div class="page-card">
+      <div class="page-icon">&#128051;</div>
+      <div class="page-name">펫 상세</div>
+      <div class="page-route">/pets/[id]</div>
+      <div class="page-badges"><span class="page-badge api">API</span><span class="page-badge demo">DEMO</span></div>
+    </div>
+    <div class="page-card">
+      <div class="page-icon">&#10024;</div>
+      <div class="page-name">영상 생성</div>
+      <div class="page-route">/pets/[id]/profiles/new</div>
+      <div class="page-badges"><span class="page-badge api">API</span><span class="page-badge auth">SILVER</span></div>
+    </div>
+    <div class="page-card">
+      <div class="page-icon">&#127916;</div>
+      <div class="page-name">프로필 목록</div>
+      <div class="page-route">/profiles</div>
+      <div class="page-badges"><span class="page-badge api">API</span><span class="page-badge demo">DEMO</span></div>
+    </div>
+    <div class="page-card">
+      <div class="page-icon">&#9881;</div>
+      <div class="page-name">프로필 설정</div>
+      <div class="page-route">/profiles/[id]/settings</div>
+      <div class="page-badges"><span class="page-badge api">API</span><span class="page-badge demo">DEMO</span></div>
+    </div>
+    <div class="page-card">
+      <div class="page-icon">&#9654;</div>
+      <div class="page-name">영상 플레이어</div>
+      <div class="page-route">/player/[profileId]</div>
+      <div class="page-badges"><span class="page-badge api">API</span><span class="page-badge demo">DEMO</span></div>
+    </div>
+    <div class="page-card">
+      <div class="page-icon">&#128172;</div>
+      <div class="page-name">메신저</div>
+      <div class="page-route">/messenger</div>
+      <div class="page-badges"><span class="page-badge api">API</span><span class="page-badge demo">DEMO</span></div>
+    </div>
+    <div class="page-card">
+      <div class="page-icon">&#128176;</div>
+      <div class="page-name">크레딧/설정</div>
+      <div class="page-route">/settings</div>
+      <div class="page-badges"><span class="page-badge api">API</span><span class="page-badge demo">DEMO</span></div>
+    </div>
+    <div class="page-card hold">
+      <div class="page-icon">&#128722;</div>
+      <div class="page-name">스토어</div>
+      <div class="page-route">/store</div>
+      <div class="page-badges"><span class="page-badge wait">CAFE24 보류</span></div>
+    </div>
+    <div class="page-card">
+      <div class="page-icon">&#128465;</div>
+      <div class="page-name">휴지통</div>
+      <div class="page-route">/trash</div>
+      <div class="page-badges"><span class="page-badge api">API</span><span class="page-badge demo">DEMO</span></div>
+    </div>
+    <div class="page-card">
+      <div class="page-icon">&#128736;</div>
+      <div class="page-name">관리자</div>
+      <div class="page-route">/admin</div>
+      <div class="page-badges"><span class="page-badge api">API</span><span class="page-badge auth">ADMIN</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== AI PIPELINE ==================== -->
+<div class="divider"></div>
+<section class="section">
+  <div class="section-header">
+    <div class="section-num">07</div>
+    <h2 class="section-title">AI 영상 생성 파이프라인</h2>
+    <p class="section-desc">5단계 위자드로 반려동물 홀로그램 영상 생성</p>
+  </div>
+  <div class="flow-container">
+    <div class="flow-step">
+      <div class="flow-step-num">1</div>
+      <h4>컨셉 선택</h4>
+      <p>영상 테마와 분위기 선택</p>
+    </div>
+    <div class="flow-arrow-h">&#10132;</div>
+    <div class="flow-step">
+      <div class="flow-step-num">2</div>
+      <h4>배경 선택</h4>
+      <p>배경 이미지 또는 색상</p>
+    </div>
+    <div class="flow-arrow-h">&#10132;</div>
+    <div class="flow-step">
+      <div class="flow-step-num">3</div>
+      <h4>프롬프트</h4>
+      <p>AI 생성 설명 입력</p>
+    </div>
+    <div class="flow-arrow-h">&#10132;</div>
+    <div class="flow-step">
+      <div class="flow-step-num">4</div>
+      <h4>AI 생성</h4>
+      <p>Gemini 이미지 3장<br>&#8594; 1장 선택<br>&#8594; Kling 영상 변환</p>
+    </div>
+    <div class="flow-arrow-h">&#10132;</div>
+    <div class="flow-step">
+      <div class="flow-step-num">5</div>
+      <h4>완료!</h4>
+      <p>프로필에 저장<br>홀로그램 재생 가능</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== API ENDPOINTS ==================== -->
+<div class="divider"></div>
+<section class="section">
+  <div class="section-header">
+    <div class="section-num">08</div>
+    <h2 class="section-title">API 엔드포인트</h2>
+    <p class="section-desc">11개 모듈, 40개 엔드포인트</p>
+  </div>
+  <div class="ep-grid">
+    <div class="ep-card">
+      <div class="ep-card-header">
+        <span class="ep-card-icon">&#128274;</span>
+        <h4>Auth</h4>
+        <span class="ep-card-count">6</span>
+      </div>
+      <div class="ep-item"><span class="ep-method post">POST</span><span class="ep-path">/auth/register</span><span class="ep-desc">회원가입</span></div>
+      <div class="ep-item"><span class="ep-method post">POST</span><span class="ep-path">/auth/login</span><span class="ep-desc">로그인</span></div>
+      <div class="ep-item"><span class="ep-method post">POST</span><span class="ep-path">/auth/google</span><span class="ep-desc">Google</span></div>
+      <div class="ep-item"><span class="ep-method post">POST</span><span class="ep-path">/auth/refresh</span><span class="ep-desc">토큰 갱신</span></div>
+      <div class="ep-item"><span class="ep-method post">POST</span><span class="ep-path">/auth/logout</span><span class="ep-desc">로그아웃</span></div>
+      <div class="ep-item"><span class="ep-method get">GET</span><span class="ep-path">/auth/me</span><span class="ep-desc">내 정보</span></div>
+    </div>
+    <div class="ep-card">
+      <div class="ep-card-header">
+        <span class="ep-card-icon">&#128054;</span>
+        <h4>Pets</h4>
+        <span class="ep-card-count">5</span>
+      </div>
+      <div class="ep-item"><span class="ep-method get">GET</span><span class="ep-path">/pets</span><span class="ep-desc">목록</span></div>
+      <div class="ep-item"><span class="ep-method post">POST</span><span class="ep-path">/pets</span><span class="ep-desc">등록</span></div>
+      <div class="ep-item"><span class="ep-method get">GET</span><span class="ep-path">/pets/:id</span><span class="ep-desc">상세</span></div>
+      <div class="ep-item"><span class="ep-method put">PUT</span><span class="ep-path">/pets/:id</span><span class="ep-desc">수정</span></div>
+      <div class="ep-item"><span class="ep-method del">DEL</span><span class="ep-path">/pets/:id</span><span class="ep-desc">삭제</span></div>
+    </div>
+    <div class="ep-card">
+      <div class="ep-card-header">
+        <span class="ep-card-icon">&#127916;</span>
+        <h4>Profiles</h4>
+        <span class="ep-card-count">4</span>
+      </div>
+      <div class="ep-item"><span class="ep-method get">GET</span><span class="ep-path">/profiles</span><span class="ep-desc">전체 목록</span></div>
+      <div class="ep-item"><span class="ep-method get">GET</span><span class="ep-path">/profiles/pet/:petId</span><span class="ep-desc">펫별</span></div>
+      <div class="ep-item"><span class="ep-method post">POST</span><span class="ep-path">/profiles</span><span class="ep-desc">생성</span></div>
+      <div class="ep-item"><span class="ep-method put">PUT</span><span class="ep-path">/profiles/:id</span><span class="ep-desc">수정</span></div>
+    </div>
+    <div class="ep-card">
+      <div class="ep-card-header">
+        <span class="ep-card-icon">&#10024;</span>
+        <h4>AI</h4>
+        <span class="ep-card-count">4</span>
+      </div>
+      <div class="ep-item"><span class="ep-method post">POST</span><span class="ep-path">/ai/start-frame</span><span class="ep-desc">이미지 3장</span></div>
+      <div class="ep-item"><span class="ep-method post">POST</span><span class="ep-path">/ai/select-frame</span><span class="ep-desc">프레임 선택</span></div>
+      <div class="ep-item"><span class="ep-method post">POST</span><span class="ep-path">/ai/generate-video</span><span class="ep-desc">영상 생성</span></div>
+      <div class="ep-item"><span class="ep-method get">GET</span><span class="ep-path">/ai/job/:jobId</span><span class="ep-desc">상태 확인</span></div>
+    </div>
+    <div class="ep-card">
+      <div class="ep-card-header">
+        <span class="ep-card-icon">&#128176;</span>
+        <h4>Credits</h4>
+        <span class="ep-card-count">3</span>
+      </div>
+      <div class="ep-item"><span class="ep-method get">GET</span><span class="ep-path">/credits/balance</span><span class="ep-desc">잔액</span></div>
+      <div class="ep-item"><span class="ep-method get">GET</span><span class="ep-path">/credits/history</span><span class="ep-desc">내역</span></div>
+      <div class="ep-item"><span class="ep-method post">POST</span><span class="ep-path">/credits/redeem</span><span class="ep-desc">코드 리딤</span></div>
+    </div>
+    <div class="ep-card">
+      <div class="ep-card-header">
+        <span class="ep-card-icon">&#128172;</span>
+        <h4>Messenger</h4>
+        <span class="ep-card-count">3</span>
+      </div>
+      <div class="ep-item"><span class="ep-method get">GET</span><span class="ep-path">/messenger/rooms</span><span class="ep-desc">채팅방</span></div>
+      <div class="ep-item"><span class="ep-method get">GET</span><span class="ep-path">/messenger/rooms/:id/messages</span><span class="ep-desc">메시지</span></div>
+      <div class="ep-item"><span class="ep-method post">POST</span><span class="ep-path">/messenger/rooms/:id/messages</span><span class="ep-desc">전송</span></div>
+    </div>
+    <div class="ep-card">
+      <div class="ep-card-header">
+        <span class="ep-card-icon">&#128465;</span>
+        <h4>Trash</h4>
+        <span class="ep-card-count">3</span>
+      </div>
+      <div class="ep-item"><span class="ep-method get">GET</span><span class="ep-path">/trash</span><span class="ep-desc">목록</span></div>
+      <div class="ep-item"><span class="ep-method post">POST</span><span class="ep-path">/trash/:id/restore</span><span class="ep-desc">복구</span></div>
+      <div class="ep-item"><span class="ep-method del">DEL</span><span class="ep-path">/trash/:id</span><span class="ep-desc">영구 삭제</span></div>
+    </div>
+    <div class="ep-card">
+      <div class="ep-card-header">
+        <span class="ep-card-icon">&#128736;</span>
+        <h4>Admin</h4>
+        <span class="ep-card-count">3</span>
+      </div>
+      <div class="ep-item"><span class="ep-method get">GET</span><span class="ep-path">/admin/dashboard</span><span class="ep-desc">통계</span></div>
+      <div class="ep-item"><span class="ep-method get">GET</span><span class="ep-path">/admin/users</span><span class="ep-desc">사용자</span></div>
+      <div class="ep-item"><span class="ep-method get">GET</span><span class="ep-path">/admin/logs</span><span class="ep-desc">로그</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== CREDIT SYSTEM ==================== -->
+<div class="divider"></div>
+<section class="section">
+  <div class="section-header">
+    <div class="section-num">09</div>
+    <h2 class="section-title">크레딧 & 티어 시스템</h2>
+    <p class="section-desc">BRONZE(무료)와 SILVER(유료) 두 가지 등급</p>
+  </div>
+  <div class="credit-container">
+    <div class="tier-card">
+      <div class="tier-name">Bronze</div>
+      <div class="tier-title">무료 체험</div>
+      <ul class="tier-features">
+        <li>기본 기능 사용</li>
+        <li>샘플 영상 제공</li>
+        <li>데모 모드 지원</li>
+        <li class="disabled">AI 영상 생성 불가</li>
+        <li class="disabled">크레딧 시스템 미적용</li>
+      </ul>
+    </div>
+    <div class="tier-card silver">
+      <div class="tier-name">Silver</div>
+      <div class="tier-title">전체 기능</div>
+      <ul class="tier-features">
+        <li>전체 기능 사용</li>
+        <li>AI 영상 생성</li>
+        <li>120C 보너스 크레딧</li>
+        <li>메신저 AI 채팅</li>
+        <li>스토어 이용 가능</li>
+      </ul>
+    </div>
+  </div>
+  <div class="cost-grid">
+    <div class="cost-card">
+      <div class="cost-amount">40<span class="cost-unit">C</span></div>
+      <div class="cost-label">베이스 영상 생성</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-amount">40<span class="cost-unit">C</span></div>
+      <div class="cost-label">모션 생성</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-amount">10<span class="cost-unit">C</span></div>
+      <div class="cost-label">이미지 재생성</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-amount">50<span class="cost-unit">%</span></div>
+      <div class="cost-label">삭제 시 환불율</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TROUBLESHOOT ==================== -->
+<div class="divider"></div>
+<section class="section">
+  <div class="section-header">
+    <div class="section-num">10</div>
+    <h2 class="section-title">트러블슈팅</h2>
+    <p class="section-desc">자주 만나는 문제와 해결 방법</p>
+  </div>
+  <div class="trouble-grid">
+    <div class="trouble-card">
+      <h4>Firebase 연결 안됨</h4>
+      <div class="error-msg">Firebase initialized in limited mode</div>
+      <div class="solution">&#10132; firebase-service-account.json이 apps/api/ 에 있는지 확인<br>&#10132; .env의 FIREBASE_* 변수 확인</div>
+    </div>
+    <div class="trouble-card">
+      <h4>CORS 에러</h4>
+      <div class="error-msg">Access-Control-Allow-Origin 에러</div>
+      <div class="solution">&#10132; .env의 CORS_ORIGIN이 http://localhost:3000 인지 확인</div>
+    </div>
+    <div class="trouble-card">
+      <h4>API 호출 실패</h4>
+      <div class="error-msg">Network Error / 데모 데이터 표시</div>
+      <div class="solution">&#10132; 정상 동작! 데모 폴백 패턴<br>&#10132; 실제 연동 필요 시 백엔드 실행 확인: localhost:4000/api/health</div>
+    </div>
+    <div class="trouble-card">
+      <h4>AI 기능 안됨</h4>
+      <div class="error-msg">403 Forbidden / Silver tier required</div>
+      <div class="solution">&#10132; Silver 티어 이상만 AI 사용 가능<br>&#10132; API 키 환경변수 확인 (KLING_API_KEY 등)</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== PROGRESS ==================== -->
+<div class="divider"></div>
+<section class="section">
+  <div class="progress-section">
+    <h2 style="font-size:32px;font-weight:800;margin-bottom:8px;">프로젝트 완성도</h2>
+    <p style="color:#888;font-size:15px;">카페24 스토어 연동만 남은 상태</p>
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill">93%</div>
+    </div>
+    <div class="progress-items">
+      <div class="progress-item"><span class="progress-dot done"></span> Firebase 인증</div>
+      <div class="progress-item"><span class="progress-dot done"></span> 15개 페이지</div>
+      <div class="progress-item"><span class="progress-dot done"></span> 40개 API</div>
+      <div class="progress-item"><span class="progress-dot done"></span> AI 파이프라인</div>
+      <div class="progress-item"><span class="progress-dot done"></span> E2E 테스트</div>
+      <div class="progress-item"><span class="progress-dot done"></span> Docker/CI</div>
+      <div class="progress-item"><span class="progress-dot wait"></span> 카페24 스토어</div>
+    </div>
+  </div>
+</section>
+
+<div class="footer">
+  MY PET HOME (petholo) &mdash; Developer Onboarding Guide &mdash; 2026-03-05
+</div>
+
+</body>
+</html>

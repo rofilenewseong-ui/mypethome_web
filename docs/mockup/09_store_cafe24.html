@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PetHolo Mockup - 09. 카페24 자사몰 연동</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    /* ── Product Cards ── */
+    .product-card {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .product-card:hover {
+      border-color: rgba(100,200,255,0.2);
+      box-shadow: var(--shadow-glow);
+    }
+    .product-card.featured {
+      border-color: rgba(102,126,234,0.3);
+      background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(240,147,251,0.05));
+    }
+    .product-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+    .product-icon.full { background: linear-gradient(135deg, rgba(102,126,234,0.3), rgba(240,147,251,0.2)); }
+    .product-icon.credit60 { background: rgba(100,200,255,0.15); }
+    .product-icon.credit30 { background: rgba(56,239,125,0.15); }
+    .product-info { flex: 1; }
+    .product-name { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+    .product-price { font-size: 13px; color: var(--accent-yellow); font-weight: 700; }
+    .product-desc { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+    .product-badge {
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .product-badge.best { background: rgba(255,215,0,0.2); color: var(--accent-yellow); }
+    .product-badge.silver { background: rgba(102,126,234,0.2); color: var(--accent-purple); }
+
+    /* ── Notification Toast ── */
+    .toast-container {
+      padding: 0 20px;
+      margin-bottom: 16px;
+    }
+    .toast {
+      background: linear-gradient(135deg, rgba(56,239,125,0.15), rgba(56,239,125,0.05));
+      border: 1px solid rgba(56,239,125,0.3);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+    .toast-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .toast-icon { font-size: 20px; }
+    .toast-title { font-size: 14px; font-weight: 700; color: var(--accent-green); }
+    .toast-body { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+    .toast-amount {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--accent-green);
+      margin: 8px 0;
+    }
+    .toast-balance { font-size: 11px; color: var(--text-muted); }
+
+    /* ── History Items ── */
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .history-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .history-icon.charge { background: rgba(56,239,125,0.15); }
+    .history-icon.use { background: rgba(100,200,255,0.15); }
+    .history-icon.refund { background: rgba(255,167,38,0.15); }
+    .history-info { flex: 1; }
+    .history-desc { font-size: 13px; font-weight: 500; }
+    .history-date { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .history-amount { font-size: 14px; font-weight: 700; text-align: right; }
+    .history-amount.positive { color: var(--accent-green); }
+    .history-amount.negative { color: var(--accent-red); }
+    .history-amount.refund-amt { color: var(--accent-orange); }
+    .history-balance { font-size: 10px; color: var(--text-muted); text-align: right; margin-top: 2px; }
+
+    .type-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-left: 4px;
+    }
+    .type-badge.auto-charge { background: rgba(56,239,125,0.15); color: var(--accent-green); }
+    .type-badge.usage { background: rgba(100,200,255,0.15); color: var(--accent-blue); }
+    .type-badge.refund-type { background: rgba(255,167,38,0.15); color: var(--accent-orange); }
+
+    /* ── Filter Tabs ── */
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .filter-tab {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .filter-tab.active {
+      background: rgba(100,200,255,0.15);
+      color: var(--accent-blue);
+    }
+
+    /* ── Section Label ── */
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+    .section-label .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+    }
+
+    /* ── Step Flow ── */
+    .step-flow {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .step-pill {
+      padding: 8px 12px;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .step-pill.active {
+      background: rgba(100,200,255,0.15);
+      border-color: rgba(100,200,255,0.3);
+      color: var(--accent-blue);
+    }
+    .step-arrow { color: var(--text-muted); font-size: 12px; }
+
+    /* ── FAQ ── */
+    .faq-item {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+    .faq-question {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .faq-answer {
+      padding: 0 12px 12px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .faq-question .arrow { font-size: 10px; color: var(--text-muted); }
+
+    /* ── Webhook Flow ── */
+    .webhook-flow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 24px;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-md);
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+    .wh-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .wh-step-icon {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .wh-step-icon.customer { background: rgba(100,200,255,0.15); }
+    .wh-step-icon.payment { background: rgba(56,239,125,0.15); }
+    .wh-step-icon.webhook { background: rgba(255,167,38,0.15); }
+    .wh-step-icon.api { background: rgba(102,126,234,0.15); }
+    .wh-step-icon.hmac { background: rgba(240,147,251,0.15); }
+    .wh-step-icon.match { background: rgba(100,200,255,0.15); }
+    .wh-step-icon.credit { background: rgba(255,215,0,0.15); }
+    .wh-step-icon.notify { background: rgba(56,239,125,0.15); }
+    .wh-step-label { font-size: 10px; font-weight: 600; text-align: center; color: var(--text-secondary); line-height: 1.4; }
+    .wh-arrow { color: var(--text-muted); font-size: 18px; }
+
+    /* ── Annotation Block ── */
+    .annotation-block {
+      background: rgba(255,167,38,0.08);
+      border: 1px solid rgba(255,167,38,0.2);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .ann-title { font-size: 13px; font-weight: 700; color: var(--accent-orange); margin-bottom: 6px; }
+    .ann-body { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* ── Security Block ── */
+    .security-block {
+      background: var(--bg-surface);
+      border: 1px solid rgba(56,239,125,0.15);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .security-title { font-size: 13px; font-weight: 700; color: var(--accent-green); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .security-list { list-style: none; }
+    .security-list li { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 6px; }
+    .sec-bullet { color: var(--accent-green); font-weight: 700; flex-shrink: 0; }
+
+    /* ── JSON Block ── */
+    .json-block {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .json-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 11px;
+    }
+    .file-label { color: var(--text-muted); }
+    .lang-tag { color: var(--accent-blue); font-weight: 600; }
+    .json-body { padding: 12px; font-size: 12px; line-height: 1.6; }
+    .json-body .key { color: var(--accent-blue); }
+    .json-body .string { color: var(--accent-green); }
+    .json-body .number { color: var(--accent-yellow); }
+    .json-body .bool { color: var(--accent-purple); }
+    .json-body .comment { color: var(--text-muted); }
+
+    /* ── Two Column ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 900px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
+
+    /* ── Phone Container ── */
+    .phone-container { position: relative; }
+  </style>
+</head>
+<body>
+  <div class="mockup-page">
+    <h1>09. 카페24 자사몰 연동</h1>
+    <p class="subtitle">
+      카페24 자사몰에서 상품을 구매하면 Webhook을 통해 크레딧이 자동 충전됩니다.<br>
+      별도의 코드 입력이나 수동 등록 절차가 없으며, 결제 완료 즉시 크레딧이 반영됩니다.
+    </p>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- Section 1: Phone Mockups (4 Screens) -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>1. UI Screens</h2>
+      <p class="desc">카페24 자사몰 상품 안내, 자동 충전 알림, 충전 내역, 충전 안내 화면입니다.</p>
+
+      <div class="phones-row">
+
+        <!-- Phone 1: Product Info -->
+        <div class="phone-container">
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="status-bar">
+                <span class="time">9:41</span>
+                <div class="icons">
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                  <span>&#128267;</span>
+                </div>
+              </div>
+
+              <div class="top-bar">
+                <h1>&#128722; 크레딧 충전</h1>
+                <div class="actions">
+                  <div class="icon-btn">&#128176;</div>
+                </div>
+              </div>
+
+              <div class="content">
+                <div style="text-align:center;margin-bottom:16px;">
+                  <div style="font-size:11px;color:var(--text-muted);">현재 잔액</div>
+                  <div style="font-size:32px;font-weight:800;color:var(--accent-yellow);">120C</div>
+                </div>
+
+                <div class="section-label">
+                  <span class="dot"></span>
+                  카페24 자사몰 상품
+                </div>
+
+                <div class="product-card featured">
+                  <div class="product-icon full">&#127873;</div>
+                  <div class="product-info">
+                    <div class="product-name">펫홀로 풀세트</div>
+                    <div class="product-price">&#8361;89,000</div>
+                    <div class="product-desc">아크릴 프리즘 + 120C + Silver 등급</div>
+                  </div>
+                  <div class="product-badge silver">Silver</div>
+                </div>
+
+                <div class="product-card">
+                  <div class="product-icon credit60">&#11088;</div>
+                  <div class="product-info">
+                    <div class="product-name">크레딧 팩 60</div>
+                    <div class="product-price">&#8361;45,000</div>
+                    <div class="product-desc">60C 자동 충전</div>
+                  </div>
+                  <div class="product-badge best">인기</div>
+                </div>
+
+                <div class="product-card">
+                  <div class="product-icon credit30">&#128176;</div>
+                  <div class="product-info">
+                    <div class="product-name">크레딧 팩 30</div>
+                    <div class="product-price">&#8361;25,000</div>
+                    <div class="product-desc">30C 자동 충전</div>
+                  </div>
+                </div>
+
+                <a href="https://petholo.cafe24.com" target="_blank" class="btn btn-primary btn-full" style="margin-top:16px;text-decoration:none;">
+                  &#128722; 카페24 자사몰에서 구매하기
+                </a>
+                <p style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:8px;">
+                  구매 완료 시 크레딧이 자동으로 충전됩니다
+                </p>
+              </div>
+
+              <div class="bottom-nav">
+                <div class="nav-item"><span class="nav-icon">&#127968;</span><span>홈</span></div>
+                <div class="nav-item"><span class="nav-icon">&#128054;</span><span>내 반려</span></div>
+                <div class="nav-item active"><span class="nav-icon">&#128176;</span><span>크레딧</span></div>
+                <div class="nav-item"><span class="nav-icon">&#9881;</span><span>설정</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="annotation arrow-left" style="top: 150px; left: 400px;">
+            자사몰 상품 = 크레딧 자동 충전
+          </div>
+        </div>
+
+        <!-- Phone 2: Auto-charge Notification -->
+        <div class="phone-container">
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="status-bar">
+                <span class="time">9:42</span>
+                <div class="icons">
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                  <span>&#128267;</span>
+                </div>
+              </div>
+
+              <div class="top-bar">
+                <h1>&#128276; 알림</h1>
+                <div class="actions">
+                  <div class="icon-btn">&#10005;</div>
+                </div>
+              </div>
+
+              <div class="content">
+                <div class="toast-container" style="padding:0;">
+                  <div class="toast">
+                    <div class="toast-header">
+                      <span class="toast-icon">&#9989;</span>
+                      <span class="toast-title">크레딧이 자동 충전되었습니다!</span>
+                    </div>
+                    <div class="toast-body">
+                      카페24 주문 #20260305-001
+                    </div>
+                    <div class="toast-amount">+60C</div>
+                    <div class="toast-balance">현재 잔액: 180C</div>
+                  </div>
+                </div>
+
+                <div style="margin-top:20px;">
+                  <div class="section-label">
+                    <span class="dot"></span>
+                    최근 자동 충전 내역
+                  </div>
+
+                  <div class="history-item">
+                    <div class="history-icon charge">&#9989;</div>
+                    <div class="history-info">
+                      <div class="history-desc">크레딧 팩 60 <span class="type-badge auto-charge">자동충전</span></div>
+                      <div class="history-date">2026.03.05 14:32</div>
+                    </div>
+                    <div>
+                      <div class="history-amount positive">+60C</div>
+                      <div class="history-balance">180C</div>
+                    </div>
+                  </div>
+
+                  <div class="history-item">
+                    <div class="history-icon charge">&#9989;</div>
+                    <div class="history-info">
+                      <div class="history-desc">펫홀로 풀세트 <span class="type-badge auto-charge">자동충전</span></div>
+                      <div class="history-date">2026.02.20 10:15</div>
+                    </div>
+                    <div>
+                      <div class="history-amount positive">+120C</div>
+                      <div class="history-balance">120C</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bottom-nav">
+                <div class="nav-item"><span class="nav-icon">&#127968;</span><span>홈</span></div>
+                <div class="nav-item"><span class="nav-icon">&#128054;</span><span>내 반려</span></div>
+                <div class="nav-item active"><span class="nav-icon">&#128176;</span><span>크레딧</span></div>
+                <div class="nav-item"><span class="nav-icon">&#9881;</span><span>설정</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="annotation arrow-left" style="top: 200px; left: 400px;">
+            구매 즉시 자동 충전 — 별도 입력 불필요
+          </div>
+        </div>
+
+        <!-- Phone 3: Credit History -->
+        <div class="phone-container">
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="status-bar">
+                <span class="time">9:43</span>
+                <div class="icons">
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                  <span>&#128267;</span>
+                </div>
+              </div>
+
+              <div class="top-bar">
+                <h1>&#128203; 충전 내역</h1>
+                <div class="actions">
+                  <div class="icon-btn">&#128269;</div>
+                </div>
+              </div>
+
+              <div class="content">
+                <div class="filter-tabs">
+                  <div class="filter-tab active">전체</div>
+                  <div class="filter-tab">충전</div>
+                  <div class="filter-tab">사용</div>
+                </div>
+
+                <div class="history-item">
+                  <div class="history-icon charge">&#9989;</div>
+                  <div class="history-info">
+                    <div class="history-desc">크레딧 팩 60 <span class="type-badge auto-charge">자동충전</span></div>
+                    <div class="history-date">2026.03.05 14:32</div>
+                  </div>
+                  <div>
+                    <div class="history-amount positive">+60C</div>
+                    <div class="history-balance">180C</div>
+                  </div>
+                </div>
+
+                <div class="history-item">
+                  <div class="history-icon use">&#127909;</div>
+                  <div class="history-info">
+                    <div class="history-desc">베이스 영상 생성 <span class="type-badge usage">사용</span></div>
+                    <div class="history-date">2026.03.01 16:48</div>
+                  </div>
+                  <div>
+                    <div class="history-amount negative">-40C</div>
+                    <div class="history-balance">120C</div>
+                  </div>
+                </div>
+
+                <div class="history-item">
+                  <div class="history-icon refund">&#9851;</div>
+                  <div class="history-info">
+                    <div class="history-desc">모션 삭제 환불 <span class="type-badge refund-type">환불</span></div>
+                    <div class="history-date">2026.02.28 09:22</div>
+                  </div>
+                  <div>
+                    <div class="history-amount refund-amt">+20C</div>
+                    <div class="history-balance">160C</div>
+                  </div>
+                </div>
+
+                <div class="history-item">
+                  <div class="history-icon use">&#128131;</div>
+                  <div class="history-info">
+                    <div class="history-desc">모션 생성 <span class="type-badge usage">사용</span></div>
+                    <div class="history-date">2026.02.25 11:05</div>
+                  </div>
+                  <div>
+                    <div class="history-amount negative">-40C</div>
+                    <div class="history-balance">140C</div>
+                  </div>
+                </div>
+
+                <div class="history-item">
+                  <div class="history-icon charge">&#9989;</div>
+                  <div class="history-info">
+                    <div class="history-desc">펫홀로 풀세트 <span class="type-badge auto-charge">자동충전</span></div>
+                    <div class="history-date">2026.02.20 10:15</div>
+                  </div>
+                  <div>
+                    <div class="history-amount positive">+120C</div>
+                    <div class="history-balance">180C</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bottom-nav">
+                <div class="nav-item"><span class="nav-icon">&#127968;</span><span>홈</span></div>
+                <div class="nav-item"><span class="nav-icon">&#128054;</span><span>내 반려</span></div>
+                <div class="nav-item active"><span class="nav-icon">&#128176;</span><span>크레딧</span></div>
+                <div class="nav-item"><span class="nav-icon">&#9881;</span><span>설정</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="annotation arrow-left" style="top: 100px; left: 400px;">
+            카페24 연동 자동충전 내역
+          </div>
+        </div>
+
+        <!-- Phone 4: FAQ -->
+        <div class="phone-container">
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="status-bar">
+                <span class="time">9:44</span>
+                <div class="icons">
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                  <span>&#128267;</span>
+                </div>
+              </div>
+
+              <div class="top-bar">
+                <h1>&#128218; 충전 안내</h1>
+                <div class="actions">
+                  <div class="icon-btn">&#10005;</div>
+                </div>
+              </div>
+
+              <div class="content">
+                <div class="section-label">
+                  <span class="dot"></span>
+                  자동 충전 프로세스
+                </div>
+
+                <div class="step-flow">
+                  <div class="step-pill">&#128722; 카페24 구매</div>
+                  <span class="step-arrow">&rarr;</span>
+                  <div class="step-pill">&#128179; 결제 완료</div>
+                  <span class="step-arrow">&rarr;</span>
+                  <div class="step-pill active">&#9889; 자동 연동</div>
+                  <span class="step-arrow">&rarr;</span>
+                  <div class="step-pill">&#11088; 크레딧 충전</div>
+                </div>
+
+                <div class="card" style="margin-bottom:16px;">
+                  <p style="font-size:12px;color:var(--text-secondary);line-height:1.7;">
+                    카페24 자사몰에서 상품을 구매하면, 결제 완료 즉시 크레딧이 자동으로 충전됩니다. 별도의 코드 입력이나 수동 등록 절차가 없으며, 앱 내 알림으로 충전 완료를 확인할 수 있습니다.
+                  </p>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="section-label">
+                  <span class="dot"></span>
+                  자주 묻는 질문
+                </div>
+
+                <div class="faq-item">
+                  <div class="faq-question">
+                    <span>&#10067; 충전이 안 됐어요</span>
+                    <span class="arrow">&#9660;</span>
+                  </div>
+                  <div class="faq-answer">
+                    구매 후 충전이 지연될 경우, 최대 5분 내 자동 충전됩니다. 5분 이상 지연될 경우 고객센터로 문의해 주세요.
+                  </div>
+                </div>
+
+                <div class="faq-item">
+                  <div class="faq-question">
+                    <span>&#10067; 환불은 어떻게 하나요?</span>
+                    <span class="arrow">&#9654;</span>
+                  </div>
+                </div>
+
+                <div class="faq-item">
+                  <div class="faq-question">
+                    <span>&#10067; 크레딧 유효기간이 있나요?</span>
+                    <span class="arrow">&#9654;</span>
+                  </div>
+                </div>
+
+                <div style="text-align:center;margin-top:20px;">
+                  <span style="font-size:12px;color:var(--accent-blue);cursor:pointer;">
+                    &#128172; 고객센터 문의하기
+                  </span>
+                </div>
+              </div>
+
+              <div class="bottom-nav">
+                <div class="nav-item"><span class="nav-icon">&#127968;</span><span>홈</span></div>
+                <div class="nav-item"><span class="nav-icon">&#128054;</span><span>내 반려</span></div>
+                <div class="nav-item active"><span class="nav-icon">&#128176;</span><span>크레딧</span></div>
+                <div class="nav-item"><span class="nav-icon">&#9881;</span><span>설정</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="annotation arrow-left" style="top: 240px; left: 400px;">
+            충전 프로세스 안내
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- Section 2: Auto-Charge Flow Diagram -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>2. 자동 충전 흐름도 (Auto-Charge Flow)</h2>
+      <p class="desc">카페24 자사몰 구매부터 크레딧 자동 충전까지의 전체 프로세스입니다. 코드 등록이나 수동 입력은 없습니다.</p>
+
+      <div class="webhook-flow">
+        <div class="wh-step">
+          <div class="wh-step-icon customer">&#128100;</div>
+          <div class="wh-step-label">고객<br>카페24 구매</div>
+        </div>
+        <div class="wh-arrow">&#10132;</div>
+        <div class="wh-step">
+          <div class="wh-step-icon payment">&#128179;</div>
+          <div class="wh-step-label">결제 완료</div>
+        </div>
+        <div class="wh-arrow">&#10132;</div>
+        <div class="wh-step">
+          <div class="wh-step-icon webhook">&#128225;</div>
+          <div class="wh-step-label">Cafe24<br>Webhook 발송</div>
+        </div>
+        <div class="wh-arrow">&#10132;</div>
+        <div class="wh-step">
+          <div class="wh-step-icon api">&#128421;</div>
+          <div class="wh-step-label">PetHolo API<br>수신</div>
+        </div>
+        <div class="wh-arrow">&#10132;</div>
+        <div class="wh-step">
+          <div class="wh-step-icon hmac">&#128274;</div>
+          <div class="wh-step-label">HMAC-SHA256<br>검증</div>
+        </div>
+        <div class="wh-arrow">&#10132;</div>
+        <div class="wh-step">
+          <div class="wh-step-icon match">&#128101;</div>
+          <div class="wh-step-label">member_id<br>매칭</div>
+        </div>
+        <div class="wh-arrow">&#10132;</div>
+        <div class="wh-step">
+          <div class="wh-step-icon credit">&#11088;</div>
+          <div class="wh-step-label">크레딧<br>자동 충전</div>
+        </div>
+        <div class="wh-arrow">&#10132;</div>
+        <div class="wh-step">
+          <div class="wh-step-icon notify">&#128276;</div>
+          <div class="wh-step-label">앱 내<br>알림</div>
+        </div>
+      </div>
+
+      <div class="annotation-block">
+        <div class="ann-title">&#128312; 핵심 포인트: 코드 등록 없음</div>
+        <div class="ann-body">
+          사용자는 어떤 코드도 입력할 필요가 없습니다. 카페24 구매 시 Webhook이 자동으로 PetHolo API로 발송되고,
+          HMAC-SHA256 검증을 거친 후 member_id 매칭을 통해 해당 회원의 크레딧이 즉시 충전됩니다.
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- Section 3: Product-Credit Mapping -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>3. 상품-크레딧 매핑 테이블</h2>
+      <p class="desc">카페24 자사몰 상품과 크레딧 충전량, 등급 변경 매핑입니다.</p>
+
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th>상품명</th>
+            <th>가격</th>
+            <th>크레딧</th>
+            <th>등급 변경</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--accent-purple);font-weight:600;">펫홀로 풀세트</td>
+            <td>&#8361;89,000</td>
+            <td style="color:var(--accent-green);font-weight:700;">120C</td>
+            <td><span class="badge badge-purple" style="font-size:11px;">&rarr; Silver</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--accent-blue);font-weight:600;">크레딧 팩 60</td>
+            <td>&#8361;45,000</td>
+            <td style="color:var(--accent-green);font-weight:700;">60C</td>
+            <td style="color:var(--text-muted);">변경 없음</td>
+          </tr>
+          <tr>
+            <td style="color:var(--accent-green);font-weight:600;">크레딧 팩 30</td>
+            <td>&#8361;25,000</td>
+            <td style="color:var(--accent-green);font-weight:700;">30C</td>
+            <td style="color:var(--text-muted);">변경 없음</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- Section 4: Webhook Spec -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>4. Webhook 연동 사양</h2>
+      <p class="desc">카페24 자사몰 주문 완료 시 Webhook을 통한 자동 충전 기술 사양입니다.</p>
+
+      <div class="two-col">
+        <div>
+          <h3 style="font-size:14px;font-weight:700;color:var(--accent-blue);margin-bottom:12px;">Webhook 사양</h3>
+          <table class="spec-table">
+            <tbody>
+              <tr><td style="color:var(--accent-blue);font-weight:600;width:35%;">Endpoint</td><td><code>POST /api/webhook/cafe24/order</code></td></tr>
+              <tr><td style="color:var(--accent-blue);font-weight:600;">인증</td><td>HMAC-SHA256 (<code>X-Cafe24-Hmac-SHA256</code>)</td></tr>
+              <tr><td style="color:var(--accent-blue);font-weight:600;">Payload</td><td><code>order_id</code>, <code>member_id</code>, <code>product_code</code>, <code>amount</code></td></tr>
+              <tr><td style="color:var(--accent-blue);font-weight:600;">응답</td><td><code>200 OK</code> + <code>credit_charged</code> confirmation</td></tr>
+              <tr><td style="color:var(--accent-blue);font-weight:600;">재시도</td><td>3회 (5분 간격)</td></tr>
+            </tbody>
+          </table>
+
+          <div class="json-block">
+            <div class="json-header">
+              <span class="file-label">POST /api/webhook/cafe24/order</span>
+              <span class="lang-tag">JSON</span>
+            </div>
+            <div class="json-body">
+<pre style="margin:0;background:none;border:none;padding:0;"><code>{
+  <span class="key">"event"</span>: <span class="string">"order.completed"</span>,
+  <span class="key">"order_id"</span>: <span class="string">"20260305-001"</span>,
+  <span class="key">"member_id"</span>: <span class="string">"usr_a1b2c3d4e5"</span>,
+  <span class="key">"product_code"</span>: <span class="string">"PETHOLO-CREDIT-60"</span>,
+  <span class="key">"amount"</span>: <span class="number">45000</span>,
+  <span class="key">"credit_amount"</span>: <span class="number">60</span>,
+  <span class="key">"paid_at"</span>: <span class="string">"2026-03-05T14:30:00+09:00"</span>
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="font-size:14px;font-weight:700;color:var(--accent-green);margin-bottom:12px;">Security: HMAC-SHA256 검증</h3>
+
+          <div class="security-block">
+            <div class="security-title"><span>&#128274;</span> Webhook 보안 검증</div>
+            <ul class="security-list">
+              <li><span class="sec-bullet">&#10003;</span><span>HMAC-SHA256 서명 검증으로 요청 무결성 확인</span></li>
+              <li><span class="sec-bullet">&#10003;</span><span>X-Cafe24-Hmac-SHA256 헤더에 서명 값 포함</span></li>
+              <li><span class="sec-bullet">&#10003;</span><span>공유 비밀키(Shared Secret)로 서명 생성 및 검증</span></li>
+              <li><span class="sec-bullet">&#10003;</span><span>Timestamp 검증으로 재전송 공격(Replay Attack) 방지</span></li>
+              <li><span class="sec-bullet">&#10003;</span><span>IP 허용 목록(Allowlist)으로 Cafe24 서버만 허용</span></li>
+            </ul>
+          </div>
+
+          <div class="json-block">
+            <div class="json-header">
+              <span class="file-label">200 OK Response</span>
+              <span class="lang-tag">JSON</span>
+            </div>
+            <div class="json-body">
+<pre style="margin:0;background:none;border:none;padding:0;"><code>{
+  <span class="key">"status"</span>: <span class="string">"success"</span>,
+  <span class="key">"credit_charged"</span>: <span class="number">60</span>,
+  <span class="key">"new_balance"</span>: <span class="number">180</span>,
+  <span class="key">"member_id"</span>: <span class="string">"usr_a1b2c3d4e5"</span>,
+  <span class="key">"notification_sent"</span>: <span class="bool">true</span>
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- Section 5: API Endpoints -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>5. API 엔드포인트</h2>
+      <p class="desc">카페24 연동 및 크레딧 관련 API 엔드포인트 목록입니다.</p>
+
+      <div class="api-endpoint">
+        <span class="api-method post">POST</span>
+        <span class="api-path">/api/webhook/cafe24/order</span>
+        <div class="api-desc">Cafe24 주문 완료 Webhook 수신. HMAC-SHA256 서명 검증 후 member_id 매칭 및 크레딧 자동 충전.</div>
+      </div>
+
+      <div class="api-endpoint">
+        <span class="api-method get">GET</span>
+        <span class="api-path">/api/credits</span>
+        <div class="api-desc">사용자 크레딧 잔액 조회. 현재 보유 크레딧 및 등급 정보 반환.</div>
+      </div>
+
+      <div class="api-endpoint">
+        <span class="api-method get">GET</span>
+        <span class="api-path">/api/credits/history</span>
+        <div class="api-desc">크레딧 충전/사용 내역 조회. 자동충전, 사용, 환불 타입 필터링 및 페이지네이션 지원.</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align:center; padding:40px 0; border-top:1px solid rgba(255,255,255,0.06); margin-top:20px;">
+      <p style="font-size:12px; color:var(--text-muted);">
+        PetHolo (펫홀로) - 카페24 자사몰 연동 Mockup &middot; v2.0<br>
+        Webhook 자동충전 &middot; 코드 등록 없음 &middot; HMAC-SHA256 검증
+      </p>
+    </div>
+  </div>
+</body>
+</html>

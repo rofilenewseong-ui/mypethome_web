@@ -1,0 +1,1979 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PetHolo - 통합설정 (Integrated Settings)</title>
+<link rel="stylesheet" href="common.css">
+<style>
+/* ── Page-Specific: Integrated Settings ── */
+
+/* Profile Header */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--bg-surface);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-lg);
+  margin-bottom: 20px;
+}
+
+.profile-emoji {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(100,200,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.profile-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(102,126,234,0.15);
+  color: var(--accent-purple);
+}
+
+.profile-edit-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Section Headers */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.section-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Base Video Slots Grid */
+.video-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.video-slot {
+  aspect-ratio: 9/14;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid rgba(255,255,255,0.06);
+  background: var(--bg-surface);
+}
+
+.video-slot:hover {
+  border-color: rgba(100,200,255,0.3);
+}
+
+.video-slot.active {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 16px rgba(100,200,255,0.3), inset 0 0 16px rgba(100,200,255,0.05);
+}
+
+.video-slot .slot-thumb {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-slot .slot-thumb.has-video {
+  background: linear-gradient(135deg, #2a1a3e, #1a2a4e);
+}
+
+.video-slot .slot-thumb .pet-silhouette {
+  font-size: 36px;
+  margin-bottom: 4px;
+  opacity: 0.7;
+}
+
+.video-slot .slot-meta {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 6px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  font-size: 9px;
+  color: var(--text-secondary);
+}
+
+.video-slot .slot-meta .duration {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 10px;
+}
+
+.video-slot .active-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  background: var(--accent-blue);
+  color: var(--bg-primary);
+}
+
+.video-slot.empty {
+  border-style: dashed;
+  border-color: rgba(255,255,255,0.15);
+}
+
+.video-slot.empty .slot-thumb {
+  color: var(--text-muted);
+  font-size: 28px;
+}
+
+.video-slot.empty .slot-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Motion Grid */
+.motion-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.motion-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.motion-card:hover {
+  border-color: rgba(100,200,255,0.2);
+  box-shadow: var(--shadow-glow);
+}
+
+.motion-thumb {
+  aspect-ratio: 16/10;
+  background: linear-gradient(135deg, #1e1e3a, #2a1a4e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  position: relative;
+}
+
+.motion-thumb .play-icon {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: white;
+}
+
+.motion-info {
+  padding: 8px 10px;
+}
+
+.motion-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.position-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.position-badge.left {
+  background: rgba(102,126,234,0.2);
+  color: var(--accent-purple);
+}
+
+.position-badge.right {
+  background: rgba(240,147,251,0.2);
+  color: var(--accent-pink);
+}
+
+.position-badge.unassigned {
+  background: rgba(255,255,255,0.08);
+  color: var(--text-muted);
+}
+
+/* Video Detail */
+.video-preview {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: linear-gradient(135deg, #1a1230, #1a2a4e);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.video-preview .preview-pet {
+  font-size: 64px;
+  opacity: 0.6;
+}
+
+.video-preview .play-overlay {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(100,200,255,0.3);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: white;
+  cursor: pointer;
+  border: 2px solid rgba(255,255,255,0.3);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.info-item {
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  text-align: center;
+}
+
+.info-item .info-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.info-item .info-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Toggle Switch */
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.toggle-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.toggle-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.toggle-switch {
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.15);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.toggle-switch.on {
+  background: var(--accent-blue);
+}
+
+.toggle-switch .toggle-knob {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: left 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.toggle-switch.on .toggle-knob {
+  left: 22px;
+}
+
+/* AI Generation Steps */
+.ai-steps {
+  margin-bottom: 20px;
+}
+
+.ai-step {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  position: relative;
+}
+
+.ai-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 40px;
+  bottom: -4px;
+  width: 2px;
+  background: rgba(255,255,255,0.08);
+}
+
+.ai-step.active:not(:last-child)::after {
+  background: var(--accent-blue);
+}
+
+.ai-step.completed:not(:last-child)::after {
+  background: var(--accent-green);
+}
+
+.step-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,0.1);
+  color: var(--text-muted);
+  background: var(--bg-primary);
+  z-index: 1;
+}
+
+.ai-step.completed .step-number {
+  background: var(--accent-green);
+  color: var(--bg-primary);
+  border-color: var(--accent-green);
+}
+
+.ai-step.active .step-number {
+  background: var(--accent-blue);
+  color: var(--bg-primary);
+  border-color: var(--accent-blue);
+  animation: pulse-step 2s infinite;
+}
+
+@keyframes pulse-step {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(100,200,255,0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(100,200,255,0); }
+}
+
+.step-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.step-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.ai-step.pending .step-title {
+  color: var(--text-muted);
+}
+
+.step-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.step-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(100,200,255,0.3);
+  border-top-color: var(--accent-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Image Selection Grid */
+.image-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.image-option {
+  aspect-ratio: 1;
+  border-radius: var(--radius-md);
+  border: 2px solid rgba(255,255,255,0.08);
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: linear-gradient(135deg, #2a1a3e, #1a2a4e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-option:hover {
+  border-color: rgba(100,200,255,0.3);
+}
+
+.image-option.selected {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 16px rgba(100,200,255,0.3);
+}
+
+.image-option .check-mark {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.image-option.selected .check-mark {
+  opacity: 1;
+}
+
+.image-option .option-label {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  background: rgba(0,0,0,0.6);
+  color: var(--text-secondary);
+}
+
+.image-option .pet-image {
+  font-size: 48px;
+  opacity: 0.7;
+}
+
+/* Timer */
+.timer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  background: rgba(255,167,38,0.1);
+  border: 1px solid rgba(255,167,38,0.2);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+}
+
+.timer-icon {
+  font-size: 16px;
+}
+
+.timer-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-orange);
+}
+
+.timer-value {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent-orange);
+}
+
+/* Warning Message */
+.warning-box {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(255,167,38,0.08);
+  border: 1px solid rgba(255,167,38,0.15);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  color: var(--accent-orange);
+  line-height: 1.4;
+  margin-bottom: 12px;
+}
+
+.warning-box .warn-icon {
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+/* Position Buttons */
+.position-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.position-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  border: 2px solid transparent;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+  background: var(--bg-surface);
+  color: var(--text-muted);
+}
+
+.position-btn.left-btn {
+  border-color: rgba(102,126,234,0.3);
+  color: var(--accent-purple);
+  background: rgba(102,126,234,0.1);
+}
+
+.position-btn.left-btn.active {
+  background: var(--gradient-left);
+  color: white;
+  border-color: transparent;
+}
+
+.position-btn.right-btn {
+  border-color: rgba(240,147,251,0.3);
+  color: var(--accent-pink);
+  background: rgba(240,147,251,0.1);
+}
+
+.position-btn.right-btn.active {
+  background: var(--gradient-right);
+  color: white;
+  border-color: transparent;
+}
+
+.position-btn.none-btn {
+  border-color: rgba(255,255,255,0.1);
+}
+
+/* Credit Cost Indicator */
+.credit-cost {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-yellow);
+}
+
+.credit-cost .coin-icon {
+  font-size: 12px;
+}
+
+/* Progress Estimation */
+.progress-estimate {
+  text-align: center;
+  padding: 12px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+}
+
+.progress-estimate .est-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.progress-estimate .est-time {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent-blue);
+}
+
+/* Danger Zone */
+.danger-zone {
+  padding: 14px;
+  border: 1px solid rgba(255,107,107,0.2);
+  border-radius: var(--radius-md);
+  background: rgba(255,107,107,0.04);
+}
+
+.danger-zone .danger-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-red);
+  margin-bottom: 4px;
+}
+
+.danger-zone .danger-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+/* AI Status Inline */
+.ai-status-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(100,200,255,0.06);
+  border: 1px solid rgba(100,200,255,0.12);
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+}
+
+.ai-status-inline .status-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent-blue);
+  flex: 1;
+}
+
+.ai-status-inline .status-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(100,200,255,0.3);
+  border-top-color: var(--accent-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+/* Generation Banner on Slot */
+.video-slot .generating-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(26,26,46,0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  z-index: 2;
+}
+
+.video-slot .generating-overlay .gen-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(100,200,255,0.3);
+  border-top-color: var(--accent-blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.video-slot .generating-overlay .gen-text {
+  font-size: 9px;
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+
+/* Annotation Connector Lines */
+.annotation-line {
+  position: absolute;
+  border-left: 2px dashed rgba(255,167,38,0.4);
+  z-index: 199;
+  pointer-events: none;
+}
+</style>
+</head>
+<body>
+<div class="mockup-page">
+
+  <!-- ============ PAGE TITLE ============ -->
+  <h1>10. 통합설정 (Integrated Settings)</h1>
+  <p class="subtitle">
+    프로필별 베이스 영상과 모션을 관리하는 통합설정 화면입니다.<br>
+    PetHolo 앱에서 가장 복잡한 페이지로, AI 생성 파이프라인과 미디어 관리를 모두 포함합니다.
+  </p>
+
+  <!-- ============ FLOW DIAGRAM ============ -->
+  <div class="mockup-section">
+    <h2>User Flow</h2>
+    <p class="desc">통합설정의 전체 사용자 흐름. AI 생성 파이프라인은 비동기로 처리됩니다.</p>
+    <div class="flow-diagram">
+      <div class="flow-step">프로필설정</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step active">베이스영상관리<br><small style="font-size:10px;opacity:0.7">3슬롯</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step active">모션관리<br><small style="font-size:10px;opacity:0.7">12슬롯</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">AI생성 파이프라인</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">이미지 선택<br><small style="font-size:10px;opacity:0.7">30분 제한</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">영상 변환</div>
+    </div>
+
+    <div class="flow-diagram" style="margin-top:8px;">
+      <div class="flow-step" style="background:rgba(102,126,234,0.15);border-color:rgba(102,126,234,0.3);color:var(--accent-purple);font-weight:600;">AI Pipeline Detail</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">사진 업로드</div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step" style="border-color:rgba(100,200,255,0.3);">NanoBanana<br><small style="font-size:10px;opacity:0.7">이미지 생성</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step" style="border-color:rgba(255,167,38,0.3);">사용자 선택<br><small style="font-size:10px;opacity:0.7">30분 타임아웃</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step" style="border-color:rgba(56,239,125,0.3);">Kling AI<br><small style="font-size:10px;opacity:0.7">영상 변환</small></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step" style="background:rgba(56,239,125,0.15);border-color:rgba(56,239,125,0.3);color:var(--accent-green);">완료</div>
+    </div>
+  </div>
+
+  <!-- ============ SPEC TABLE ============ -->
+  <div class="mockup-section">
+    <h2>Specifications</h2>
+    <p class="desc">프로필별 리소스 제한 및 AI 파이프라인 상세 스펙</p>
+
+    <table class="spec-table">
+      <thead>
+        <tr>
+          <th>항목</th>
+          <th>제한 / 상세</th>
+          <th>비용</th>
+          <th>비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>베이스 영상 슬롯</td>
+          <td>프로필당 최대 <strong style="color:var(--accent-blue)">3개</strong></td>
+          <td><span class="credit-cost"><span class="coin-icon">C</span> 40C / 생성</span></td>
+          <td>동시에 1개만 활성화 가능</td>
+        </tr>
+        <tr>
+          <td>모션 슬롯</td>
+          <td>프로필당 최대 <strong style="color:var(--accent-blue)">12개</strong></td>
+          <td><span class="credit-cost"><span class="coin-icon">C</span> 40C / 생성</span></td>
+          <td>LEFT/RIGHT/미배치 포지션</td>
+        </tr>
+        <tr>
+          <td>활성 베이스 영상</td>
+          <td>프로필당 <strong style="color:var(--accent-green)">1개</strong></td>
+          <td>-</td>
+          <td>홀로그램 플레이어에서 사용</td>
+        </tr>
+        <tr>
+          <td>GIF 미리보기</td>
+          <td>베이스: <strong>160&times;216px</strong> (3초, 10fps)<br>모션: <strong>120&times;120px</strong> (2초, 10fps)</td>
+          <td>-</td>
+          <td>Kling 영상 완료 시 ffmpeg 2-pass 팔레트 최적화로 자동 생성. 실패해도 영상은 정상 저장 (gifUrl=null). 카드에 GIF 표시, 없으면 이모지 폴백.</td>
+        </tr>
+        <tr style="border-top:1px solid rgba(255,255,255,0.1);">
+          <td colspan="4" style="color:var(--accent-purple);font-weight:600;padding-top:16px;">AI 파이프라인 단계</td>
+        </tr>
+        <tr>
+          <td>Step 1: 이미지 생성</td>
+          <td>NanoBanana API</td>
+          <td>-</td>
+          <td>AI 이미지 4장 생성</td>
+        </tr>
+        <tr>
+          <td>Step 2: 이미지 선택</td>
+          <td>사용자 선택 (<strong style="color:var(--accent-orange)">30분 제한</strong>)</td>
+          <td>-</td>
+          <td>타임아웃 시 자동 선택</td>
+        </tr>
+        <tr>
+          <td>Step 3: 영상 변환</td>
+          <td>Kling AI API</td>
+          <td>-</td>
+          <td>선택 이미지 &rarr; 영상 변환</td>
+        </tr>
+        <tr>
+          <td>Step 4: GIF 변환</td>
+          <td>ffmpeg 2-pass palette</td>
+          <td>-</td>
+          <td>영상 완료 즉시 GIF 자동 생성 &rarr; S3 업로드 &rarr; gifUrl 저장</td>
+        </tr>
+        <tr>
+          <td>Step 5: 완료</td>
+          <td>즉시 사용 가능</td>
+          <td>-</td>
+          <td>슬롯에 자동 배치, GIF 미리보기 표시</td>
+        </tr>
+        <tr style="border-top:1px solid rgba(255,255,255,0.1);">
+          <td colspan="4" style="color:var(--accent-orange);font-weight:600;padding-top:16px;">추가 기능</td>
+        </tr>
+        <tr>
+          <td>AI 이미지 재생성</td>
+          <td>NanoBanana 재호출</td>
+          <td><span class="credit-cost"><span class="coin-icon">C</span> 10C</span></td>
+          <td>전체 생성(40C)보다 저렴</td>
+        </tr>
+        <tr>
+          <td>영상 삭제 환불</td>
+          <td>베이스 영상 삭제 시</td>
+          <td><span class="credit-cost"><span class="coin-icon">C</span> 20C 환불</span></td>
+          <td>생성 비용의 50% 환불</td>
+        </tr>
+        <tr>
+          <td>모션 삭제 환불</td>
+          <td>모션 삭제 시</td>
+          <td><span class="credit-cost"><span class="coin-icon">C</span> 20C 환불</span></td>
+          <td>생성 비용의 50% 환불</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!--  SCREEN 1: PROFILE OVERVIEW                                   -->
+  <!-- ============================================================ -->
+  <div class="mockup-section">
+    <h2>1. 프로필 통합설정 - 오버뷰</h2>
+    <p class="desc">
+      선택된 프로필의 베이스 영상(3슬롯)과 모션(12슬롯)을 한 화면에서 관리합니다.<br>
+      활성 베이스 영상은 파란 글로우 테두리로 표시되며, 홀로그램 플레이어에서 사용됩니다.
+    </p>
+    <div class="phones-row">
+      <div class="phone-frame" style="position:relative;">
+
+        <!-- Annotations -->
+        <div class="annotation arrow-left" style="left: 390px; top: 110px; z-index:300;">프로필 타입 배지</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 225px; z-index:300;">활성 영상 = Blue glow</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 310px; z-index:300;">빈 슬롯 (3개 중 1개 남음)</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 455px; z-index:300;">최대 3 베이스, 12 모션</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 560px; z-index:300;">LEFT/RIGHT 포지션</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 710px; z-index:300;">40C 크레딧 소모</div>
+
+        <div class="phone-screen">
+          <!-- Status Bar -->
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <span>&#9679;</span>
+              <span>&#9679;</span>
+              <span>&#9679;</span>
+              <span>&#9679;</span>
+              <span>&#128267;</span>
+            </span>
+          </div>
+
+          <!-- Top Bar -->
+          <div class="top-bar">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="icon-btn" style="font-size:14px;">&#8592;</div>
+              <h1 style="font-size:18px;">통합설정</h1>
+            </div>
+            <div class="actions">
+              <div class="icon-btn">&#9881;</div>
+            </div>
+          </div>
+
+          <div class="content">
+            <!-- Profile Header -->
+            <div class="profile-header">
+              <div class="profile-emoji">&#128021;</div>
+              <div class="profile-info">
+                <div class="profile-name">콩이</div>
+                <div class="profile-type-badge">
+                  <span>&#128062;</span> 서있는 자세
+                </div>
+              </div>
+              <div class="profile-edit-btn">&#9998;</div>
+            </div>
+
+            <!-- Base Video Section -->
+            <div class="section-header">
+              <div>
+                <div class="section-title">베이스 영상</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">홀로그램에 표시되는 기본 영상</div>
+              </div>
+              <div class="section-count">2 / 3</div>
+            </div>
+
+            <div class="video-slots-grid">
+              <!-- Slot 1: Active -->
+              <div class="video-slot active">
+                <div class="slot-thumb has-video">
+                  <div class="pet-silhouette">&#128054;</div>
+                </div>
+                <div class="active-badge">활성</div>
+                <div class="slot-meta">
+                  <div class="duration">0:04</div>
+                  <div>2024.12.15</div>
+                </div>
+              </div>
+
+              <!-- Slot 2: Filled -->
+              <div class="video-slot">
+                <div class="slot-thumb has-video" style="background: linear-gradient(135deg, #2e1a3e, #1a3a4e);">
+                  <div class="pet-silhouette">&#128054;</div>
+                </div>
+                <div class="slot-meta">
+                  <div class="duration">0:04</div>
+                  <div>2024.12.20</div>
+                </div>
+              </div>
+
+              <!-- Slot 3: Empty -->
+              <div class="video-slot empty">
+                <div class="slot-thumb">
+                  <span>+</span>
+                  <div class="slot-label">추가</div>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn btn-primary btn-full btn-sm" style="margin-bottom:20px;">
+              <span>&#10024;</span> 베이스 영상 생성
+              <span class="credit-cost" style="color:var(--bg-primary);margin-left:4px;"><span class="coin-icon">C</span> 40</span>
+            </button>
+
+            <div class="divider"></div>
+
+            <!-- Motion Section -->
+            <div class="section-header">
+              <div>
+                <div class="section-title">모션</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">제스처로 트리거되는 동작 영상</div>
+              </div>
+              <div class="section-count">4 / 12</div>
+            </div>
+
+            <div class="motion-grid">
+              <!-- Motion 1 -->
+              <div class="motion-card">
+                <div class="motion-thumb" style="background:linear-gradient(135deg,#2a1e4a,#1e2a3e);">
+                  <span>&#128054;</span>
+                  <div class="play-icon">&#9654;</div>
+                </div>
+                <div class="motion-info">
+                  <div class="motion-name">꼬리흔들기</div>
+                  <span class="position-badge left">LEFT</span>
+                </div>
+              </div>
+
+              <!-- Motion 2 -->
+              <div class="motion-card">
+                <div class="motion-thumb" style="background:linear-gradient(135deg,#3a1a2e,#1a2e4a);">
+                  <span>&#128054;</span>
+                  <div class="play-icon">&#9654;</div>
+                </div>
+                <div class="motion-info">
+                  <div class="motion-name">앉기</div>
+                  <span class="position-badge right">RIGHT</span>
+                </div>
+              </div>
+
+              <!-- Motion 3 -->
+              <div class="motion-card">
+                <div class="motion-thumb" style="background:linear-gradient(135deg,#1e2a4a,#2a1a3e);">
+                  <span>&#128054;</span>
+                  <div class="play-icon">&#9654;</div>
+                </div>
+                <div class="motion-info">
+                  <div class="motion-name">점프</div>
+                  <span class="position-badge left">LEFT</span>
+                </div>
+              </div>
+
+              <!-- Motion 4 -->
+              <div class="motion-card">
+                <div class="motion-thumb" style="background:linear-gradient(135deg,#2e1e3a,#1a3e2a);">
+                  <span>&#128054;</span>
+                  <div class="play-icon">&#9654;</div>
+                </div>
+                <div class="motion-info">
+                  <div class="motion-name">고개갸우뚱</div>
+                  <span class="position-badge unassigned">미배치</span>
+                </div>
+              </div>
+            </div>
+
+            <button class="btn btn-primary btn-full btn-sm" style="margin-bottom:20px;">
+              <span>&#10024;</span> 모션 생성
+              <span class="credit-cost" style="color:var(--bg-primary);margin-left:4px;"><span class="coin-icon">C</span> 40</span>
+            </button>
+
+          </div>
+
+          <!-- Bottom Nav -->
+          <div class="bottom-nav">
+            <div class="nav-item">
+              <span class="nav-icon">&#127968;</span>
+              <span>홈</span>
+            </div>
+            <div class="nav-item">
+              <span class="nav-icon">&#128302;</span>
+              <span>홀로그램</span>
+            </div>
+            <div class="nav-item active">
+              <span class="nav-icon">&#128100;</span>
+              <span>프로필</span>
+            </div>
+            <div class="nav-item">
+              <span class="nav-icon">&#9881;</span>
+              <span>설정</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!--  SCREEN 2: BASE VIDEO DETAIL                                  -->
+  <!-- ============================================================ -->
+  <div class="mockup-section">
+    <h2>2. 베이스 영상 상세</h2>
+    <p class="desc">
+      개별 베이스 영상의 상세 정보 및 관리 화면입니다. 활성화 토글로 홀로그램에 표시할 영상을 선택하며,<br>
+      AI 이미지 재생성(10C)과 삭제(20C 환불) 기능을 제공합니다.
+    </p>
+    <div class="phones-row">
+
+      <!-- 2-A: Normal Detail -->
+      <div class="phone-frame" style="position:relative;">
+        <div class="annotation arrow-left" style="left: 390px; top: 160px; z-index:300;">16:9 영상 미리보기</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 330px; z-index:300;">프로필당 1개만 활성 가능</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 440px; z-index:300;">이미지만 재생성 (10C)</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 580px; z-index:300;">삭제 시 20C 환불</div>
+
+        <div class="phone-screen">
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <span>&#9679;</span><span>&#9679;</span><span>&#9679;</span><span>&#9679;</span><span>&#128267;</span>
+            </span>
+          </div>
+
+          <div class="top-bar">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="icon-btn" style="font-size:14px;">&#8592;</div>
+              <h1 style="font-size:18px;">베이스 영상 상세</h1>
+            </div>
+            <span class="badge badge-blue">활성</span>
+          </div>
+
+          <div class="content">
+            <!-- Video Preview -->
+            <div class="video-preview">
+              <div class="preview-pet">&#128054;</div>
+              <div class="play-overlay">&#9654;</div>
+            </div>
+
+            <!-- Info Grid -->
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-label">생성일</div>
+                <div class="info-value">2024.12.15</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">해상도</div>
+                <div class="info-value">720x1280</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">길이</div>
+                <div class="info-value">0:04</div>
+              </div>
+            </div>
+
+            <!-- Activation Toggle -->
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">활성화</div>
+                <div class="toggle-sub">이 영상을 홀로그램에 표시합니다</div>
+              </div>
+              <div class="toggle-switch on">
+                <div class="toggle-knob"></div>
+              </div>
+            </div>
+
+            <div class="warning-box">
+              <span class="warn-icon">&#9888;</span>
+              <span>프로필당 1개의 베이스 영상만 활성화할 수 있습니다. 다른 영상을 활성화하면 현재 활성 영상은 자동 비활성화됩니다.</span>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Actions -->
+            <button class="btn btn-secondary btn-full" style="margin-bottom:10px;">
+              <span>&#129302;</span> AI 이미지 재생성
+              <span class="credit-cost" style="margin-left:4px;"><span class="coin-icon">C</span> 10</span>
+            </button>
+
+            <div style="font-size:11px;color:var(--text-muted);text-align:center;margin-bottom:20px;">
+              소스 이미지를 다시 생성합니다. 전체 생성(40C)보다 저렴합니다.
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Danger Zone -->
+            <div class="danger-zone">
+              <div class="danger-title">&#9888; 위험 구역</div>
+              <div class="danger-desc">이 베이스 영상을 삭제합니다. 삭제 시 20C가 환불되며, 이 작업은 되돌릴 수 없습니다.</div>
+              <button class="btn btn-danger btn-full btn-sm">
+                <span>&#128465;</span> 삭제
+                <span style="opacity:0.8;margin-left:4px;font-size:11px;">(20C 환불)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2-B: AI Generation In Progress on Detail -->
+      <div class="phone-frame" style="position:relative;">
+        <div class="annotation arrow-left" style="left: 390px; top: 280px; z-index:300;">생성 중 상태 표시</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 380px; z-index:300;">프로그레스 바 + 메시지</div>
+
+        <div class="phone-screen">
+          <div class="status-bar">
+            <span class="time">9:42</span>
+            <span class="icons">
+              <span>&#9679;</span><span>&#9679;</span><span>&#9679;</span><span>&#9679;</span><span>&#128267;</span>
+            </span>
+          </div>
+
+          <div class="top-bar">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="icon-btn" style="font-size:14px;">&#8592;</div>
+              <h1 style="font-size:18px;">베이스 영상 상세</h1>
+            </div>
+            <span class="badge badge-orange">생성중</span>
+          </div>
+
+          <div class="content">
+            <!-- Video Preview - In Progress -->
+            <div class="video-preview" style="border:1px dashed rgba(100,200,255,0.3);">
+              <div style="text-align:center;">
+                <div style="width:40px;height:40px;border:3px solid rgba(100,200,255,0.3);border-top-color:var(--accent-blue);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;"></div>
+                <div style="font-size:13px;color:var(--accent-blue);font-weight:600;">AI가 영상을 생성하고 있어요...</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">잠시만 기다려주세요</div>
+              </div>
+            </div>
+
+            <!-- Progress -->
+            <div class="progress-bar" style="margin-bottom:8px;">
+              <div class="progress-fill" style="width:45%;background:var(--gradient-accent);"></div>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);text-align:center;margin-bottom:16px;">
+              Step 1/4 &middot; AI 이미지 생성 중...
+            </div>
+
+            <!-- Info Grid -->
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-label">시작 시간</div>
+                <div class="info-value">14:32</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">현재 단계</div>
+                <div class="info-value" style="color:var(--accent-blue);">이미지 생성</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">예상 소요</div>
+                <div class="info-value" style="color:var(--accent-orange);">~5분</div>
+              </div>
+            </div>
+
+            <!-- AI Status -->
+            <div class="ai-status-inline">
+              <div class="status-spinner"></div>
+              <div class="status-text">NanoBanana AI가 이미지를 생성하고 있습니다...</div>
+            </div>
+
+            <div class="warning-box">
+              <span class="warn-icon">&#9888;</span>
+              <span>생성이 완료되면 30분 내에 이미지를 선택해야 합니다. 시간이 지나면 자동으로 선택됩니다.</span>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Toggle disabled during generation -->
+            <div class="toggle-row" style="opacity:0.5;">
+              <div>
+                <div class="toggle-label">활성화</div>
+                <div class="toggle-sub">생성 완료 후 활성화할 수 있습니다</div>
+              </div>
+              <div class="toggle-switch">
+                <div class="toggle-knob"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!--  SCREEN 3: MOTION DETAIL                                      -->
+  <!-- ============================================================ -->
+  <div class="mockup-section">
+    <h2>3. 모션 상세</h2>
+    <p class="desc">
+      개별 모션의 상세 정보 및 포지션 배정 화면입니다. LEFT(보라)/RIGHT(핑크)/미배치(회색) 중 선택합니다.
+    </p>
+    <div class="phones-row">
+      <div class="phone-frame" style="position:relative;">
+        <div class="annotation arrow-left" style="left: 390px; top: 250px; z-index:300;">모션 영상 미리보기</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 420px; z-index:300;">LEFT=보라 / RIGHT=핑크</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 520px; z-index:300;">제스처 방향에 매핑</div>
+
+        <div class="phone-screen">
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <span>&#9679;</span><span>&#9679;</span><span>&#9679;</span><span>&#9679;</span><span>&#128267;</span>
+            </span>
+          </div>
+
+          <div class="top-bar">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="icon-btn" style="font-size:14px;">&#8592;</div>
+              <h1 style="font-size:18px;">모션 상세</h1>
+            </div>
+            <span class="position-badge left" style="font-size:12px;padding:4px 10px;">LEFT</span>
+          </div>
+
+          <div class="content">
+            <!-- Motion Video Preview -->
+            <div class="video-preview" style="background: linear-gradient(135deg, #2a1e4a, #1e2a3e);">
+              <div class="preview-pet">&#128054;</div>
+              <div class="play-overlay">&#9654;</div>
+            </div>
+
+            <!-- Info Grid -->
+            <div class="info-grid">
+              <div class="info-item">
+                <div class="info-label">모션 이름</div>
+                <div class="info-value">꼬리흔들기</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">포지션</div>
+                <div class="info-value" style="color:var(--accent-purple);">LEFT</div>
+              </div>
+              <div class="info-item">
+                <div class="info-label">생성일</div>
+                <div class="info-value">2024.12.18</div>
+              </div>
+            </div>
+
+            <!-- Position Assignment -->
+            <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">포지션 배정</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;">
+              홀로그램에서 제스처 방향에 따라 모션이 트리거됩니다
+            </div>
+
+            <div class="position-buttons">
+              <div class="position-btn left-btn active">
+                <div style="font-size:16px;margin-bottom:2px;">&#8592;</div>
+                LEFT
+              </div>
+              <div class="position-btn right-btn">
+                <div style="font-size:16px;margin-bottom:2px;">&#8594;</div>
+                RIGHT
+              </div>
+              <div class="position-btn none-btn">
+                <div style="font-size:16px;margin-bottom:2px;">&#8722;</div>
+                미배치
+              </div>
+            </div>
+
+            <div class="card" style="padding:12px;margin-bottom:16px;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                <span style="font-size:14px;">&#128161;</span>
+                <span style="font-size:12px;font-weight:600;color:var(--text-primary);">포지션 안내</span>
+              </div>
+              <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">
+                <strong style="color:var(--accent-purple);">LEFT</strong>: 왼쪽 손동작으로 트리거<br>
+                <strong style="color:var(--accent-pink);">RIGHT</strong>: 오른쪽 손동작으로 트리거<br>
+                <strong style="color:var(--text-muted);">미배치</strong>: 제스처에 연결되지 않음
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Danger Zone -->
+            <div class="danger-zone">
+              <div class="danger-title">&#9888; 위험 구역</div>
+              <div class="danger-desc">이 모션을 삭제합니다. 삭제 시 20C가 환불되며, 이 작업은 되돌릴 수 없습니다.</div>
+              <button class="btn btn-danger btn-full btn-sm">
+                <span>&#128465;</span> 삭제
+                <span style="opacity:0.8;margin-left:4px;font-size:11px;">(20C 환불)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!--  SCREEN 4: AI GENERATION IN PROGRESS                          -->
+  <!-- ============================================================ -->
+  <div class="mockup-section">
+    <h2>4. AI 생성 진행 상태</h2>
+    <p class="desc">
+      AI 파이프라인의 4단계 진행 상황을 시각적으로 표시합니다.<br>
+      Photo &rarr; NanoBanana(이미지) &rarr; 사용자 선택(30분) &rarr; Kling AI(영상)
+    </p>
+    <div class="phones-row">
+
+      <!-- 4-A: Step 1 Active -->
+      <div class="phone-frame" style="position:relative;">
+        <div class="annotation arrow-left" style="left: 390px; top: 150px; z-index:300;">현재 Step 하이라이트</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 320px; z-index:300;">30분 선택 제한 경고</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 480px; z-index:300;">남은 시간 표시</div>
+
+        <div class="phone-screen">
+          <div class="status-bar">
+            <span class="time">9:43</span>
+            <span class="icons">
+              <span>&#9679;</span><span>&#9679;</span><span>&#9679;</span><span>&#9679;</span><span>&#128267;</span>
+            </span>
+          </div>
+
+          <div class="top-bar">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="icon-btn" style="font-size:14px;">&#8592;</div>
+              <h1 style="font-size:18px;">AI 생성 현황</h1>
+            </div>
+            <span class="badge badge-blue">
+              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent-blue);margin-right:4px;animation:pulse-step 2s infinite;"></span>
+              진행중
+            </span>
+          </div>
+
+          <div class="content">
+            <!-- Progress Overview -->
+            <div class="progress-estimate">
+              <div class="est-label">예상 남은 시간</div>
+              <div class="est-time">~3분</div>
+            </div>
+
+            <div class="progress-bar" style="margin-bottom:20px;height:8px;">
+              <div class="progress-fill" style="width:25%;background:var(--gradient-accent);border-radius:4px;"></div>
+            </div>
+
+            <!-- AI Steps -->
+            <div class="ai-steps">
+              <!-- Step 1: Active -->
+              <div class="ai-step active">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                  <div class="step-title">AI 이미지 생성 중...<span class="step-spinner"></span></div>
+                  <div class="step-desc">NanoBanana AI가 4장의 이미지를 생성합니다</div>
+                  <div class="progress-bar" style="margin-top:8px;height:4px;">
+                    <div class="progress-fill" style="width:65%;background:var(--accent-blue);"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 2: Pending -->
+              <div class="ai-step pending">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                  <div class="step-title">이미지 선택 대기 중</div>
+                  <div class="step-desc">30분 내에 마음에 드는 이미지를 선택하세요</div>
+                </div>
+              </div>
+
+              <!-- Step 3: Pending -->
+              <div class="ai-step pending">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                  <div class="step-title">영상 변환 중...</div>
+                  <div class="step-desc">Kling AI가 선택한 이미지를 영상으로 변환합니다</div>
+                </div>
+              </div>
+
+              <!-- Step 4: Pending -->
+              <div class="ai-step pending">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                  <div class="step-title">완료!</div>
+                  <div class="step-desc">영상이 프로필 슬롯에 자동 배치됩니다</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="warning-box">
+              <span class="warn-icon">&#9888;</span>
+              <span>30분 내에 이미지를 선택하지 않으면 자동으로 선택됩니다</span>
+            </div>
+
+            <div class="card" style="padding:12px;">
+              <div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">&#128302; 파이프라인 정보</div>
+              <div style="font-size:11px;color:var(--text-muted);line-height:1.6;">
+                <strong>Step 1</strong>: NanoBanana AI &mdash; 이미지 4장 생성<br>
+                <strong>Step 2</strong>: 사용자가 30분 내 이미지 선택<br>
+                <strong>Step 3</strong>: Kling AI &mdash; 영상 변환<br>
+                <strong>Step 4</strong>: 슬롯 배치 및 사용 가능
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4-B: Step 2 Active (Waiting for Selection) -->
+      <div class="phone-frame" style="position:relative;">
+        <div class="annotation arrow-left" style="left: 390px; top: 180px; z-index:300;">Step 1 완료 체크</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 270px; z-index:300;">선택 대기 = 오렌지 강조</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 500px; z-index:300;">타임아웃 자동 선택</div>
+
+        <div class="phone-screen">
+          <div class="status-bar">
+            <span class="time">9:48</span>
+            <span class="icons">
+              <span>&#9679;</span><span>&#9679;</span><span>&#9679;</span><span>&#9679;</span><span>&#128267;</span>
+            </span>
+          </div>
+
+          <div class="top-bar">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="icon-btn" style="font-size:14px;">&#8592;</div>
+              <h1 style="font-size:18px;">AI 생성 현황</h1>
+            </div>
+            <span class="badge badge-orange">
+              <span>&#9200;</span>
+              선택 대기
+            </span>
+          </div>
+
+          <div class="content">
+            <!-- Timer -->
+            <div class="timer-bar" style="background:rgba(255,107,107,0.1);border-color:rgba(255,107,107,0.3);">
+              <span class="timer-icon">&#9200;</span>
+              <span class="timer-text">남은 시간:</span>
+              <span class="timer-value" style="color:var(--accent-red);">24:37</span>
+            </div>
+
+            <div class="progress-bar" style="margin-bottom:20px;height:8px;">
+              <div class="progress-fill" style="width:40%;background:var(--gradient-accent);border-radius:4px;"></div>
+            </div>
+
+            <!-- AI Steps -->
+            <div class="ai-steps">
+              <!-- Step 1: Completed -->
+              <div class="ai-step completed">
+                <div class="step-number">&#10003;</div>
+                <div class="step-content">
+                  <div class="step-title" style="color:var(--accent-green);">AI 이미지 생성 완료</div>
+                  <div class="step-desc">4장의 이미지가 생성되었습니다</div>
+                </div>
+              </div>
+
+              <!-- Step 2: Active -->
+              <div class="ai-step active">
+                <div class="step-number" style="background:var(--accent-orange);border-color:var(--accent-orange);">2</div>
+                <div class="step-content">
+                  <div class="step-title" style="color:var(--accent-orange);">이미지 선택 대기 중<span class="step-spinner" style="border-top-color:var(--accent-orange);"></span></div>
+                  <div class="step-desc">아래 버튼을 눌러 이미지를 선택해주세요</div>
+                  <button class="btn btn-primary btn-sm" style="margin-top:8px;padding:8px 20px;">
+                    <span>&#127912;</span> 이미지 선택하러 가기
+                  </button>
+                </div>
+              </div>
+
+              <!-- Step 3: Pending -->
+              <div class="ai-step pending">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                  <div class="step-title">영상 변환 중...</div>
+                  <div class="step-desc">Kling AI가 선택한 이미지를 영상으로 변환합니다</div>
+                </div>
+              </div>
+
+              <!-- Step 4: Pending -->
+              <div class="ai-step pending">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                  <div class="step-title">완료!</div>
+                  <div class="step-desc">영상이 프로필 슬롯에 자동 배치됩니다</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="warning-box" style="background:rgba(255,107,107,0.08);border-color:rgba(255,107,107,0.2);">
+              <span class="warn-icon">&#9888;</span>
+              <span style="color:var(--accent-red);">24분 37초 후 자동으로 이미지가 선택됩니다. 직접 선택을 권장합니다!</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4-C: Step 3 Active (Kling Processing) -->
+      <div class="phone-frame" style="position:relative;">
+        <div class="annotation arrow-left" style="left: 390px; top: 180px; z-index:300;">Step 1,2 완료</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 350px; z-index:300;">Kling AI 영상 변환</div>
+
+        <div class="phone-screen">
+          <div class="status-bar">
+            <span class="time">10:05</span>
+            <span class="icons">
+              <span>&#9679;</span><span>&#9679;</span><span>&#9679;</span><span>&#9679;</span><span>&#128267;</span>
+            </span>
+          </div>
+
+          <div class="top-bar">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="icon-btn" style="font-size:14px;">&#8592;</div>
+              <h1 style="font-size:18px;">AI 생성 현황</h1>
+            </div>
+            <span class="badge badge-blue">
+              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent-blue);margin-right:4px;animation:pulse-step 2s infinite;"></span>
+              변환중
+            </span>
+          </div>
+
+          <div class="content">
+            <div class="progress-estimate">
+              <div class="est-label">예상 남은 시간</div>
+              <div class="est-time">~2분</div>
+            </div>
+
+            <div class="progress-bar" style="margin-bottom:20px;height:8px;">
+              <div class="progress-fill" style="width:75%;background:var(--gradient-accent);border-radius:4px;"></div>
+            </div>
+
+            <div class="ai-steps">
+              <!-- Step 1: Completed -->
+              <div class="ai-step completed">
+                <div class="step-number">&#10003;</div>
+                <div class="step-content">
+                  <div class="step-title" style="color:var(--accent-green);">AI 이미지 생성 완료</div>
+                  <div class="step-desc">4장의 이미지가 생성되었습니다</div>
+                </div>
+              </div>
+
+              <!-- Step 2: Completed -->
+              <div class="ai-step completed">
+                <div class="step-number">&#10003;</div>
+                <div class="step-content">
+                  <div class="step-title" style="color:var(--accent-green);">이미지 선택 완료</div>
+                  <div class="step-desc">이미지 B를 선택하셨습니다</div>
+                </div>
+              </div>
+
+              <!-- Step 3: Active -->
+              <div class="ai-step active">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                  <div class="step-title">영상 변환 중...<span class="step-spinner"></span></div>
+                  <div class="step-desc">Kling AI가 영상을 생성하고 있습니다</div>
+                  <div class="progress-bar" style="margin-top:8px;height:4px;">
+                    <div class="progress-fill" style="width:55%;background:var(--accent-blue);"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 4: Pending -->
+              <div class="ai-step pending">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                  <div class="step-title">완료!</div>
+                  <div class="step-desc">영상이 프로필 슬롯에 자동 배치됩니다</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Selected Image Preview -->
+            <div class="card" style="padding:12px;">
+              <div style="font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">&#127912; 선택된 이미지</div>
+              <div style="display:flex;gap:10px;align-items:center;">
+                <div style="width:64px;height:64px;border-radius:var(--radius-sm);background:linear-gradient(135deg,#2a1a3e,#1a2a4e);display:flex;align-items:center;justify-content:center;font-size:28px;border:2px solid var(--accent-blue);flex-shrink:0;">
+                  &#128054;
+                </div>
+                <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">
+                  <strong style="color:var(--text-primary);">이미지 B</strong> 선택됨<br>
+                  선택 시간: 09:52<br>
+                  Kling AI로 영상 변환 진행 중
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!--  SCREEN 5: AI IMAGE SELECTION                                  -->
+  <!-- ============================================================ -->
+  <div class="mockup-section">
+    <h2>5. AI 이미지 선택 (NanoBanana 결과)</h2>
+    <p class="desc">
+      NanoBanana AI가 생성한 4장의 이미지 중 하나를 선택하는 화면입니다.<br>
+      30분 카운트다운 타이머가 동작하며, 시간 초과 시 자동으로 첫 번째 이미지가 선택됩니다.
+    </p>
+    <div class="phones-row">
+
+      <!-- 5-A: Selection Screen -->
+      <div class="phone-frame" style="position:relative;">
+        <div class="annotation arrow-left" style="left: 390px; top: 140px; z-index:300;">30분 카운트다운</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 310px; z-index:300;">2x2 이미지 그리드</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 440px; z-index:300;">탭하여 선택 (Blue border)</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 600px; z-index:300;">재생성은 10C (저렴)</div>
+
+        <div class="phone-screen">
+          <div class="status-bar">
+            <span class="time">9:50</span>
+            <span class="icons">
+              <span>&#9679;</span><span>&#9679;</span><span>&#9679;</span><span>&#9679;</span><span>&#128267;</span>
+            </span>
+          </div>
+
+          <div class="top-bar">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="icon-btn" style="font-size:14px;">&#8592;</div>
+              <h1 style="font-size:16px;">이미지 선택</h1>
+            </div>
+            <span class="badge badge-orange">
+              <span>&#9200;</span>
+              24:37
+            </span>
+          </div>
+
+          <div class="content">
+            <!-- Header -->
+            <div style="text-align:center;margin-bottom:16px;">
+              <div style="font-size:20px;margin-bottom:6px;">&#127912;</div>
+              <div style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">AI가 생성한 이미지를 선택해주세요</div>
+              <div style="font-size:12px;color:var(--text-muted);">마음에 드는 이미지를 탭하세요</div>
+            </div>
+
+            <!-- Timer -->
+            <div class="timer-bar">
+              <span class="timer-icon">&#9200;</span>
+              <span class="timer-text">남은 시간:</span>
+              <span class="timer-value">24:37</span>
+            </div>
+
+            <!-- Image Selection Grid -->
+            <div class="image-selection-grid">
+              <!-- Option A -->
+              <div class="image-option">
+                <span class="pet-image">&#128054;</span>
+                <div class="check-mark">&#10003;</div>
+                <div class="option-label">A</div>
+              </div>
+
+              <!-- Option B: Selected -->
+              <div class="image-option selected">
+                <span class="pet-image" style="opacity:0.85;">&#128054;</span>
+                <div class="check-mark">&#10003;</div>
+                <div class="option-label">B</div>
+              </div>
+
+              <!-- Option C -->
+              <div class="image-option">
+                <span class="pet-image">&#128054;</span>
+                <div class="check-mark">&#10003;</div>
+                <div class="option-label">C</div>
+              </div>
+
+              <!-- Option D -->
+              <div class="image-option">
+                <span class="pet-image">&#128054;</span>
+                <div class="check-mark">&#10003;</div>
+                <div class="option-label">D</div>
+              </div>
+            </div>
+
+            <!-- Selected indicator -->
+            <div style="text-align:center;margin-bottom:12px;">
+              <span style="font-size:12px;color:var(--accent-blue);font-weight:600;">&#10003; 이미지 B 선택됨</span>
+            </div>
+
+            <!-- Action Buttons -->
+            <button class="btn btn-primary btn-full" style="margin-bottom:10px;">
+              <span>&#10024;</span> 이 이미지로 영상 만들기
+            </button>
+
+            <button class="btn btn-secondary btn-full" style="margin-bottom:12px;">
+              <span>&#128260;</span> 다시 생성하기
+              <span class="credit-cost" style="margin-left:4px;"><span class="coin-icon">C</span> 10</span>
+            </button>
+
+            <div class="warning-box">
+              <span class="warn-icon">&#9888;</span>
+              <span>30분 내에 이미지를 선택하지 않으면 자동으로 선택됩니다</span>
+            </div>
+
+            <div style="font-size:11px;color:var(--text-muted);text-align:center;line-height:1.5;">
+              다시 생성하기를 선택하면 10C가 차감되며<br>새로운 4장의 이미지가 생성됩니다
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5-B: No Selection (Timer Running Low) -->
+      <div class="phone-frame" style="position:relative;">
+        <div class="annotation arrow-left" style="left: 390px; top: 140px; z-index:300;">타이머 5분 미만 = 빨강</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 310px; z-index:300;">미선택 상태</div>
+        <div class="annotation arrow-left" style="left: 390px; top: 550px; z-index:300;">긴급 경고 메시지</div>
+
+        <div class="phone-screen">
+          <div class="status-bar">
+            <span class="time">10:15</span>
+            <span class="icons">
+              <span>&#9679;</span><span>&#9679;</span><span>&#9679;</span><span>&#9679;</span><span>&#128267;</span>
+            </span>
+          </div>
+
+          <div class="top-bar">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="icon-btn" style="font-size:14px;">&#8592;</div>
+              <h1 style="font-size:16px;">이미지 선택</h1>
+            </div>
+            <span class="badge badge-red">
+              <span>&#9200;</span>
+              04:12
+            </span>
+          </div>
+
+          <div class="content">
+            <!-- Header -->
+            <div style="text-align:center;margin-bottom:16px;">
+              <div style="font-size:20px;margin-bottom:6px;">&#9888;</div>
+              <div style="font-size:15px;font-weight:700;color:var(--accent-red);margin-bottom:4px;">시간이 얼마 남지 않았어요!</div>
+              <div style="font-size:12px;color:var(--text-muted);">이미지를 선택해주세요</div>
+            </div>
+
+            <!-- Timer - Urgent -->
+            <div class="timer-bar" style="background:rgba(255,107,107,0.15);border-color:rgba(255,107,107,0.3);animation:pulse-step 1s infinite;">
+              <span class="timer-icon">&#9200;</span>
+              <span class="timer-text" style="color:var(--accent-red);">남은 시간:</span>
+              <span class="timer-value" style="color:var(--accent-red);">04:12</span>
+            </div>
+
+            <!-- Image Selection Grid -->
+            <div class="image-selection-grid">
+              <div class="image-option">
+                <span class="pet-image">&#128054;</span>
+                <div class="check-mark">&#10003;</div>
+                <div class="option-label">A</div>
+              </div>
+              <div class="image-option">
+                <span class="pet-image">&#128054;</span>
+                <div class="check-mark">&#10003;</div>
+                <div class="option-label">B</div>
+              </div>
+              <div class="image-option">
+                <span class="pet-image">&#128054;</span>
+                <div class="check-mark">&#10003;</div>
+                <div class="option-label">C</div>
+              </div>
+              <div class="image-option">
+                <span class="pet-image">&#128054;</span>
+                <div class="check-mark">&#10003;</div>
+                <div class="option-label">D</div>
+              </div>
+            </div>
+
+            <!-- No selection message -->
+            <div style="text-align:center;margin-bottom:12px;">
+              <span style="font-size:12px;color:var(--text-muted);">아직 이미지를 선택하지 않았습니다</span>
+            </div>
+
+            <!-- Action Buttons - Disabled -->
+            <button class="btn btn-primary btn-full" style="margin-bottom:10px;opacity:0.4;cursor:not-allowed;">
+              <span>&#10024;</span> 이미지를 선택해주세요
+            </button>
+
+            <button class="btn btn-secondary btn-full" style="margin-bottom:12px;">
+              <span>&#128260;</span> 다시 생성하기
+              <span class="credit-cost" style="margin-left:4px;"><span class="coin-icon">C</span> 10</span>
+            </button>
+
+            <div class="warning-box" style="background:rgba(255,107,107,0.12);border-color:rgba(255,107,107,0.3);">
+              <span class="warn-icon" style="font-size:16px;">&#128680;</span>
+              <span style="color:var(--accent-red);font-weight:600;">4분 12초 후 이미지 A가 자동으로 선택됩니다!<br><span style="font-weight:400;">직접 선택하시면 원하는 결과를 얻을 수 있습니다.</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ============ ANNOTATION SUMMARY ============ -->
+  <div class="mockup-section">
+    <h2>Design Annotations Summary</h2>
+    <p class="desc">통합설정 화면의 핵심 디자인 결정 사항 및 제약 조건 정리</p>
+
+    <table class="spec-table">
+      <thead>
+        <tr>
+          <th>카테고리</th>
+          <th>규칙</th>
+          <th>상세</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color:var(--accent-blue);">베이스 영상</strong></td>
+          <td>프로필당 최대 3개</td>
+          <td>3개 슬롯 그리드로 시각화. 빈 슬롯은 "+" 표시</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--accent-blue);">활성 영상</strong></td>
+          <td>동시에 1개만 활성</td>
+          <td>활성 영상 = Blue border glow. 홀로그램 플레이어에서 사용됨</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--accent-purple);">모션</strong></td>
+          <td>프로필당 최대 12개</td>
+          <td>2-column 그리드. LEFT(보라)/RIGHT(핑크)/미배치(회색) 포지션</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--accent-orange);">AI 파이프라인</strong></td>
+          <td>4단계 비동기 처리</td>
+          <td>Photo &rarr; NanoBanana(이미지) &rarr; 사용자 선택(30분) &rarr; Kling(영상)</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--accent-red);">선택 타임아웃</strong></td>
+          <td>30분 제한</td>
+          <td>타임아웃 시 첫 번째 이미지 자동 선택. 5분 미만 시 빨간색 경고</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--accent-yellow);">이미지 재생성</strong></td>
+          <td>10C (전체 생성의 25%)</td>
+          <td>소스 이미지만 재생성. 전체 파이프라인(40C)보다 저렴</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--accent-green);">삭제 환불</strong></td>
+          <td>20C 환불 (50%)</td>
+          <td>베이스 영상/모션 삭제 시 생성 비용의 50% 환불</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--text-secondary);">비활성 상태</strong></td>
+          <td>생성 중 제한</td>
+          <td>AI 생성 중에는 활성화 토글, 삭제 기능 비활성화</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Credit Cost Summary -->
+    <div class="card" style="padding:20px;margin-top:16px;">
+      <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">크레딧 비용 요약</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px,1fr));gap:12px;">
+        <div style="background:var(--bg-surface);border-radius:var(--radius-sm);padding:12px;border:1px solid rgba(255,255,255,0.06);">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">베이스 영상 생성</div>
+          <div style="font-size:20px;font-weight:700;color:var(--accent-yellow);">40C</div>
+        </div>
+        <div style="background:var(--bg-surface);border-radius:var(--radius-sm);padding:12px;border:1px solid rgba(255,255,255,0.06);">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">모션 생성</div>
+          <div style="font-size:20px;font-weight:700;color:var(--accent-yellow);">40C</div>
+        </div>
+        <div style="background:var(--bg-surface);border-radius:var(--radius-sm);padding:12px;border:1px solid rgba(255,255,255,0.06);">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">AI 이미지 재생성</div>
+          <div style="font-size:20px;font-weight:700;color:var(--accent-orange);">10C</div>
+        </div>
+        <div style="background:var(--bg-surface);border-radius:var(--radius-sm);padding:12px;border:1px solid rgba(255,255,255,0.06);">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">삭제 시 환불</div>
+          <div style="font-size:20px;font-weight:700;color:var(--accent-green);">20C</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,118 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================
+    // PetHolo Firestore Security Rules
+    // Server-side (Admin SDK) bypasses these rules.
+    // These rules are for direct client access (if enabled).
+    // ============================================
+
+    // Default: deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Users: only self can read
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if false; // server-only
+    }
+
+    // Pets: owner can read
+    match /pets/{petId} {
+      allow read: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+      allow write: if false;
+    }
+
+    // Profiles: owner can read
+    match /profiles/{profileId} {
+      allow read: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+      allow write: if false;
+    }
+
+    // Base Videos: owner-via-profile can read
+    match /baseVideos/{videoId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Motions: owner-via-profile can read
+    match /motions/{motionId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Chat Rooms: participant can read
+    match /chatRooms/{roomId} {
+      allow read: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+      allow write: if false;
+    }
+
+    // Chat Messages: room participant can read
+    match /chatMessages/{messageId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Credit Transactions: owner can read
+    match /creditTransactions/{txId} {
+      allow read: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+      allow write: if false;
+    }
+
+    // Trash Items: owner can read
+    match /trashItems/{itemId} {
+      allow read: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+      allow write: if false;
+    }
+
+    // Product Codes: server-only
+    match /productCodes/{codeId} {
+      allow read, write: if false;
+    }
+
+    // Audit Logs: server-only
+    match /auditLogs/{logId} {
+      allow read, write: if false;
+    }
+
+    // AI Jobs: owner can read status
+    match /startFrameJobs/{jobId} {
+      allow read: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+      allow write: if false;
+    }
+
+    // Legacy
+    match /nanoBananaJobs/{jobId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Analytics Events: authenticated users can write, admin reads via server
+    match /analyticsEvents/{eventId} {
+      allow create: if request.auth != null;
+      allow read: if false; // admin reads via Admin SDK (server-side)
+      allow update, delete: if false;
+    }
+
+    // Playback Sessions: authenticated users can write, admin reads via server
+    match /playbackSessions/{sessionId} {
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+      allow read: if false; // admin reads via Admin SDK
+      allow delete: if false;
+    }
+
+    // Daily Stats: server-only (aggregated by backend)
+    match /dailyStats/{dateId} {
+      allow read, write: if false;
+    }
+  }
+}

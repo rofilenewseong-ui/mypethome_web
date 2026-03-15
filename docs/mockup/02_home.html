@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PetHolo Mockup - 02. Home</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    /* ── Page-specific Styles ── */
+
+    /* Credit Badge in Top Bar */
+    .credit-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,167,38,0.15));
+      border: 1px solid rgba(255,215,0,0.3);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-yellow);
+    }
+
+    .credit-badge .coin-icon {
+      font-size: 12px;
+    }
+
+    /* Empty State */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px 40px;
+      text-align: center;
+    }
+
+    .empty-state .empty-icon {
+      font-size: 72px;
+      margin-bottom: 20px;
+      opacity: 0.6;
+      filter: grayscale(30%);
+    }
+
+    .empty-state .empty-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .empty-state .empty-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 32px;
+    }
+
+    .add-pet-btn-large {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--gradient-main);
+      border: none;
+      color: #fff;
+      font-size: 36px;
+      font-weight: 300;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 32px rgba(102,126,234,0.4);
+      transition: all 0.3s;
+      margin-bottom: 12px;
+    }
+
+    .add-pet-btn-large:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 40px rgba(102,126,234,0.5);
+    }
+
+    .add-pet-btn-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* Pet Card */
+    .pet-card {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 12px;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .pet-card:hover {
+      border-color: rgba(100,200,255,0.2);
+    }
+
+    .pet-card-main {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .pet-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+      border: 2px solid rgba(255,255,255,0.1);
+    }
+
+    .pet-avatar.large {
+      width: 64px;
+      height: 64px;
+      font-size: 32px;
+    }
+
+    .pet-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .pet-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .pet-breed {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .pet-memorial-date {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pet-memorial-date .memorial-icon {
+      font-size: 12px;
+    }
+
+    .pet-expand-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text-muted);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .profile-count-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      background: rgba(100,200,255,0.12);
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent-blue);
+      margin-top: 4px;
+    }
+
+    /* Quick Actions Row */
+    .quick-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .quick-action-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 8px;
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255,255,255,0.06);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .quick-action-btn:hover {
+      border-color: rgba(100,200,255,0.2);
+      background: rgba(15,52,96,0.8);
+    }
+
+    .quick-action-btn .qa-icon {
+      font-size: 22px;
+    }
+
+    .quick-action-btn .qa-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    /* Credits Display */
+    .credits-display {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, rgba(255,215,0,0.08), rgba(255,167,38,0.05));
+      border: 1px solid rgba(255,215,0,0.15);
+      border-radius: var(--radius-md);
+      margin-top: 16px;
+    }
+
+    .credits-display .credits-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .credits-display .credits-coin {
+      font-size: 20px;
+    }
+
+    .credits-display .credits-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .credits-display .credits-amount {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent-yellow);
+    }
+
+    .credits-display .credits-buy-btn {
+      padding: 6px 14px;
+      background: linear-gradient(135deg, rgba(255,215,0,0.25), rgba(255,167,38,0.2));
+      border: 1px solid rgba(255,215,0,0.3);
+      border-radius: 20px;
+      color: var(--accent-yellow);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Profile List in expanded card */
+    .profile-list-section {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .profile-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .profile-list-header .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .profile-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 8px;
+      position: relative;
+    }
+
+    .profile-item.active-profile {
+      border-color: rgba(100,200,255,0.3);
+      background: rgba(15,52,96,0.8);
+    }
+
+    .profile-thumbnail {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-sm);
+      background: rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .profile-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .profile-info .profile-name-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .profile-info .profile-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .profile-type-badge {
+      display: inline-flex;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .profile-type-badge.standing {
+      background: rgba(100,200,255,0.15);
+      color: var(--accent-blue);
+    }
+
+    .profile-type-badge.sitting {
+      background: rgba(240,147,251,0.15);
+      color: var(--accent-pink);
+    }
+
+    .profile-stats {
+      display: flex;
+      gap: 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .profile-stat {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .profile-stat .stat-icon {
+      font-size: 11px;
+    }
+
+    .active-star {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 14px;
+      color: var(--accent-yellow);
+    }
+
+    .add-profile-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      border: 2px dashed rgba(255,255,255,0.15);
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 8px;
+      transition: all 0.2s;
+    }
+
+    .add-profile-btn:hover {
+      border-color: rgba(100,200,255,0.3);
+      color: var(--accent-blue);
+    }
+
+    /* Multi-pet horizontal cards */
+    .pet-list-horizontal {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .pet-card-horizontal {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .pet-card-horizontal:hover {
+      border-color: rgba(100,200,255,0.2);
+    }
+
+    .pet-card-horizontal .pet-avatar-sm {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .pet-card-horizontal .pet-info-sm {
+      flex: 1;
+    }
+
+    .pet-card-horizontal .pet-name-sm {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .pet-card-horizontal .pet-sub-sm {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .pet-card-horizontal .pet-chevron {
+      color: var(--text-muted);
+      font-size: 16px;
+    }
+
+    .add-pet-card {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 16px;
+      border: 2px dashed rgba(255,255,255,0.12);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .add-pet-card:hover {
+      border-color: rgba(100,200,255,0.3);
+      color: var(--accent-blue);
+    }
+
+    .add-pet-card .plus-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--gradient-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 300;
+    }
+
+    /* Section header within phone screen */
+    .section-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding: 0 2px;
+    }
+
+    .section-header-row .section-label {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .section-header-row .section-count {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Annotation custom positions */
+    .phone-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .phone-label {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .annotation-group {
+      position: absolute;
+      z-index: 300;
+    }
+
+    /* Annotation lines (connectors) */
+    .annotation-line {
+      position: absolute;
+      z-index: 199;
+      pointer-events: none;
+    }
+
+    .annotation-line.horizontal {
+      height: 2px;
+      background: rgba(255,167,38,0.4);
+    }
+
+    .annotation-line.vertical {
+      width: 2px;
+      background: rgba(255,167,38,0.4);
+    }
+
+    /* Spec panel highlights */
+    .spec-highlight {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    .spec-highlight.component { background: rgba(100,200,255,0.15); color: var(--accent-blue); }
+    .spec-highlight.limit { background: rgba(255,107,107,0.15); color: var(--accent-red); }
+    .spec-highlight.state { background: rgba(56,239,125,0.15); color: var(--accent-green); }
+
+    /* User flow diagram */
+    .flow-container {
+      padding: 24px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-md);
+      margin-bottom: 32px;
+      border: 1px solid rgba(255,255,255,0.06);
+      overflow-x: auto;
+    }
+
+    .flow-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .flow-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .flow-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      width: 80px;
+      flex-shrink: 0;
+      text-align: right;
+      padding-right: 8px;
+    }
+
+    .flow-node {
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .flow-node.screen { background: var(--bg-card); color: var(--text-primary); }
+    .flow-node.action { background: rgba(102,126,234,0.15); color: var(--accent-purple); border-color: rgba(102,126,234,0.3); }
+    .flow-node.decision { background: rgba(255,167,38,0.15); color: var(--accent-orange); border-color: rgba(255,167,38,0.3); border-radius: 20px; }
+    .flow-node.result { background: rgba(56,239,125,0.12); color: var(--accent-green); border-color: rgba(56,239,125,0.3); }
+
+    .flow-connector {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    /* Annotation sidebar */
+    .annotation-sidebar {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      font-size: 12px;
+      max-width: 260px;
+      flex-shrink: 0;
+    }
+
+    .annotation-sidebar h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-orange);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .annotation-sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .annotation-sidebar li {
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .annotation-sidebar li:last-child {
+      border-bottom: none;
+    }
+
+    .annotation-sidebar .ann-label {
+      font-weight: 600;
+      color: var(--accent-blue);
+    }
+
+    /* Phones with annotation layout */
+    .phone-with-notes {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .phones-row {
+        flex-direction: column;
+        align-items: center;
+      }
+      .phone-with-notes {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    .mockup-page {
+      max-width: 1600px;
+    }
+  </style>
+</head>
+<body>
+  <div class="mockup-page">
+
+    <!-- ═══════════════════════════════════════════════
+         PAGE HEADER
+         ═══════════════════════════════════════════════ -->
+    <h1>02. Home - 홈 화면</h1>
+    <p class="subtitle">
+      PetHolo 메인 홈 화면의 모든 상태를 보여주는 목업입니다.<br>
+      반려동물 미등록 상태(Empty), 단일 펫 등록 상태, 프로필 목록 확장, 다중 펫 관리 상태를 포함합니다.
+    </p>
+
+    <!-- ═══════════════════════════════════════════════
+         SPEC TABLE
+         ═══════════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>Component Specification</h2>
+      <p class="desc">홈 화면의 주요 구성요소와 제한사항을 정의합니다.</p>
+
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th style="width:180px;">Component</th>
+            <th style="width:200px;">Element</th>
+            <th>Description</th>
+            <th style="width:160px;">Constraints</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="spec-highlight component">TopBar</span></td>
+            <td>앱 타이틀 / 설정 / 크레딧</td>
+            <td>"PetHolo" 로고 텍스트, 설정(gear) 아이콘, 잔여 크레딧 표시 배지. Sticky 헤더로 스크롤 시 항상 노출.</td>
+            <td>크레딧 항상 표시</td>
+          </tr>
+          <tr>
+            <td><span class="spec-highlight component">BottomNav</span></td>
+            <td>하단 네비게이션 (4 탭)</td>
+            <td>홈 / 메신저 / 플레이어 / 설정. 현재 활성 탭은 <code>accent-blue</code> 색상으로 하이라이트.</td>
+            <td>4개 고정 탭</td>
+          </tr>
+          <tr>
+            <td><span class="spec-highlight component">EmptyState</span></td>
+            <td>반려동물 미등록 상태</td>
+            <td>등록된 반려동물이 없을 때 표시. 큰 "+" 버튼으로 반려동물 등록 유도.</td>
+            <td>최초 진입 기본 상태</td>
+          </tr>
+          <tr>
+            <td><span class="spec-highlight component">PetCard</span></td>
+            <td>반려동물 카드</td>
+            <td>이모지 아바타, 이름, 품종, 기일 표시. 프로필 수 배지 포함. 탭 시 프로필 목록 확장.</td>
+            <td>이모지 아바타 필수</td>
+          </tr>
+          <tr>
+            <td><span class="spec-highlight component">QuickActions</span></td>
+            <td>빠른 액션 버튼 (3개)</td>
+            <td>메신저 (대화하기), 프로필관리 (영상/모션 관리), 홀로그램 (재생) 바로가기.</td>
+            <td>펫 1마리 이상 시 노출</td>
+          </tr>
+          <tr>
+            <td><span class="spec-highlight component">ProfileList</span></td>
+            <td>프로필 목록</td>
+            <td>각 프로필: 타입 배지, 썸네일, 기본영상 수, 모션 수 표시. 활성 프로필은 별 아이콘.</td>
+            <td><span class="spec-highlight limit">MAX 3 base / 12 motions</span></td>
+          </tr>
+          <tr>
+            <td><span class="spec-highlight component">PetList</span></td>
+            <td>다중 반려동물 목록</td>
+            <td>2마리 이상 등록 시 수평 카드 리스트 형태. 각 카드에 이모지, 이름, 프로필 수 표시.</td>
+            <td>등록 수 제한 없음</td>
+          </tr>
+          <tr>
+            <td><span class="spec-highlight component">CreditDisplay</span></td>
+            <td>크레딧 잔액 표시</td>
+            <td>TopBar 내 배지 형태 + 펫카드 하단 충전 유도 영역. 크레딧 구매 페이지 연결.</td>
+            <td>전역 항상 표시</td>
+          </tr>
+          <tr>
+            <td><span class="spec-highlight component">PetEmoji</span></td>
+            <td>반려동물 이모지</td>
+            <td>등록 시 이모지 선택: 강아지류(🐕🐩🦮🐕‍🦺), 고양이류(🐈🐈‍⬛🐱), 기타(🐇🐹🐦🐢🐟)</td>
+            <td>등록 시 1회 선택</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         USER FLOW DIAGRAM
+         ═══════════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>User Flow</h2>
+      <p class="desc">홈 화면에서의 사용자 주요 동선을 보여줍니다.</p>
+
+      <div class="flow-container">
+        <!-- Flow 1: First Time -->
+        <div class="flow-row">
+          <span class="flow-label">신규 사용자</span>
+          <span class="flow-node screen">앱 실행</span>
+          <span class="flow-connector">&#8594;</span>
+          <span class="flow-node screen">홈 (Empty)</span>
+          <span class="flow-connector">&#8594;</span>
+          <span class="flow-node action">"+" 버튼 탭</span>
+          <span class="flow-connector">&#8594;</span>
+          <span class="flow-node result">반려동물 등록</span>
+        </div>
+        <!-- Flow 2: Single Pet -->
+        <div class="flow-row">
+          <span class="flow-label">기존 사용자</span>
+          <span class="flow-node screen">앱 실행</span>
+          <span class="flow-connector">&#8594;</span>
+          <span class="flow-node screen">홈 (With Pet)</span>
+          <span class="flow-connector">&#8594;</span>
+          <span class="flow-node decision">어디로?</span>
+          <span class="flow-connector">&#8594;</span>
+          <span class="flow-node action">메신저 / 프로필관리 / 홀로그램</span>
+        </div>
+        <!-- Flow 3: Profile Management -->
+        <div class="flow-row">
+          <span class="flow-label">프로필 관리</span>
+          <span class="flow-node screen">홈 (With Pet)</span>
+          <span class="flow-connector">&#8594;</span>
+          <span class="flow-node action">카드 확장</span>
+          <span class="flow-connector">&#8594;</span>
+          <span class="flow-node screen">프로필 목록</span>
+          <span class="flow-connector">&#8594;</span>
+          <span class="flow-node decision">선택 / 추가</span>
+          <span class="flow-connector">&#8594;</span>
+          <span class="flow-node result">프로필 상세</span>
+        </div>
+        <!-- Flow 4: Multi Pet -->
+        <div class="flow-row">
+          <span class="flow-label">다중 펫</span>
+          <span class="flow-node screen">홈 (Multi Pet)</span>
+          <span class="flow-connector">&#8594;</span>
+          <span class="flow-node action">펫 선택</span>
+          <span class="flow-connector">&#8594;</span>
+          <span class="flow-node screen">홈 (With Pet)</span>
+          <span class="flow-connector">&#8594;</span>
+          <span class="flow-node decision">어디로?</span>
+        </div>
+        <!-- Flow 5: Credits -->
+        <div class="flow-row">
+          <span class="flow-label">크레딧</span>
+          <span class="flow-node screen">어디서든</span>
+          <span class="flow-connector">&#8594;</span>
+          <span class="flow-node action">크레딧 배지 탭</span>
+          <span class="flow-connector">&#8594;</span>
+          <span class="flow-node result">크레딧 충전 화면</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         MOCKUP 1: HOME - EMPTY STATE
+         ═══════════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>1. Home - Empty State (반려동물 미등록)</h2>
+      <p class="desc">
+        앱 최초 진입 또는 등록된 반려동물이 없는 상태입니다.<br>
+        사용자에게 반려동물 등록을 유도하는 CTA가 중앙에 위치합니다.
+      </p>
+
+      <div class="phones-row">
+        <div class="phone-with-notes">
+          <div class="phone-container">
+            <div class="phone-label">Empty State</div>
+            <div class="phone-frame">
+              <div class="phone-screen">
+                <!-- Status Bar -->
+                <div class="status-bar">
+                  <span class="time">9:41</span>
+                  <span class="icons">
+                    <span>&#9679;</span>
+                    <span>&#9679;</span>
+                    <span>&#9632;</span>
+                  </span>
+                </div>
+
+                <!-- Top Bar -->
+                <div class="top-bar">
+                  <h1>PetHolo</h1>
+                  <div class="actions">
+                    <div class="credit-badge">
+                      <span class="coin-icon">&#9733;</span>
+                      <span>120C</span>
+                    </div>
+                    <div class="icon-btn">&#9881;</div>
+                  </div>
+                </div>
+
+                <!-- Empty Content -->
+                <div class="content">
+                  <div class="empty-state">
+                    <div class="empty-icon">&#128054;</div>
+                    <div class="empty-title">아직 등록된 반려동물이 없어요</div>
+                    <div class="empty-desc">
+                      소중한 반려동물을 등록하고<br>
+                      특별한 추억을 홀로그램으로 만들어보세요
+                    </div>
+                    <button class="add-pet-btn-large">+</button>
+                    <span class="add-pet-btn-label">반려동물 등록하기</span>
+                  </div>
+                </div>
+
+                <!-- Bottom Nav -->
+                <div class="bottom-nav">
+                  <div class="nav-item active">
+                    <span class="nav-icon">&#127968;</span>
+                    <span>홈</span>
+                  </div>
+                  <div class="nav-item">
+                    <span class="nav-icon">&#128172;</span>
+                    <span>메신저</span>
+                  </div>
+                  <div class="nav-item">
+                    <span class="nav-icon">&#9654;</span>
+                    <span>플레이어</span>
+                  </div>
+                  <div class="nav-item">
+                    <span class="nav-icon">&#9881;</span>
+                    <span>설정</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Annotations Sidebar -->
+          <div class="annotation-sidebar">
+            <h4>&#128204; Annotations</h4>
+            <ul>
+              <li>
+                <span class="ann-label">TopBar</span><br>
+                "PetHolo" 그래디언트 텍스트 + 크레딧 배지(항상 표시) + 설정 아이콘
+              </li>
+              <li>
+                <span class="ann-label">Credit Badge</span><br>
+                골드 테마 배지, 어디서든 탭 시 충전 페이지 이동. 형식: <code>nnnC</code>
+              </li>
+              <li>
+                <span class="ann-label">Empty CTA</span><br>
+                그래디언트 원형 "+" 버튼. 그림자 포함. 탭 시 반려동물 등록 플로우 시작
+              </li>
+              <li>
+                <span class="ann-label">Bottom Nav</span><br>
+                4탭 고정: 홈(🏠) / 메신저(💬) / 플레이어(▶) / 설정(⚙). 활성 탭: <code>accent-blue</code>
+              </li>
+              <li>
+                <span class="ann-label">Status Bar</span><br>
+                iOS 스타일. Sticky 위치.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         MOCKUP 2: HOME - WITH PET
+         ═══════════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>2. Home - With Pet (단일 반려동물 등록 상태)</h2>
+      <p class="desc">
+        반려동물 1마리가 등록된 상태의 기본 홈 화면입니다.<br>
+        펫 카드, 빠른 액션 버튼, 크레딧 잔액 표시를 포함합니다.
+      </p>
+
+      <div class="phones-row">
+        <div class="phone-with-notes">
+          <div class="phone-container">
+            <div class="phone-label">With Pet (Single)</div>
+            <div class="phone-frame">
+              <div class="phone-screen">
+                <!-- Status Bar -->
+                <div class="status-bar">
+                  <span class="time">9:41</span>
+                  <span class="icons">
+                    <span>&#9679;</span>
+                    <span>&#9679;</span>
+                    <span>&#9632;</span>
+                  </span>
+                </div>
+
+                <!-- Top Bar -->
+                <div class="top-bar">
+                  <h1>PetHolo</h1>
+                  <div class="actions">
+                    <div class="credit-badge">
+                      <span class="coin-icon">&#9733;</span>
+                      <span>120C</span>
+                    </div>
+                    <div class="icon-btn">&#9881;</div>
+                  </div>
+                </div>
+
+                <!-- Content -->
+                <div class="content">
+                  <!-- Pet Card -->
+                  <div class="pet-card">
+                    <div class="pet-card-main">
+                      <div class="pet-avatar large">&#128021;</div>
+                      <div class="pet-info">
+                        <div class="pet-name">&#53097;&#51060;</div>
+                        <div class="pet-breed">&#54252;&#47700;&#46972;&#45768;&#50504;</div>
+                        <div class="pet-memorial-date">
+                          <span class="memorial-icon">&#128330;</span>
+                          <span>2024.08.15</span>
+                        </div>
+                        <div class="profile-count-badge">
+                          <span>&#128194;</span>
+                          <span>&#54532;&#47196;&#54596; 2&#44060;</span>
+                        </div>
+                      </div>
+                      <div class="pet-expand-btn">&#9660;</div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                      <div class="quick-action-btn">
+                        <span class="qa-icon">&#128172;</span>
+                        <span class="qa-label">&#47700;&#49888;&#51200;</span>
+                      </div>
+                      <div class="quick-action-btn">
+                        <span class="qa-icon">&#128194;</span>
+                        <span class="qa-label">&#54532;&#47196;&#54596;&#44288;&#47532;</span>
+                      </div>
+                      <div class="quick-action-btn">
+                        <span class="qa-icon">&#10024;</span>
+                        <span class="qa-label">&#54848;&#47196;&#44536;&#47016;</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Credits Display -->
+                  <div class="credits-display">
+                    <div class="credits-left">
+                      <span class="credits-coin">&#128176;</span>
+                      <div>
+                        <div class="credits-label">&#51092;&#50668; &#53356;&#47112;&#46367;</div>
+                        <div class="credits-amount">120 Credits</div>
+                      </div>
+                    </div>
+                    <div class="credits-buy-btn">&#52649;&#51204;&#54616;&#44592;</div>
+                  </div>
+
+                  <!-- Tip Card -->
+                  <div class="card mt-16">
+                    <div class="card-header">
+                      <span class="card-title">&#128161; &#54876;</span>
+                    </div>
+                    <p style="font-size:12px; color:var(--text-secondary); line-height:1.5;">
+                      &#54532;&#47196;&#54596;&#51012; &#52628;&#44032;&#54616;&#47732; &#45908; &#45796;&#50577;&#54620; &#51088;&#49464;&#50752; &#46041;&#51089;&#51004;&#47196;<br>
+                      &#54848;&#47196;&#44536;&#47016;&#51012; &#47564;&#46308; &#49688; &#51080;&#50612;&#50836;.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Bottom Nav -->
+                <div class="bottom-nav">
+                  <div class="nav-item active">
+                    <span class="nav-icon">&#127968;</span>
+                    <span>&#54856;</span>
+                  </div>
+                  <div class="nav-item">
+                    <span class="nav-icon">&#128172;</span>
+                    <span>&#47700;&#49888;&#51200;</span>
+                  </div>
+                  <div class="nav-item">
+                    <span class="nav-icon">&#9654;</span>
+                    <span>&#54540;&#47112;&#51060;&#50612;</span>
+                  </div>
+                  <div class="nav-item">
+                    <span class="nav-icon">&#9881;</span>
+                    <span>&#49444;&#51221;</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Annotations Sidebar -->
+          <div class="annotation-sidebar">
+            <h4>&#128204; Annotations</h4>
+            <ul>
+              <li>
+                <span class="ann-label">Pet Avatar</span><br>
+                64x64 원형. 등록 시 선택한 이모지 표시. 배경: <code>bg-card</code>
+              </li>
+              <li>
+                <span class="ann-label">Pet Info</span><br>
+                이름(18px bold), 품종(12px), 기일(11px muted + 시계아이콘)
+              </li>
+              <li>
+                <span class="ann-label">Profile Count</span><br>
+                "프로필 N개" 배지. 탭하면 프로필 목록 확장
+              </li>
+              <li>
+                <span class="ann-label">Quick Actions (3)</span><br>
+                메신저: 대화 화면으로 이동<br>
+                프로필관리: 프로필 목록 화면<br>
+                홀로그램: 플레이어 화면
+              </li>
+              <li>
+                <span class="ann-label">Credits Area</span><br>
+                골드 테마 전용 영역. 잔액 + "충전하기" 버튼. 충전 페이지로 이동
+              </li>
+              <li>
+                <span class="ann-label">Expand Button (&#9660;)</span><br>
+                펫 카드 확장/축소 토글. 확장 시 프로필 목록 노출
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         MOCKUP 3: HOME - PROFILE LIST (EXPANDED)
+         ═══════════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>3. Home - Profile List (프로필 목록 확장)</h2>
+      <p class="desc">
+        펫 카드를 확장하여 프로필 목록을 보여주는 상태입니다.<br>
+        각 프로필의 자세 타입, 기본영상 수, 모션 수를 확인할 수 있습니다.
+        <span style="color:var(--accent-red); font-weight:600;">제한: 프로필당 기본영상 최대 3개, 모션 최대 12개</span>
+      </p>
+
+      <div class="phones-row">
+        <div class="phone-with-notes">
+          <div class="phone-container">
+            <div class="phone-label">Profile List (Expanded)</div>
+            <div class="phone-frame">
+              <div class="phone-screen">
+                <!-- Status Bar -->
+                <div class="status-bar">
+                  <span class="time">9:41</span>
+                  <span class="icons">
+                    <span>&#9679;</span>
+                    <span>&#9679;</span>
+                    <span>&#9632;</span>
+                  </span>
+                </div>
+
+                <!-- Top Bar -->
+                <div class="top-bar">
+                  <h1>PetHolo</h1>
+                  <div class="actions">
+                    <div class="credit-badge">
+                      <span class="coin-icon">&#9733;</span>
+                      <span>120C</span>
+                    </div>
+                    <div class="icon-btn">&#9881;</div>
+                  </div>
+                </div>
+
+                <!-- Content -->
+                <div class="content">
+                  <!-- Pet Card Expanded -->
+                  <div class="pet-card">
+                    <div class="pet-card-main">
+                      <div class="pet-avatar large">&#128021;</div>
+                      <div class="pet-info">
+                        <div class="pet-name">&#53097;&#51060;</div>
+                        <div class="pet-breed">&#54252;&#47700;&#46972;&#45768;&#50504;</div>
+                        <div class="pet-memorial-date">
+                          <span class="memorial-icon">&#128330;</span>
+                          <span>2024.08.15</span>
+                        </div>
+                        <div class="profile-count-badge">
+                          <span>&#128194;</span>
+                          <span>&#54532;&#47196;&#54596; 2&#44060;</span>
+                        </div>
+                      </div>
+                      <div class="pet-expand-btn">&#9650;</div>
+                    </div>
+
+                    <!-- Profile List (expanded) -->
+                    <div class="profile-list-section">
+                      <div class="profile-list-header">
+                        <span class="section-title">&#54532;&#47196;&#54596; &#47785;&#47197;</span>
+                        <span class="badge badge-blue" style="font-size:10px;">2 / &#8734;</span>
+                      </div>
+
+                      <!-- Profile 1 - Active -->
+                      <div class="profile-item active-profile">
+                        <span class="active-star">&#9733;</span>
+                        <div class="profile-thumbnail">&#128062;</div>
+                        <div class="profile-info">
+                          <div class="profile-name-row">
+                            <span class="profile-label">&#54532;&#47196;&#54596; 1</span>
+                            <span class="profile-type-badge standing">STANDING</span>
+                          </div>
+                          <div class="profile-stats">
+                            <div class="profile-stat">
+                              <span class="stat-icon">&#127909;</span>
+                              <span>&#44592;&#48376;&#50689;&#49345; 2/3</span>
+                            </div>
+                            <div class="profile-stat">
+                              <span class="stat-icon">&#127939;</span>
+                              <span>&#47784;&#49496; 8/12</span>
+                            </div>
+                          </div>
+                          <!-- Mini progress bars -->
+                          <div style="display:flex; gap:8px; margin-top:6px;">
+                            <div style="flex:1;">
+                              <div class="progress-bar" style="height:4px;">
+                                <div class="progress-fill" style="width:66%; background:var(--gradient-accent);"></div>
+                              </div>
+                            </div>
+                            <div style="flex:1;">
+                              <div class="progress-bar" style="height:4px;">
+                                <div class="progress-fill" style="width:66%; background:var(--gradient-main);"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Profile 2 -->
+                      <div class="profile-item">
+                        <div class="profile-thumbnail">&#128049;</div>
+                        <div class="profile-info">
+                          <div class="profile-name-row">
+                            <span class="profile-label">&#54532;&#47196;&#54596; 2</span>
+                            <span class="profile-type-badge sitting">SITTING</span>
+                          </div>
+                          <div class="profile-stats">
+                            <div class="profile-stat">
+                              <span class="stat-icon">&#127909;</span>
+                              <span>&#44592;&#48376;&#50689;&#49345; 1/3</span>
+                            </div>
+                            <div class="profile-stat">
+                              <span class="stat-icon">&#127939;</span>
+                              <span>&#47784;&#49496; 3/12</span>
+                            </div>
+                          </div>
+                          <div style="display:flex; gap:8px; margin-top:6px;">
+                            <div style="flex:1;">
+                              <div class="progress-bar" style="height:4px;">
+                                <div class="progress-fill" style="width:33%; background:var(--gradient-accent);"></div>
+                              </div>
+                            </div>
+                            <div style="flex:1;">
+                              <div class="progress-bar" style="height:4px;">
+                                <div class="progress-fill" style="width:25%; background:var(--gradient-main);"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Add Profile Button -->
+                      <button class="add-profile-btn">
+                        <span>+</span>
+                        <span>&#49352; &#54532;&#47196;&#54596; &#47564;&#46308;&#44592;</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Bottom Nav -->
+                <div class="bottom-nav">
+                  <div class="nav-item active">
+                    <span class="nav-icon">&#127968;</span>
+                    <span>&#54856;</span>
+                  </div>
+                  <div class="nav-item">
+                    <span class="nav-icon">&#128172;</span>
+                    <span>&#47700;&#49888;&#51200;</span>
+                  </div>
+                  <div class="nav-item">
+                    <span class="nav-icon">&#9654;</span>
+                    <span>&#54540;&#47112;&#51060;&#50612;</span>
+                  </div>
+                  <div class="nav-item">
+                    <span class="nav-icon">&#9881;</span>
+                    <span>&#49444;&#51221;</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Annotations Sidebar -->
+          <div class="annotation-sidebar">
+            <h4>&#128204; Annotations</h4>
+            <ul>
+              <li>
+                <span class="ann-label">Active Profile (&#9733;)</span><br>
+                별 아이콘으로 현재 활성 프로필 표시. 홀로그램/메신저에서 사용되는 프로필.
+                <code>accent-blue</code> 테두리
+              </li>
+              <li>
+                <span class="ann-label">Profile Thumbnail (GIF)</span><br>
+                활성 베이스 영상의 gifUrl이 있으면 GIF 애니메이션으로 표시.<br>
+                없으면 이모지 폴백. API에서 프로필 레벨 <code>gifUrl</code> 필드로 파생 제공.
+              </li>
+              <li>
+                <span class="ann-label">Type Badge</span><br>
+                STANDING (서있는자세): 파란색<br>
+                SITTING (앉은자세): 핑크색<br>
+                자세 타입은 프로필 생성 시 결정
+              </li>
+              <li>
+                <span class="ann-label">Base Video Count</span><br>
+                <code style="color:var(--accent-red);">n/3</code> - 프로필당 기본영상 <strong>최대 3개</strong>.
+                진행 바로 시각적 표시
+              </li>
+              <li>
+                <span class="ann-label">Motion Count</span><br>
+                <code style="color:var(--accent-red);">n/12</code> - 프로필당 모션 <strong>최대 12개</strong>.
+                모션: 걷기, 뛰기, 꼬리흔들기 등
+              </li>
+              <li>
+                <span class="ann-label">Expand Toggle</span><br>
+                &#9650;(확장됨) / &#9660;(축소됨). 프로필 목록 영역 토글
+              </li>
+              <li>
+                <span class="ann-label">Add Profile</span><br>
+                점선 테두리 버튼. 탭 시 새 프로필 생성 플로우 시작 (자세타입 선택 &#8594; 영상 업로드)
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         MOCKUP 4: HOME - MULTI PET
+         ═══════════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>4. Home - Multi Pet (다중 반려동물)</h2>
+      <p class="desc">
+        2마리 이상의 반려동물이 등록된 상태입니다.<br>
+        스크롤 가능한 펫 리스트로 전환되며, 하단에 반려동물 추가 버튼이 있습니다.
+      </p>
+
+      <div class="phones-row">
+        <div class="phone-with-notes">
+          <div class="phone-container">
+            <div class="phone-label">Multi Pet List</div>
+            <div class="phone-frame">
+              <div class="phone-screen">
+                <!-- Status Bar -->
+                <div class="status-bar">
+                  <span class="time">9:41</span>
+                  <span class="icons">
+                    <span>&#9679;</span>
+                    <span>&#9679;</span>
+                    <span>&#9632;</span>
+                  </span>
+                </div>
+
+                <!-- Top Bar -->
+                <div class="top-bar">
+                  <h1>PetHolo</h1>
+                  <div class="actions">
+                    <div class="credit-badge">
+                      <span class="coin-icon">&#9733;</span>
+                      <span>85C</span>
+                    </div>
+                    <div class="icon-btn">&#9881;</div>
+                  </div>
+                </div>
+
+                <!-- Content -->
+                <div class="content">
+                  <!-- Section Header -->
+                  <div class="section-header-row">
+                    <span class="section-label">&#45236; &#48152;&#47140;&#46041;&#47932;</span>
+                    <span class="section-count">3&#47560;&#47532;</span>
+                  </div>
+
+                  <!-- Pet List -->
+                  <div class="pet-list-horizontal">
+                    <!-- Pet 1 -->
+                    <div class="pet-card-horizontal">
+                      <div class="pet-avatar-sm">&#128021;</div>
+                      <div class="pet-info-sm">
+                        <div class="pet-name-sm">&#53097;&#51060;</div>
+                        <div class="pet-sub-sm">&#54252;&#47700;&#46972;&#45768;&#50504; &middot; &#54532;&#47196;&#54596; 2&#44060;</div>
+                      </div>
+                      <div class="pet-chevron">&#10095;</div>
+                    </div>
+
+                    <!-- Pet 2 -->
+                    <div class="pet-card-horizontal">
+                      <div class="pet-avatar-sm">&#128008;</div>
+                      <div class="pet-info-sm">
+                        <div class="pet-name-sm">&#45208;&#48708;</div>
+                        <div class="pet-sub-sm">&#47084;&#49884;&#50504;&#48660;&#47336; &middot; &#54532;&#47196;&#54596; 1&#44060;</div>
+                      </div>
+                      <div class="pet-chevron">&#10095;</div>
+                    </div>
+
+                    <!-- Pet 3 -->
+                    <div class="pet-card-horizontal">
+                      <div class="pet-avatar-sm">&#128007;</div>
+                      <div class="pet-info-sm">
+                        <div class="pet-name-sm">&#48373;&#49892;&#51060;</div>
+                        <div class="pet-sub-sm">&#54856;&#47004;&#46300;&#47213; &middot; &#54532;&#47196;&#54596; 1&#44060;</div>
+                      </div>
+                      <div class="pet-chevron">&#10095;</div>
+                    </div>
+
+                    <!-- Add Pet -->
+                    <div class="add-pet-card">
+                      <div class="plus-circle">+</div>
+                      <span>&#48152;&#47140;&#46041;&#47932; &#52628;&#44032;</span>
+                    </div>
+                  </div>
+
+                  <!-- Credits Display -->
+                  <div class="credits-display mt-20">
+                    <div class="credits-left">
+                      <span class="credits-coin">&#128176;</span>
+                      <div>
+                        <div class="credits-label">&#51092;&#50668; &#53356;&#47112;&#46367;</div>
+                        <div class="credits-amount">85 Credits</div>
+                      </div>
+                    </div>
+                    <div class="credits-buy-btn">&#52649;&#51204;&#54616;&#44592;</div>
+                  </div>
+
+                  <!-- Recently Used Section -->
+                  <div class="mt-20">
+                    <div class="section-header-row">
+                      <span class="section-label" style="font-size:14px;">&#52572;&#44540; &#54876;&#46041;</span>
+                    </div>
+
+                    <div class="card" style="padding:12px;">
+                      <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="width:36px; height:36px; border-radius:50%; background:var(--bg-card); display:flex; align-items:center; justify-content:center; font-size:16px;">&#128172;</div>
+                        <div style="flex:1;">
+                          <div style="font-size:13px; font-weight:600;">&#53097;&#51060;&#50752; &#45824;&#54868;</div>
+                          <div style="font-size:11px; color:var(--text-muted);">2&#49884;&#44036; &#51204;</div>
+                        </div>
+                        <div class="badge badge-blue" style="font-size:10px;">&#47700;&#49888;&#51200;</div>
+                      </div>
+                    </div>
+
+                    <div class="card" style="padding:12px;">
+                      <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="width:36px; height:36px; border-radius:50%; background:var(--bg-card); display:flex; align-items:center; justify-content:center; font-size:16px;">&#10024;</div>
+                        <div style="flex:1;">
+                          <div style="font-size:13px; font-weight:600;">&#45208;&#48708; &#54848;&#47196;&#44536;&#47016; &#51116;&#49373;</div>
+                          <div style="font-size:11px; color:var(--text-muted);">&#50612;&#51228;</div>
+                        </div>
+                        <div class="badge badge-purple" style="font-size:10px;">&#54540;&#47112;&#51060;&#50612;</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Bottom Nav -->
+                <div class="bottom-nav">
+                  <div class="nav-item active">
+                    <span class="nav-icon">&#127968;</span>
+                    <span>&#54856;</span>
+                  </div>
+                  <div class="nav-item">
+                    <span class="nav-icon">&#128172;</span>
+                    <span>&#47700;&#49888;&#51200;</span>
+                  </div>
+                  <div class="nav-item">
+                    <span class="nav-icon">&#9654;</span>
+                    <span>&#54540;&#47112;&#51060;&#50612;</span>
+                  </div>
+                  <div class="nav-item">
+                    <span class="nav-icon">&#9881;</span>
+                    <span>&#49444;&#51221;</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Annotations Sidebar -->
+          <div class="annotation-sidebar">
+            <h4>&#128204; Annotations</h4>
+            <ul>
+              <li>
+                <span class="ann-label">Section Header</span><br>
+                "내 반려동물" 타이틀 + 마리수 카운트 표시 (우측)
+              </li>
+              <li>
+                <span class="ann-label">Pet Card (Horizontal)</span><br>
+                이모지(44px) + 이름 + 품종/프로필수 + 셰브론(&#10095;). 탭 시 해당 펫 상세(Mockup #2)로 전환
+              </li>
+              <li>
+                <span class="ann-label">Add Pet Card</span><br>
+                점선 테두리 + 그래디언트 "+" 원형. 탭 시 반려동물 등록 플로우
+              </li>
+              <li>
+                <span class="ann-label">Credits (85C)</span><br>
+                다중 펫에서도 크레딧은 계정 단위로 공유. 모든 펫에 동일하게 적용
+              </li>
+              <li>
+                <span class="ann-label">Recent Activity</span><br>
+                최근 사용 내역: 메신저 대화, 홀로그램 재생 등. 빠른 복귀 동선 제공
+              </li>
+              <li>
+                <span class="ann-label">Pet Emoji Selection</span><br>
+                등록 시 선택 가능한 이모지:<br>
+                강아지: &#128021; &#128029; &#129454; &#128021;<br>
+                고양이: &#128008; &#128008; &#128049;<br>
+                기타: &#128007; &#128057; &#128038; &#128034; &#128031;
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         ALL STATES COMPARISON
+         ═══════════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>All States Overview</h2>
+      <p class="desc">4가지 홈 화면 상태를 한눈에 비교합니다.</p>
+
+      <div class="phones-row" style="gap:24px;">
+        <!-- Mini: Empty -->
+        <div>
+          <div class="phone-label">Empty</div>
+          <div class="phone-frame" style="transform:scale(0.65); transform-origin:top center; margin-bottom:-280px;">
+            <div class="phone-screen">
+              <div class="status-bar">
+                <span class="time">9:41</span>
+                <span class="icons"><span>&#9679;</span><span>&#9679;</span><span>&#9632;</span></span>
+              </div>
+              <div class="top-bar">
+                <h1>PetHolo</h1>
+                <div class="actions">
+                  <div class="credit-badge"><span class="coin-icon">&#9733;</span><span>120C</span></div>
+                  <div class="icon-btn">&#9881;</div>
+                </div>
+              </div>
+              <div class="content">
+                <div class="empty-state">
+                  <div class="empty-icon">&#128054;</div>
+                  <div class="empty-title">&#50500;&#51649; &#46321;&#47197;&#46108; &#48152;&#47140;&#46041;&#47932;&#51060; &#50630;&#50612;&#50836;</div>
+                  <div class="empty-desc">&#49548;&#51473;&#54620; &#48152;&#47140;&#46041;&#47932;&#51012; &#46321;&#47197;&#54616;&#44256;<br>&#54848;&#47196;&#44536;&#47016;&#51012; &#47564;&#46308;&#50612;&#48372;&#49464;&#50836;</div>
+                  <button class="add-pet-btn-large">+</button>
+                  <span class="add-pet-btn-label">&#48152;&#47140;&#46041;&#47932; &#46321;&#47197;&#54616;&#44592;</span>
+                </div>
+              </div>
+              <div class="bottom-nav">
+                <div class="nav-item active"><span class="nav-icon">&#127968;</span><span>&#54856;</span></div>
+                <div class="nav-item"><span class="nav-icon">&#128172;</span><span>&#47700;&#49888;&#51200;</span></div>
+                <div class="nav-item"><span class="nav-icon">&#9654;</span><span>&#54540;&#47112;&#51060;&#50612;</span></div>
+                <div class="nav-item"><span class="nav-icon">&#9881;</span><span>&#49444;&#51221;</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mini: With Pet -->
+        <div>
+          <div class="phone-label">With Pet</div>
+          <div class="phone-frame" style="transform:scale(0.65); transform-origin:top center; margin-bottom:-280px;">
+            <div class="phone-screen">
+              <div class="status-bar">
+                <span class="time">9:41</span>
+                <span class="icons"><span>&#9679;</span><span>&#9679;</span><span>&#9632;</span></span>
+              </div>
+              <div class="top-bar">
+                <h1>PetHolo</h1>
+                <div class="actions">
+                  <div class="credit-badge"><span class="coin-icon">&#9733;</span><span>120C</span></div>
+                  <div class="icon-btn">&#9881;</div>
+                </div>
+              </div>
+              <div class="content">
+                <div class="pet-card">
+                  <div class="pet-card-main">
+                    <div class="pet-avatar large">&#128021;</div>
+                    <div class="pet-info">
+                      <div class="pet-name">&#53097;&#51060;</div>
+                      <div class="pet-breed">&#54252;&#47700;&#46972;&#45768;&#50504;</div>
+                      <div class="pet-memorial-date"><span class="memorial-icon">&#128330;</span><span>2024.08.15</span></div>
+                      <div class="profile-count-badge"><span>&#128194;</span><span>&#54532;&#47196;&#54596; 2&#44060;</span></div>
+                    </div>
+                    <div class="pet-expand-btn">&#9660;</div>
+                  </div>
+                  <div class="quick-actions">
+                    <div class="quick-action-btn"><span class="qa-icon">&#128172;</span><span class="qa-label">&#47700;&#49888;&#51200;</span></div>
+                    <div class="quick-action-btn"><span class="qa-icon">&#128194;</span><span class="qa-label">&#54532;&#47196;&#54596;&#44288;&#47532;</span></div>
+                    <div class="quick-action-btn"><span class="qa-icon">&#10024;</span><span class="qa-label">&#54848;&#47196;&#44536;&#47016;</span></div>
+                  </div>
+                </div>
+                <div class="credits-display">
+                  <div class="credits-left">
+                    <span class="credits-coin">&#128176;</span>
+                    <div>
+                      <div class="credits-label">&#51092;&#50668; &#53356;&#47112;&#46367;</div>
+                      <div class="credits-amount">120 Credits</div>
+                    </div>
+                  </div>
+                  <div class="credits-buy-btn">&#52649;&#51204;</div>
+                </div>
+              </div>
+              <div class="bottom-nav">
+                <div class="nav-item active"><span class="nav-icon">&#127968;</span><span>&#54856;</span></div>
+                <div class="nav-item"><span class="nav-icon">&#128172;</span><span>&#47700;&#49888;&#51200;</span></div>
+                <div class="nav-item"><span class="nav-icon">&#9654;</span><span>&#54540;&#47112;&#51060;&#50612;</span></div>
+                <div class="nav-item"><span class="nav-icon">&#9881;</span><span>&#49444;&#51221;</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mini: Profile List -->
+        <div>
+          <div class="phone-label">Profile List</div>
+          <div class="phone-frame" style="transform:scale(0.65); transform-origin:top center; margin-bottom:-280px;">
+            <div class="phone-screen">
+              <div class="status-bar">
+                <span class="time">9:41</span>
+                <span class="icons"><span>&#9679;</span><span>&#9679;</span><span>&#9632;</span></span>
+              </div>
+              <div class="top-bar">
+                <h1>PetHolo</h1>
+                <div class="actions">
+                  <div class="credit-badge"><span class="coin-icon">&#9733;</span><span>120C</span></div>
+                  <div class="icon-btn">&#9881;</div>
+                </div>
+              </div>
+              <div class="content">
+                <div class="pet-card">
+                  <div class="pet-card-main">
+                    <div class="pet-avatar">&#128021;</div>
+                    <div class="pet-info">
+                      <div class="pet-name" style="font-size:16px;">&#53097;&#51060;</div>
+                      <div class="pet-breed">&#54252;&#47700;&#46972;&#45768;&#50504;</div>
+                    </div>
+                    <div class="pet-expand-btn">&#9650;</div>
+                  </div>
+                  <div class="profile-list-section">
+                    <div class="profile-item active-profile" style="padding:10px;">
+                      <span class="active-star">&#9733;</span>
+                      <div class="profile-thumbnail" style="width:40px;height:40px;font-size:16px;">&#128062;</div>
+                      <div class="profile-info">
+                        <div class="profile-name-row"><span class="profile-label" style="font-size:12px;">&#54532;&#47196;&#54596; 1</span><span class="profile-type-badge standing">STANDING</span></div>
+                        <div class="profile-stats" style="font-size:10px;"><span>&#127909; 2/3</span><span>&#127939; 8/12</span></div>
+                      </div>
+                    </div>
+                    <div class="profile-item" style="padding:10px;">
+                      <div class="profile-thumbnail" style="width:40px;height:40px;font-size:16px;">&#128049;</div>
+                      <div class="profile-info">
+                        <div class="profile-name-row"><span class="profile-label" style="font-size:12px;">&#54532;&#47196;&#54596; 2</span><span class="profile-type-badge sitting">SITTING</span></div>
+                        <div class="profile-stats" style="font-size:10px;"><span>&#127909; 1/3</span><span>&#127939; 3/12</span></div>
+                      </div>
+                    </div>
+                    <button class="add-profile-btn" style="padding:10px; font-size:11px;">+ &#49352; &#54532;&#47196;&#54596;</button>
+                  </div>
+                </div>
+              </div>
+              <div class="bottom-nav">
+                <div class="nav-item active"><span class="nav-icon">&#127968;</span><span>&#54856;</span></div>
+                <div class="nav-item"><span class="nav-icon">&#128172;</span><span>&#47700;&#49888;&#51200;</span></div>
+                <div class="nav-item"><span class="nav-icon">&#9654;</span><span>&#54540;&#47112;&#51060;&#50612;</span></div>
+                <div class="nav-item"><span class="nav-icon">&#9881;</span><span>&#49444;&#51221;</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mini: Multi Pet -->
+        <div>
+          <div class="phone-label">Multi Pet</div>
+          <div class="phone-frame" style="transform:scale(0.65); transform-origin:top center; margin-bottom:-280px;">
+            <div class="phone-screen">
+              <div class="status-bar">
+                <span class="time">9:41</span>
+                <span class="icons"><span>&#9679;</span><span>&#9679;</span><span>&#9632;</span></span>
+              </div>
+              <div class="top-bar">
+                <h1>PetHolo</h1>
+                <div class="actions">
+                  <div class="credit-badge"><span class="coin-icon">&#9733;</span><span>85C</span></div>
+                  <div class="icon-btn">&#9881;</div>
+                </div>
+              </div>
+              <div class="content">
+                <div class="section-header-row"><span class="section-label" style="font-size:14px;">&#45236; &#48152;&#47140;&#46041;&#47932;</span><span class="section-count">3&#47560;&#47532;</span></div>
+                <div class="pet-list-horizontal">
+                  <div class="pet-card-horizontal"><div class="pet-avatar-sm" style="width:38px;height:38px;font-size:18px;">&#128021;</div><div class="pet-info-sm"><div class="pet-name-sm" style="font-size:13px;">&#53097;&#51060;</div><div class="pet-sub-sm">&#54252;&#47700;&#46972;&#45768;&#50504; &middot; &#54532;&#47196;&#54596; 2&#44060;</div></div><div class="pet-chevron">&#10095;</div></div>
+                  <div class="pet-card-horizontal"><div class="pet-avatar-sm" style="width:38px;height:38px;font-size:18px;">&#128008;</div><div class="pet-info-sm"><div class="pet-name-sm" style="font-size:13px;">&#45208;&#48708;</div><div class="pet-sub-sm">&#47084;&#49884;&#50504;&#48660;&#47336; &middot; &#54532;&#47196;&#54596; 1&#44060;</div></div><div class="pet-chevron">&#10095;</div></div>
+                  <div class="pet-card-horizontal"><div class="pet-avatar-sm" style="width:38px;height:38px;font-size:18px;">&#128007;</div><div class="pet-info-sm"><div class="pet-name-sm" style="font-size:13px;">&#48373;&#49892;&#51060;</div><div class="pet-sub-sm">&#54856;&#47004;&#46300;&#47213; &middot; &#54532;&#47196;&#54596; 1&#44060;</div></div><div class="pet-chevron">&#10095;</div></div>
+                  <div class="add-pet-card" style="padding:10px;"><div class="plus-circle" style="width:24px;height:24px;font-size:14px;">+</div><span style="font-size:12px;">&#48152;&#47140;&#46041;&#47932; &#52628;&#44032;</span></div>
+                </div>
+              </div>
+              <div class="bottom-nav">
+                <div class="nav-item active"><span class="nav-icon">&#127968;</span><span>&#54856;</span></div>
+                <div class="nav-item"><span class="nav-icon">&#128172;</span><span>&#47700;&#49888;&#51200;</span></div>
+                <div class="nav-item"><span class="nav-icon">&#9654;</span><span>&#54540;&#47112;&#51060;&#50612;</span></div>
+                <div class="nav-item"><span class="nav-icon">&#9881;</span><span>&#49444;&#51221;</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════
+         DESIGN NOTES
+         ═══════════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>Design Notes &amp; Rules</h2>
+      <p class="desc">홈 화면 구현 시 참고할 디자인 규칙과 제한사항입니다.</p>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:16px;">
+        <!-- Bottom Nav Rule -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">&#128205; Bottom Navigation</span>
+          </div>
+          <div style="font-size:12px; color:var(--text-secondary); line-height:1.8;">
+            <strong>4 Tab Structure:</strong><br>
+            <code>&#127968; &#54856;</code> - &#47700;&#51064; &#54856; &#54868;&#47732; (&#54788;&#51116; &#54168;&#51060;&#51648;)<br>
+            <code>&#128172; &#47700;&#49888;&#51200;</code> - AI &#47700;&#49888;&#51200; &#45824;&#54868;<br>
+            <code>&#9654; &#54540;&#47112;&#51060;&#50612;</code> - &#54848;&#47196;&#44536;&#47016; &#51116;&#49373;<br>
+            <code>&#9881; &#49444;&#51221;</code> - &#50545; &#49444;&#51221;<br><br>
+            Active tab: <code>var(--accent-blue)</code><br>
+            Inactive tab: <code>var(--text-muted)</code><br>
+            Position: absolute bottom, z-index: 100<br>
+            Background: gradient transparent to bg-primary
+          </div>
+        </div>
+
+        <!-- Credit System -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">&#128176; Credit System</span>
+          </div>
+          <div style="font-size:12px; color:var(--text-secondary); line-height:1.8;">
+            <strong>&#54637;&#49345; &#54364;&#49884; &#50948;&#52824;:</strong><br>
+            1. TopBar &#50864;&#52769; - &#53356;&#47112;&#46367; &#48176;&#51648; (&#44264;&#46300; &#53580;&#47560;)<br>
+            2. &#54856; &#54868;&#47732; - &#53356;&#47112;&#46367; &#50689;&#50669; (&#52649;&#51204; &#48260;&#53948; &#54252;&#54632;)<br><br>
+            <strong>&#53356;&#47112;&#46367; &#49548;&#47784;:</strong><br>
+            - &#47700;&#49888;&#51200; &#45824;&#54868;: 1C / &#47700;&#49884;&#51648;<br>
+            - &#47784;&#49496; &#49373;&#49457;: 10C / &#47784;&#49496;<br>
+            - &#54848;&#47196;&#44536;&#47016; &#51116;&#49373;: &#47924;&#47308;<br><br>
+            Format: <code>nnnC</code> (e.g., "120C")
+          </div>
+        </div>
+
+        <!-- Profile Limits -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title" style="color:var(--accent-red);">&#9888; Profile Limits</span>
+          </div>
+          <div style="font-size:12px; color:var(--text-secondary); line-height:1.8;">
+            <strong>&#54532;&#47196;&#54596;&#45817; &#51228;&#54620;:</strong><br>
+            &#127909; &#44592;&#48376;&#50689;&#49345;: <span style="color:var(--accent-red); font-weight:700;">&#52572;&#45824; 3&#44060;</span><br>
+            &#127939; &#47784;&#49496;: <span style="color:var(--accent-red); font-weight:700;">&#52572;&#45824; 12&#44060;</span><br><br>
+            <strong>&#54532;&#47196;&#54596; &#53440;&#51077;:</strong><br>
+            STANDING (&#49436;&#51080;&#45716;&#51088;&#49464;) - &#54028;&#46976;&#49353; &#48176;&#51648;<br>
+            SITTING (&#50505;&#51008;&#51088;&#49464;) - &#54609;&#53356;&#49353; &#48176;&#51648;<br><br>
+            <strong>&#48152;&#47140;&#46041;&#47932; &#49688;:</strong> &#51228;&#54620; &#50630;&#51020;<br>
+            <strong>&#54532;&#47196;&#54596; &#49688;:</strong> &#51228;&#54620; &#50630;&#51020;
+          </div>
+        </div>
+
+        <!-- Pet Emoji -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">&#127912; Pet Emoji Selection</span>
+          </div>
+          <div style="font-size:12px; color:var(--text-secondary); line-height:1.8;">
+            <strong>&#46321;&#47197; &#49884; &#49440;&#53469; (1&#54924;):</strong><br><br>
+            <span style="font-size:24px;">&#128021; &#128041; &#129454; &#128021;</span><br>
+            <span style="font-size:11px; color:var(--text-muted);">&#44053;&#50500;&#51648;&#47448;</span><br><br>
+            <span style="font-size:24px;">&#128008; &#128008; &#128049;</span><br>
+            <span style="font-size:11px; color:var(--text-muted);">&#44256;&#50577;&#51060;&#47448;</span><br><br>
+            <span style="font-size:24px;">&#128007; &#128057; &#128038; &#128034; &#128031;</span><br>
+            <span style="font-size:11px; color:var(--text-muted);">&#44592;&#53440; &#48152;&#47140;&#46041;&#47932;</span><br><br>
+            &#46321;&#47197; &#54980; &#48320;&#44221; &#44032;&#45733; (&#49444;&#51221; &#47700;&#45684;)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align:center; padding:40px 0; border-top:1px solid rgba(255,255,255,0.06); margin-top:20px;">
+      <p style="font-size:12px; color:var(--text-muted);">
+        PetHolo (&#54171;&#54848;&#47196;) - Home Screen Mockup &middot; v1.0<br>
+        Dark Theme #1a1a2e &middot; 375&times;812px Phone Frames
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>

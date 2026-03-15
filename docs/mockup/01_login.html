@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PetHolo Mockup - 01. 카페24 진입 & 온보딩</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    /* ── Cafe24 Shop Mockup ── */
+    .cafe24-header {
+      background: #1a1a2e;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .cafe24-logo {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+    .cafe24-user {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .shop-hero {
+      background: linear-gradient(135deg, rgba(102,126,234,0.3), rgba(240,147,251,0.2));
+      padding: 32px 20px;
+      text-align: center;
+    }
+    .shop-hero-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      background: var(--gradient-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .shop-hero-sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+    .shop-hero-img {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.06);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+    }
+
+    .petholo-banner {
+      margin: 16px 20px;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, rgba(100,200,255,0.15), rgba(102,126,234,0.15));
+      border: 1px solid rgba(100,200,255,0.25);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .petholo-banner-icon {
+      width: 44px; height: 44px;
+      background: var(--gradient-main);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .petholo-banner-text {
+      flex: 1;
+    }
+    .petholo-banner-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+    .petholo-banner-sub {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .petholo-banner-arrow {
+      font-size: 16px;
+      color: var(--accent-blue);
+    }
+
+    .shop-product {
+      margin: 12px 20px;
+      padding: 14px;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .shop-product-thumb {
+      width: 56px; height: 56px;
+      border-radius: 10px;
+      background: rgba(255,215,0,0.1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+    .shop-product-info { flex: 1; }
+    .shop-product-name { font-size: 13px; font-weight: 600; }
+    .shop-product-price { font-size: 12px; color: var(--accent-yellow); font-weight: 700; margin-top: 2px; }
+    .shop-product-desc { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+    /* ── SSO Loading ── */
+    .sso-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      min-height: 700px;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .sso-logo {
+      width: 80px; height: 80px;
+      background: var(--gradient-main);
+      border-radius: 24px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px;
+      box-shadow: 0 8px 32px rgba(102,126,234,0.4);
+      margin-bottom: 24px;
+    }
+    .sso-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .sso-subtitle {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+    }
+    .sso-spinner {
+      width: 40px; height: 40px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top: 3px solid var(--accent-blue);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 24px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .sso-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 260px;
+    }
+    .sso-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .sso-step.done { color: var(--accent-green); }
+    .sso-step.active { color: var(--accent-blue); }
+    .sso-step-check {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--bg-surface);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px;
+      flex-shrink: 0;
+    }
+    .sso-step.done .sso-step-check {
+      background: rgba(56,239,125,0.2);
+      color: var(--accent-green);
+    }
+    .sso-step.active .sso-step-check {
+      background: rgba(100,200,255,0.2);
+      color: var(--accent-blue);
+    }
+
+    /* ── Onboarding ── */
+    .onboarding-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 700px;
+    }
+    .onboarding-skip {
+      text-align: right;
+      padding: 12px 20px;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .onboarding-slide {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 40px;
+      text-align: center;
+    }
+    .onboarding-emoji {
+      font-size: 80px;
+      margin-bottom: 24px;
+    }
+    .onboarding-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+    .onboarding-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .onboarding-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 20px;
+    }
+    .onboarding-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+    }
+    .onboarding-dot.active {
+      width: 24px;
+      border-radius: 4px;
+      background: var(--accent-blue);
+    }
+    .onboarding-next {
+      margin: 0 20px 40px;
+      padding: 14px;
+      text-align: center;
+      background: var(--gradient-accent);
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--bg-primary);
+    }
+
+    /* ── Welcome Home ── */
+    .welcome-banner {
+      margin: 0 0 16px;
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(102,126,234,0.2), rgba(240,147,251,0.15));
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(102,126,234,0.15);
+    }
+    .welcome-text {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .welcome-sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .welcome-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(56,239,125,0.15);
+      color: var(--accent-green);
+      margin-top: 8px;
+    }
+
+    .empty-pet-card {
+      text-align: center;
+      padding: 40px 20px;
+      background: var(--bg-surface);
+      border: 2px dashed rgba(255,255,255,0.1);
+      border-radius: var(--radius-lg);
+    }
+    .empty-pet-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-pet-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .empty-pet-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .empty-pet-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      background: var(--gradient-accent);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--bg-primary);
+      border: none;
+      cursor: pointer;
+    }
+
+    /* ── Phone Label ── */
+    .phone-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .phone-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      text-align: center;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="mockup-page">
+    <h1>01. 카페24 진입 & 온보딩</h1>
+    <p class="subtitle">
+      카페24 자사몰에서 로그인한 사용자가 PetHolo 링크를 클릭하면 자동 SSO 인증을 거쳐 바로 서비스에 진입합니다.<br>
+      별도 로그인 화면이 없으며, 최초 방문 시에만 온보딩 캐러셀이 표시됩니다.
+    </p>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- Section 1: Entry Flow (4 Screens) -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>1. 진입 흐름 (Entry Flow)</h2>
+      <p class="desc">
+        카페24 자사몰 → SSO 인증 → 온보딩(첫 방문) → 홈 화면까지의 전체 흐름입니다.<br>
+        사용자는 별도 로그인 없이 카페24 계정으로 자동 인증됩니다.
+      </p>
+
+      <div class="phones-row">
+
+        <!-- Phone 1: Cafe24 Shop -->
+        <div class="phone-container">
+          <div class="phone-label">카페24 자사몰</div>
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="cafe24-header">
+                <div class="cafe24-logo">&#128722; PetHolo Shop</div>
+                <div class="cafe24-user">&#128100; 김펫홀로님</div>
+              </div>
+
+              <div class="shop-hero">
+                <div class="shop-hero-img">&#128062;</div>
+                <div style="margin-top:16px;">
+                  <div class="shop-hero-title">PetHolo 홀로그램</div>
+                  <div class="shop-hero-sub">소중한 반려동물을 홀로그램으로 만나보세요</div>
+                </div>
+              </div>
+
+              <div class="petholo-banner">
+                <div class="petholo-banner-icon">&#128062;</div>
+                <div class="petholo-banner-text">
+                  <div class="petholo-banner-title">펫홀로 바로가기 &#8594;</div>
+                  <div class="petholo-banner-sub">로그인 없이 바로 이용하기</div>
+                </div>
+                <div class="petholo-banner-arrow">&#10095;</div>
+              </div>
+
+              <div class="shop-product">
+                <div class="shop-product-thumb">&#127873;</div>
+                <div class="shop-product-info">
+                  <div class="shop-product-name">펫홀로 풀세트</div>
+                  <div class="shop-product-price">&#8361;89,000</div>
+                  <div class="shop-product-desc">아크릴 프리즘 + 120C 크레딧 + Silver 등급</div>
+                </div>
+              </div>
+
+              <div class="shop-product">
+                <div class="shop-product-thumb">&#11088;</div>
+                <div class="shop-product-info">
+                  <div class="shop-product-name">크레딧 팩 60</div>
+                  <div class="shop-product-price">&#8361;45,000</div>
+                  <div class="shop-product-desc">60C 자동 충전</div>
+                </div>
+              </div>
+
+              <div class="shop-product">
+                <div class="shop-product-thumb">&#128176;</div>
+                <div class="shop-product-info">
+                  <div class="shop-product-name">크레딧 팩 30</div>
+                  <div class="shop-product-price">&#8361;25,000</div>
+                  <div class="shop-product-desc">30C 자동 충전</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="annotation arrow-down" style="bottom: -40px; left: 50%; transform: translateX(-50%);">
+            카페24 자사몰에서 로그인 후 링크 클릭으로 진입
+          </div>
+        </div>
+
+        <!-- Phone 2: SSO Loading -->
+        <div class="phone-container">
+          <div class="phone-label">SSO 인증 중</div>
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="sso-loading">
+                <div class="sso-logo">&#128062;</div>
+                <div class="sso-title">PetHolo</div>
+                <div class="sso-subtitle">카페24 계정으로 연결 중...</div>
+                <div class="sso-spinner"></div>
+                <div class="sso-steps">
+                  <div class="sso-step done">
+                    <div class="sso-step-check">&#10003;</div>
+                    <span>카페24 로그인 확인</span>
+                  </div>
+                  <div class="sso-step done">
+                    <div class="sso-step-check">&#10003;</div>
+                    <span>SSO 토큰 발급</span>
+                  </div>
+                  <div class="sso-step active">
+                    <div class="sso-step-check">&#9679;</div>
+                    <span>회원 정보 동기화 중...</span>
+                  </div>
+                  <div class="sso-step">
+                    <div class="sso-step-check">&#9675;</div>
+                    <span>서비스 준비 완료</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="annotation arrow-down" style="bottom: -40px; left: 50%; transform: translateX(-50%);">
+            자동 SSO 인증 — 별도 로그인 불필요
+          </div>
+        </div>
+
+        <!-- Phone 3: Onboarding -->
+        <div class="phone-container">
+          <div class="phone-label">온보딩 (첫 방문)</div>
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="onboarding-container">
+                <div class="onboarding-skip">건너뛰기</div>
+                <div class="onboarding-slide">
+                  <div class="onboarding-emoji">&#128062;</div>
+                  <div class="onboarding-title">펫 등록하기</div>
+                  <div class="onboarding-desc">
+                    소중한 반려동물의 사진을 업로드하고<br>
+                    프로필을 만들어주세요
+                  </div>
+                </div>
+                <div class="onboarding-dots">
+                  <div class="onboarding-dot active"></div>
+                  <div class="onboarding-dot"></div>
+                  <div class="onboarding-dot"></div>
+                </div>
+                <div class="onboarding-next">다음 &#8594;</div>
+              </div>
+            </div>
+          </div>
+          <div class="annotation arrow-down" style="bottom: -40px; left: 50%; transform: translateX(-50%);">
+            최초 진입 시 온보딩 (이후 자동 스킵)
+          </div>
+        </div>
+
+        <!-- Phone 4: Home Welcome -->
+        <div class="phone-container">
+          <div class="phone-label">홈 화면 진입</div>
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="status-bar">
+                <span class="time">9:41</span>
+                <div class="icons">
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                  <span>&#128267;</span>
+                </div>
+              </div>
+
+              <div class="top-bar">
+                <h1>PetHolo</h1>
+                <div class="actions">
+                  <div class="icon-btn">&#9881;</div>
+                </div>
+              </div>
+
+              <div class="content">
+                <div class="welcome-banner">
+                  <div class="welcome-text">안녕하세요, 김펫홀로님! &#128062;</div>
+                  <div class="welcome-sub">PetHolo에 오신 것을 환영합니다</div>
+                  <div class="welcome-badge">&#10003; 카페24 인증 완료</div>
+                </div>
+
+                <div class="empty-pet-card">
+                  <div class="empty-pet-icon">&#128054;</div>
+                  <div class="empty-pet-title">아직 등록된 반려동물이 없어요</div>
+                  <div class="empty-pet-desc">소중한 반려동물을 등록하고<br>홀로그램을 만들어보세요</div>
+                  <button class="empty-pet-btn">+ 반려동물 등록하기</button>
+                </div>
+              </div>
+
+              <div class="bottom-nav">
+                <div class="nav-item active">
+                  <span class="nav-icon">&#127968;</span>
+                  <span>홈</span>
+                </div>
+                <div class="nav-item">
+                  <span class="nav-icon">&#128172;</span>
+                  <span>메신저</span>
+                </div>
+                <div class="nav-item">
+                  <span class="nav-icon">&#9654;</span>
+                  <span>플레이어</span>
+                </div>
+                <div class="nav-item">
+                  <span class="nav-icon">&#9881;</span>
+                  <span>설정</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="annotation arrow-down" style="bottom: -40px; left: 50%; transform: translateX(-50%);">
+            인증 완료 → 바로 홈 화면
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- Section 2: Entry Flow Diagram -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>2. 진입 흐름도 (Entry Flow Diagram)</h2>
+      <p class="desc">카페24 자사몰에서 PetHolo 서비스까지의 전체 인증 흐름입니다.</p>
+
+      <div class="flow-diagram">
+        <div class="flow-step">카페24 자사몰<br>로그인</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">펫홀로 링크<br>클릭</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step active">SSO 토큰<br>검증</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">회원 자동<br>매칭/생성</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">온보딩<br>(첫 방문)</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">홈 화면</div>
+      </div>
+
+      <div class="flow-diagram" style="margin-top:12px;">
+        <div class="flow-step">재방문 사용자</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">카페24 링크<br>클릭</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step active">JWT 자동<br>갱신</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">바로<br>홈 화면</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════ -->
+    <!-- Section 3: Auth Spec Table -->
+    <!-- ════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>3. Specifications</h2>
+      <p class="desc">인증 방식, 등급 시스템, 기술 사양 상세 테이블입니다.</p>
+
+      <h3 style="font-size:16px; margin-bottom:12px; color:var(--accent-cyan);">3-1. 인증 사양 (Auth Specification)</h3>
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>상세</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>인증 방식</td>
+            <td>카페24 SSO (토큰 기반)</td>
+          </tr>
+          <tr>
+            <td>진입점</td>
+            <td>카페24 자사몰 내 링크 클릭</td>
+          </tr>
+          <tr>
+            <td>별도 로그인</td>
+            <td style="color:var(--accent-green); font-weight:600;">불필요 (자동 인증)</td>
+          </tr>
+          <tr>
+            <td>회원 매칭</td>
+            <td>카페24 <code>member_id</code> 기반 자동 매칭</td>
+          </tr>
+          <tr>
+            <td>신규 회원</td>
+            <td>자동 생성 (Bronze 등급, 0C)</td>
+          </tr>
+          <tr>
+            <td>세션 유지</td>
+            <td>JWT 토큰 (24시간), Refresh Token (7일)</td>
+          </tr>
+          <tr>
+            <td>온보딩</td>
+            <td>최초 진입 시 1회 표시 (3단계 캐러셀)</td>
+          </tr>
+          <tr>
+            <td>토큰 저장</td>
+            <td>HttpOnly Cookie + localStorage fallback</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 style="font-size:16px; margin: 24px 0 12px; color:var(--accent-cyan);">3-2. 등급 시스템 (Tier System)</h3>
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>Silver (정품 인증 완료)</th>
+            <th>Bronze (샘플 체험 모드)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>진입 조건</td>
+            <td style="color:var(--accent-green);">카페24에서 풀세트 구매</td>
+            <td>자사몰 링크 진입만</td>
+          </tr>
+          <tr>
+            <td>UI 표시</td>
+            <td style="color:var(--accent-green);">&#10003; 정품 인증 완료</td>
+            <td>샘플 체험 모드</td>
+          </tr>
+          <tr>
+            <td>초기 크레딧</td>
+            <td style="color:var(--accent-green); font-weight:700;">120C</td>
+            <td style="color:var(--accent-red);">0C</td>
+          </tr>
+          <tr>
+            <td>AI 생성</td>
+            <td style="color:var(--accent-green);">가능</td>
+            <td style="color:var(--accent-red);">불가</td>
+          </tr>
+          <tr>
+            <td>홀로그램 재생</td>
+            <td style="color:var(--accent-green);">가능</td>
+            <td style="color:var(--accent-red);">불가</td>
+          </tr>
+          <tr>
+            <td>앱 탐색</td>
+            <td style="color:var(--accent-green);">가능</td>
+            <td style="color:var(--accent-green);">가능</td>
+          </tr>
+          <tr>
+            <td>등급 이름 노출</td>
+            <td colspan="2" style="color:var(--text-muted);">사용자에게 Silver/Bronze 명칭 숨김 — "정품 인증 완료" / "샘플 체험 모드"로 표시</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 style="font-size:16px; margin: 24px 0 12px; color:var(--accent-cyan);">3-3. SSO 엔드포인트</h3>
+      <div class="api-endpoint">
+        <span class="api-method post">POST</span>
+        <span class="api-path">/api/auth/cafe24/callback</span>
+        <div class="api-desc">카페24 SSO 콜백. access_token 수신 후 member_id로 사용자 매칭/생성, JWT 발급.</div>
+      </div>
+      <div class="api-endpoint">
+        <span class="api-method get">GET</span>
+        <span class="api-path">/api/auth/me</span>
+        <div class="api-desc">현재 로그인 사용자 정보 조회. JWT 검증 후 프로필 반환.</div>
+      </div>
+      <div class="api-endpoint">
+        <span class="api-method post">POST</span>
+        <span class="api-path">/api/auth/refresh</span>
+        <div class="api-desc">Refresh Token으로 Access Token 갱신.</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align:center; padding:40px 0; border-top:1px solid rgba(255,255,255,0.06); margin-top:20px;">
+      <p style="font-size:12px; color:var(--text-muted);">
+        PetHolo (펫홀로) - 카페24 진입 & 온보딩 Mockup &middot; v2.0<br>
+        카페24 SSO 인증 &middot; 코드 등록 없음 &middot; 자동 크레딧 충전
+      </p>
+    </div>
+  </div>
+</body>
+</html>

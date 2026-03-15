@@ -1,0 +1,1956 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PetHolo Mockup - 04 AI Messenger</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    /* ── Messenger-specific styles ── */
+
+    /* Chat Top Bar */
+    .chat-top-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 16px 12px;
+      background: var(--bg-primary);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky;
+      top: 40px;
+      z-index: 99;
+    }
+
+    .chat-back-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      font-size: 18px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      flex-shrink: 0;
+    }
+
+    .chat-pet-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .chat-pet-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--bg-surface);
+      border: 2px solid rgba(100,200,255,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .online-dot {
+      position: absolute;
+      bottom: 1px;
+      right: 1px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      border: 2px solid var(--bg-primary);
+    }
+
+    .online-dot.away {
+      background: var(--accent-orange);
+    }
+
+    .chat-pet-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .chat-pet-status {
+      font-size: 11px;
+      color: var(--accent-green);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .chat-pet-status.away {
+      color: var(--accent-orange);
+    }
+
+    .chat-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Chat Messages Area */
+    .chat-messages {
+      padding: 16px 16px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: calc(100% - 200px);
+    }
+
+    .chat-date-divider {
+      text-align: center;
+      padding: 12px 0 8px;
+    }
+
+    .chat-date-divider span {
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--bg-primary);
+      padding: 4px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* Message Bubble */
+    .message-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 2px;
+    }
+
+    .message-row.user {
+      justify-content: flex-end;
+    }
+
+    .message-row.pet {
+      justify-content: flex-start;
+    }
+
+    .message-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+      align-self: flex-end;
+      margin-bottom: 18px;
+    }
+
+    .message-content {
+      max-width: 70%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message-row.user .message-content {
+      align-items: flex-end;
+    }
+
+    .message-row.pet .message-content {
+      align-items: flex-start;
+    }
+
+    .message-bubble {
+      padding: 10px 14px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.5;
+      word-break: break-word;
+      position: relative;
+    }
+
+    .message-row.user .message-bubble {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      border-bottom-right-radius: 6px;
+    }
+
+    .message-row.pet .message-bubble {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--text-primary);
+      border-bottom-left-radius: 6px;
+    }
+
+    .message-bubble.emoji-response {
+      font-size: 28px;
+      padding: 8px 14px;
+      letter-spacing: 2px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(100,200,255,0.15);
+    }
+
+    .message-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 3px;
+      padding: 0 4px;
+    }
+
+    .message-time {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .message-read {
+      font-size: 10px;
+      color: var(--accent-blue);
+      font-weight: 500;
+    }
+
+    /* Typing Indicator */
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+    }
+
+    .typing-indicator .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .typing-bubble {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      border-bottom-left-radius: 6px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .typing-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      animation: typingBounce 1.4s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(1) { animation-delay: 0s; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-5px); opacity: 1; }
+    }
+
+    .typing-text {
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 4px 16px 0 44px;
+      font-style: italic;
+    }
+
+    /* Chat Input Area */
+    .chat-input-area {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 8px 12px 28px;
+      background: linear-gradient(transparent, var(--bg-primary) 15%);
+      z-index: 100;
+    }
+
+    .chat-input-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .chat-input-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px;
+      padding: 4px 8px 4px 16px;
+    }
+
+    .chat-input-wrapper input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-size: 14px;
+      outline: none;
+      padding: 8px 0;
+    }
+
+    .chat-input-wrapper input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .chat-input-wrapper .emoji-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chat-send-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--gradient-main);
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 10px rgba(102,126,234,0.4);
+      flex-shrink: 0;
+    }
+
+    .chat-send-btn.disabled {
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      box-shadow: none;
+    }
+
+    /* Timer Badge / Waiting State */
+    .timer-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      margin: 12px 16px;
+      background: rgba(255,167,38,0.1);
+      border: 1px solid rgba(255,167,38,0.2);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      color: var(--accent-orange);
+      font-weight: 500;
+    }
+
+    .timer-badge .timer-icon {
+      font-size: 18px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .explanation-card {
+      margin: 8px 16px 12px;
+      padding: 14px 16px;
+      background: rgba(100,200,255,0.06);
+      border: 1px solid rgba(100,200,255,0.1);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .explanation-card .icon {
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+
+    .explanation-card .text {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .explanation-card .text strong {
+      color: var(--accent-blue);
+    }
+
+    /* Push Notification Preview */
+    .push-notification-preview {
+      margin: 16px 16px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    .push-app-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--gradient-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .push-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .push-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+
+    .push-app-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .push-time {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .push-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1px;
+    }
+
+    .push-body {
+      font-size: 12px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Pet Selection List */
+    .pet-list {
+      padding: 0 16px;
+    }
+
+    .pet-list-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-md);
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .pet-list-item:hover {
+      border-color: rgba(100,200,255,0.2);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .pet-list-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+      border: 2px solid rgba(100,200,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .pet-list-avatar .online-dot {
+      width: 12px;
+      height: 12px;
+      bottom: 0;
+      right: 0;
+    }
+
+    .pet-list-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .pet-list-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 3px;
+    }
+
+    .pet-list-last-msg {
+      font-size: 13px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pet-list-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .pet-list-time {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .unread-badge {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--gradient-accent);
+      color: var(--bg-primary);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Empty State */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 30px 40px;
+      text-align: center;
+    }
+
+    .empty-illustration {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(100,200,255,0.08) 0%, transparent 70%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .empty-illustration::after {
+      content: '';
+      position: absolute;
+      inset: -10px;
+      border-radius: 50%;
+      border: 1px dashed rgba(100,200,255,0.15);
+      animation: spinSlow 20s linear infinite;
+    }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .empty-illustration .sparkle {
+      position: absolute;
+      font-size: 14px;
+      animation: sparkle 2s infinite;
+    }
+
+    .empty-illustration .sparkle:nth-child(2) { top: 10px; right: 10px; animation-delay: 0.5s; }
+    .empty-illustration .sparkle:nth-child(3) { bottom: 15px; left: 5px; animation-delay: 1s; }
+    .empty-illustration .sparkle:nth-child(4) { top: 25px; left: 15px; animation-delay: 1.5s; }
+
+    @keyframes sparkle {
+      0%, 100% { opacity: 0.3; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .empty-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .empty-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    .suggested-messages {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      max-width: 260px;
+    }
+
+    .suggested-msg {
+      padding: 12px 16px;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .suggested-msg:hover {
+      border-color: rgba(100,200,255,0.3);
+      color: var(--accent-blue);
+      background: rgba(100,200,255,0.06);
+    }
+
+    /* Progress bar for delay timer */
+    .delay-progress {
+      margin: 0 16px 8px;
+    }
+
+    .delay-progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .delay-progress-bar {
+      height: 3px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .delay-progress-fill {
+      height: 100%;
+      width: 40%;
+      background: var(--gradient-accent);
+      border-radius: 2px;
+      animation: progressPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes progressPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Search bar in pet selection */
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      margin: 0 16px 16px;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+    }
+
+    .search-bar .search-icon {
+      color: var(--text-muted);
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .search-bar input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-bar input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Annotation connector lines */
+    .annotation-line {
+      position: absolute;
+      z-index: 199;
+      pointer-events: none;
+    }
+
+    /* Flow Diagram Enhanced */
+    .flow-diagram-messenger {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 24px 16px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-md);
+      margin-bottom: 20px;
+      overflow-x: auto;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .flow-node {
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      white-space: nowrap;
+      border: 1px solid rgba(255,255,255,0.1);
+      min-width: 80px;
+    }
+
+    .flow-node.start {
+      background: rgba(102,126,234,0.2);
+      color: var(--accent-purple);
+      border-color: rgba(102,126,234,0.3);
+    }
+
+    .flow-node.process {
+      background: rgba(100,200,255,0.15);
+      color: var(--accent-blue);
+      border-color: rgba(100,200,255,0.25);
+    }
+
+    .flow-node.delay {
+      background: rgba(255,167,38,0.15);
+      color: var(--accent-orange);
+      border-color: rgba(255,167,38,0.25);
+    }
+
+    .flow-node.output {
+      background: rgba(56,239,125,0.15);
+      color: var(--accent-green);
+      border-color: rgba(56,239,125,0.25);
+    }
+
+    .flow-node.notify {
+      background: rgba(240,147,251,0.15);
+      color: var(--accent-pink);
+      border-color: rgba(240,147,251,0.25);
+    }
+
+    .flow-connector {
+      color: var(--text-muted);
+      font-size: 18px;
+      padding: 0 6px;
+      flex-shrink: 0;
+    }
+
+    .flow-label {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    /* Notification label on phone frame */
+    .frame-label {
+      text-align: center;
+      padding: 12px 0 0;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-blue);
+      letter-spacing: 0.5px;
+    }
+
+    /* Annotation with number */
+    .callout {
+      position: absolute;
+      z-index: 200;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .callout-num {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(255,167,38,0.95);
+      color: var(--bg-primary);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .callout-text {
+      background: rgba(255,167,38,0.12);
+      border: 1px solid rgba(255,167,38,0.3);
+      color: var(--accent-orange);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 500;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="mockup-page">
+
+    <!-- Page Header -->
+    <h1>04. AI Messenger</h1>
+    <p class="subtitle">
+      PetHolo AI Messenger -- 반려동물이 이모지로 답장하는 감성 메신저.<br>
+      펫은 오직 2-3개의 이모지 조합으로만 응답하며, 5-30분의 랜덤 딜레이로 감성적 몰입감을 제공합니다.
+    </p>
+
+
+    <!-- ============================================ -->
+    <!-- SECTION 1: Chat View -->
+    <!-- ============================================ -->
+    <div class="mockup-section">
+      <h2>1. Chat View - 채팅 화면</h2>
+      <p class="desc">
+        사용자가 텍스트 메시지를 보내면, 펫이 이모지 조합(2-3개)으로만 응답합니다.<br>
+        AI가 펫 컨텍스트(이름, 좋아하는 간식, 산책 장소 등)를 분석하여 적절한 이모지를 선택합니다.
+      </p>
+
+      <div class="phones-row">
+        <div style="position: relative;">
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <!-- Status Bar -->
+              <div class="status-bar">
+                <span class="time">9:41</span>
+                <div class="icons">
+                  <span>&#9679;</span>
+                  <span>WiFi</span>
+                  <span>100%</span>
+                </div>
+              </div>
+
+              <!-- Chat Top Bar -->
+              <div class="chat-top-bar">
+                <button class="chat-back-btn">&larr;</button>
+                <div class="chat-pet-info">
+                  <div class="chat-pet-avatar">
+                    <span>&#128021;</span>
+                    <div class="online-dot"></div>
+                  </div>
+                  <div>
+                    <div class="chat-pet-name">&#53097;&#51060;</div>
+                    <div class="chat-pet-status">
+                      <span style="font-size: 6px;">&#9679;</span> &#47924;&#51648;&#44060;&#45796;&#47532; &#45320;&#47672;&#50640;&#49436; &#51217;&#49549; &#51473;
+                    </div>
+                  </div>
+                </div>
+                <div class="chat-actions">
+                  <div class="icon-btn">&#8942;</div>
+                </div>
+              </div>
+
+              <!-- Chat Messages -->
+              <div class="chat-messages">
+                <!-- Date Divider -->
+                <div class="chat-date-divider">
+                  <span>2026&#45380; 3&#50900; 5&#51068; &#49688;&#50836;&#51068;</span>
+                </div>
+
+                <!-- Message 1: User -->
+                <div class="message-row user">
+                  <div class="message-content">
+                    <div class="message-bubble">&#53097;&#50500;, &#50724;&#45720; &#49328;&#52293;&#44032;&#44256; &#49910;&#45796;</div>
+                    <div class="message-meta">
+                      <span class="message-read">&#51069;&#51020;</span>
+                      <span class="message-time">&#50724;&#51204; 9:12</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Message 2: Pet (emoji only) -->
+                <div class="message-row pet">
+                  <div class="message-avatar">&#128021;</div>
+                  <div class="message-content">
+                    <div class="message-bubble emoji-response">&#128062;&#127795;&#128149;</div>
+                    <div class="message-meta">
+                      <span class="message-time">&#50724;&#51204; 9:24</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Message 3: User -->
+                <div class="message-row user">
+                  <div class="message-content">
+                    <div class="message-bubble">&#44036;&#49885; &#47673;&#44256; &#49910;&#50612;?</div>
+                    <div class="message-meta">
+                      <span class="message-read">&#51069;&#51020;</span>
+                      <span class="message-time">&#50724;&#51204; 9:25</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Message 4: Pet (emoji only) -->
+                <div class="message-row pet">
+                  <div class="message-avatar">&#128021;</div>
+                  <div class="message-content">
+                    <div class="message-bubble emoji-response">&#128054;&#127846;&#128523;</div>
+                    <div class="message-meta">
+                      <span class="message-time">&#50724;&#51204; 9:41</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Message 5: User -->
+                <div class="message-row user">
+                  <div class="message-content">
+                    <div class="message-bubble">&#48372;&#44256; &#49910;&#50612; &#53097;&#50500;</div>
+                    <div class="message-meta">
+                      <span class="message-read">&#51069;&#51020;</span>
+                      <span class="message-time">&#50724;&#51204; 9:42</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Message 6: Pet (emoji only) -->
+                <div class="message-row pet">
+                  <div class="message-avatar">&#128021;</div>
+                  <div class="message-content">
+                    <div class="message-bubble emoji-response">&#128149;&#127752;&#128054;</div>
+                    <div class="message-meta">
+                      <span class="message-time">&#50724;&#51204; 10:08</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Spacer for bottom input -->
+                <div style="height: 80px;"></div>
+              </div>
+
+              <!-- Chat Input -->
+              <div class="chat-input-area">
+                <div class="chat-input-row">
+                  <div class="chat-input-wrapper">
+                    <input type="text" placeholder="&#53097;&#51060;&#50640;&#44172; &#47700;&#49884;&#51648; &#48372;&#45236;&#44592;..." value="">
+                    <button class="emoji-btn">&#128522;</button>
+                  </div>
+                  <button class="chat-send-btn disabled">&#10148;</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="frame-label">Chat View</div>
+
+          <!-- Annotations -->
+          <div class="callout" style="top: 200px; left: -185px;">
+            <div class="callout-text">&#51060;&#47784;&#51648; 2-3&#44060;&#47564; &#49324;&#50857;</div>
+            <div class="callout-num">1</div>
+          </div>
+          <div class="callout" style="top: 330px; right: -175px;">
+            <div class="callout-num">2</div>
+            <div class="callout-text">12&#48516; &#46524;&#47112;&#51060; &#54980; &#51025;&#45813;</div>
+          </div>
+          <div class="callout" style="top: 480px; right: -195px;">
+            <div class="callout-num">3</div>
+            <div class="callout-text">"&#51069;&#51020;" &#54364;&#49884; (&#49324;&#50857;&#51088;&#47564;)</div>
+          </div>
+          <div class="callout" style="top: 565px; left: -210px;">
+            <div class="callout-text">&#53076;&#53581;&#49828;&#53944; &#44592;&#48152; &#51060;&#47784;&#51648; &#49440;&#53469;</div>
+            <div class="callout-num">4</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================ -->
+    <!-- SECTION 2: Waiting State -->
+    <!-- ============================================ -->
+    <div class="mockup-section">
+      <h2>2. Waiting State - &#45824;&#44592; &#49345;&#53468;</h2>
+      <p class="desc">
+        &#47700;&#49884;&#51648; &#51204;&#49569; &#54980; &#51025;&#45813;&#44620;&#51648; 5-30&#48516;&#51032; &#46524;&#47112;&#51060;&#44032; &#48156;&#49373;&#54633;&#45768;&#45796;.<br>
+        &#53440;&#51060;&#47672; &#48176;&#51648;&#50752; &#49444;&#47749; &#52852;&#46300;&#47196; &#49324;&#50857;&#51088;&#50640;&#44172; &#45824;&#44592; &#49345;&#53468;&#47484; &#50504;&#45236;&#54633;&#45768;&#45796;. &#51025;&#45813; &#49884; &#54392;&#49884; &#50508;&#47548;&#51012; &#51204;&#49569;&#54633;&#45768;&#45796;.
+      </p>
+
+      <div class="phones-row">
+        <div style="position: relative;">
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <!-- Status Bar -->
+              <div class="status-bar">
+                <span class="time">9:45</span>
+                <div class="icons">
+                  <span>&#9679;</span>
+                  <span>WiFi</span>
+                  <span>98%</span>
+                </div>
+              </div>
+
+              <!-- Chat Top Bar -->
+              <div class="chat-top-bar">
+                <button class="chat-back-btn">&larr;</button>
+                <div class="chat-pet-info">
+                  <div class="chat-pet-avatar">
+                    <span>&#128021;</span>
+                    <div class="online-dot away"></div>
+                  </div>
+                  <div>
+                    <div class="chat-pet-name">&#53097;&#51060;</div>
+                    <div class="chat-pet-status away">
+                      <span style="font-size: 6px;">&#9679;</span> &#45813;&#51109; &#51456;&#48708; &#51473;...
+                    </div>
+                  </div>
+                </div>
+                <div class="chat-actions">
+                  <div class="icon-btn">&#8942;</div>
+                </div>
+              </div>
+
+              <!-- Chat Messages -->
+              <div class="chat-messages">
+                <div class="chat-date-divider">
+                  <span>2026&#45380; 3&#50900; 5&#51068; &#49688;&#50836;&#51068;</span>
+                </div>
+
+                <!-- Previous message pair -->
+                <div class="message-row user">
+                  <div class="message-content">
+                    <div class="message-bubble">&#53097;&#50500;, &#50724;&#45720; &#49328;&#52293;&#44032;&#44256; &#49910;&#45796;</div>
+                    <div class="message-meta">
+                      <span class="message-read">&#51069;&#51020;</span>
+                      <span class="message-time">&#50724;&#51204; 9:12</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="message-row pet">
+                  <div class="message-avatar">&#128021;</div>
+                  <div class="message-content">
+                    <div class="message-bubble emoji-response">&#128062;&#127795;&#128149;</div>
+                    <div class="message-meta">
+                      <span class="message-time">&#50724;&#51204; 9:24</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- New user message (just sent) -->
+                <div class="message-row user">
+                  <div class="message-content">
+                    <div class="message-bubble">&#50724;&#45720; &#45216;&#50472; &#51339;&#45796;! &#44277;&#50896;&#50640;&#49436; &#45440;&#51088;</div>
+                    <div class="message-meta">
+                      <span class="message-time" style="color: var(--accent-blue);">&#48169;&#44552; &#51204;&#49569;</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="height: 4px;"></div>
+              </div>
+
+              <!-- Timer Badge -->
+              <div class="timer-badge">
+                <span class="timer-icon">&#9203;</span>
+                &#50557; 12&#48516; &#54980; &#45813;&#51109;&#51060; &#50732; &#50696;&#51221;&#51060;&#50640;&#50836;
+              </div>
+
+              <!-- Delay Progress -->
+              <div class="delay-progress">
+                <div class="delay-progress-label">
+                  <span>&#45824;&#44592; &#51473;</span>
+                  <span>~12&#48516; &#45224;&#51020;</span>
+                </div>
+                <div class="delay-progress-bar">
+                  <div class="delay-progress-fill"></div>
+                </div>
+              </div>
+
+              <!-- Explanation Card -->
+              <div class="explanation-card">
+                <div class="icon">&#127752;</div>
+                <div class="text">
+                  <strong>&#53097;&#51060;</strong>&#45716; &#47924;&#51648;&#44060;&#45796;&#47532; &#45320;&#47672;&#50640;&#49436;<br>
+                  &#52380;&#52380;&#55176; &#45813;&#51109;&#54644;&#50836;. &#51312;&#44552;&#47564; &#44592;&#45796;&#47140;&#51452;&#49464;&#50836;.
+                </div>
+              </div>
+
+              <!-- Push Notification Preview -->
+              <div style="padding: 8px 16px 4px;">
+                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">&#50508;&#47548; &#48120;&#47532;&#48372;&#44592;</div>
+              </div>
+              <div class="push-notification-preview">
+                <div class="push-app-icon">&#128062;</div>
+                <div class="push-content">
+                  <div class="push-header">
+                    <span class="push-app-name">PetHolo</span>
+                    <span class="push-time">12&#48516; &#54980;</span>
+                  </div>
+                  <div class="push-title">&#53097;&#51060;&#44032; &#45813;&#51109;&#51012; &#48372;&#45256;&#50612;&#50836;!</div>
+                  <div class="push-body">&#128062;&#127795;&#128149; &#51648;&#44552; &#54869;&#51064;&#54644;&#48372;&#49464;&#50836;</div>
+                </div>
+              </div>
+
+              <!-- Typing Indicator -->
+              <div style="padding-top: 16px;">
+                <div class="typing-indicator">
+                  <div class="avatar">&#128021;</div>
+                  <div class="typing-bubble">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                  </div>
+                </div>
+                <div class="typing-text">&#53097;&#51060;&#44032; &#45813;&#51109;&#51012; &#51456;&#48708;&#54616;&#44256; &#51080;&#50612;&#50836;...</div>
+              </div>
+
+              <!-- Chat Input (inactive state) -->
+              <div class="chat-input-area">
+                <div class="chat-input-row">
+                  <div class="chat-input-wrapper">
+                    <input type="text" placeholder="&#53097;&#51060;&#44032; &#45813;&#51109; &#51456;&#48708; &#51473;..." disabled style="opacity: 0.5;">
+                    <button class="emoji-btn" style="opacity: 0.3;">&#128522;</button>
+                  </div>
+                  <button class="chat-send-btn disabled">&#10148;</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="frame-label">Waiting State</div>
+
+          <!-- Annotations -->
+          <div class="callout" style="top: 430px; right: -195px;">
+            <div class="callout-num">1</div>
+            <div class="callout-text">&#47004;&#45924; &#46524;&#47112;&#51060; (5-30&#48516;)</div>
+          </div>
+          <div class="callout" style="top: 530px; left: -205px;">
+            <div class="callout-text">&#44048;&#49457;&#51201; &#49444;&#47749; &#52852;&#46300;</div>
+            <div class="callout-num">2</div>
+          </div>
+          <div class="callout" style="top: 650px; right: -180px;">
+            <div class="callout-num">3</div>
+            <div class="callout-text">&#54392;&#49884; &#50508;&#47548; &#48120;&#47532;&#48372;&#44592;</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================ -->
+    <!-- SECTION 3: Pet Selection -->
+    <!-- ============================================ -->
+    <div class="mockup-section">
+      <h2>3. Pet Selection - &#54187; &#49440;&#53469; (&#47680;&#54000;&#54187;)</h2>
+      <p class="desc">
+        &#50668;&#47084; &#47560;&#47532; &#48152;&#47140;&#46041;&#47932;&#51012; &#46321;&#47197;&#54620; &#49324;&#50857;&#51088;&#47484; &#50948;&#54620; &#54187; &#49440;&#53469; &#54868;&#47732;.<br>
+        &#44033; &#54187;&#51032; &#47560;&#51648;&#47561; &#47700;&#49884;&#51648; &#48120;&#47532;&#48372;&#44592;, &#51069;&#51648; &#50506;&#51008; &#47700;&#49884;&#51648; &#49688; &#48176;&#51648; &#54364;&#49884;.
+      </p>
+
+      <div class="phones-row">
+        <div style="position: relative;">
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <!-- Status Bar -->
+              <div class="status-bar">
+                <span class="time">10:15</span>
+                <div class="icons">
+                  <span>&#9679;</span>
+                  <span>WiFi</span>
+                  <span>95%</span>
+                </div>
+              </div>
+
+              <!-- Top Bar -->
+              <div class="top-bar">
+                <h1>&#47700;&#49888;&#51200;</h1>
+                <div class="actions">
+                  <div class="icon-btn">&#9998;</div>
+                </div>
+              </div>
+
+              <!-- Search Bar -->
+              <div class="search-bar">
+                <span class="search-icon">&#128269;</span>
+                <input type="text" placeholder="&#52292;&#54021; &#44160;&#49353;...">
+              </div>
+
+              <!-- Pet List -->
+              <div class="pet-list">
+                <!-- Pet 1: Kong-i -->
+                <div class="pet-list-item">
+                  <div class="pet-list-avatar">
+                    <span>&#128021;</span>
+                    <div class="online-dot"></div>
+                  </div>
+                  <div class="pet-list-info">
+                    <div class="pet-list-name">&#53097;&#51060; &#128021;</div>
+                    <div class="pet-list-last-msg">&#128062;&#128149; (3&#48516; &#51204;)</div>
+                  </div>
+                  <div class="pet-list-right">
+                    <span class="pet-list-time">&#50724;&#51204; 10:12</span>
+                    <div class="unread-badge">2</div>
+                  </div>
+                </div>
+
+                <!-- Pet 2: Nabi -->
+                <div class="pet-list-item">
+                  <div class="pet-list-avatar">
+                    <span>&#128008;</span>
+                    <div class="online-dot"></div>
+                  </div>
+                  <div class="pet-list-info">
+                    <div class="pet-list-name">&#45208;&#48708; &#128008;</div>
+                    <div class="pet-list-last-msg">&#128570;&#127769; (1&#49884;&#44036; &#51204;)</div>
+                  </div>
+                  <div class="pet-list-right">
+                    <span class="pet-list-time">&#50724;&#51204; 9:15</span>
+                    <div class="unread-badge">1</div>
+                  </div>
+                </div>
+
+                <!-- Pet 3: Mong-i -->
+                <div class="pet-list-item">
+                  <div class="pet-list-avatar">
+                    <span>&#128054;</span>
+                    <div class="online-dot away"></div>
+                  </div>
+                  <div class="pet-list-info">
+                    <div class="pet-list-name">&#47805;&#51060; &#128054;</div>
+                    <div class="pet-list-last-msg">&#128062;&#127800;&#128157; (&#50612;&#51228;)</div>
+                  </div>
+                  <div class="pet-list-right">
+                    <span class="pet-list-time">&#50612;&#51228;</span>
+                  </div>
+                </div>
+
+                <!-- Pet 4: Choco -->
+                <div class="pet-list-item">
+                  <div class="pet-list-avatar">
+                    <span>&#128048;</span>
+                    <div class="online-dot"></div>
+                  </div>
+                  <div class="pet-list-info">
+                    <div class="pet-list-name">&#52488;&#53076; &#128048;</div>
+                    <div class="pet-list-last-msg">&#128048;&#127807;&#128155; (30&#48516; &#51204;)</div>
+                  </div>
+                  <div class="pet-list-right">
+                    <span class="pet-list-time">&#50724;&#51204; 9:45</span>
+                    <div class="unread-badge">3</div>
+                  </div>
+                </div>
+
+                <!-- Pet 5: Byeol -->
+                <div class="pet-list-item">
+                  <div class="pet-list-avatar">
+                    <span>&#128038;</span>
+                    <div class="online-dot away"></div>
+                  </div>
+                  <div class="pet-list-info">
+                    <div class="pet-list-name">&#48324; &#128038;</div>
+                    <div class="pet-list-last-msg">&#127925;&#128155; (3&#51068; &#51204;)</div>
+                  </div>
+                  <div class="pet-list-right">
+                    <span class="pet-list-time">3&#50900; 2&#51068;</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bottom Navigation -->
+              <div class="bottom-nav">
+                <div class="nav-item">
+                  <span class="nav-icon">&#127968;</span>
+                  <span>&#54856;</span>
+                </div>
+                <div class="nav-item active" style="position: relative;">
+                  <span class="nav-icon">&#128172;</span>
+                  <span>&#47700;&#49888;&#51200;</span>
+                  <div style="position: absolute; top: -2px; right: -4px; width: 16px; height: 16px; border-radius: 50%; background: var(--accent-red); font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; color: #fff;">6</div>
+                </div>
+                <div class="nav-item">
+                  <span class="nav-icon">&#128302;</span>
+                  <span>&#54848;&#47196;&#44536;&#47016;</span>
+                </div>
+                <div class="nav-item">
+                  <span class="nav-icon">&#128722;</span>
+                  <span>&#49828;&#53664;&#50612;</span>
+                </div>
+                <div class="nav-item">
+                  <span class="nav-icon">&#9881;</span>
+                  <span>&#49444;&#51221;</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="frame-label">Pet Selection</div>
+
+          <!-- Annotations -->
+          <div class="callout" style="top: 250px; right: -195px;">
+            <div class="callout-num">1</div>
+            <div class="callout-text">&#51069;&#51648; &#50506;&#51008; &#47700;&#49884;&#51648; &#48176;&#51648;</div>
+          </div>
+          <div class="callout" style="top: 365px; left: -220px;">
+            <div class="callout-text">&#50728;&#46972;&#51064;/&#50724;&#54532;&#46972;&#51064; &#49345;&#53468; &#54364;&#49884;</div>
+            <div class="callout-num">2</div>
+          </div>
+          <div class="callout" style="top: 510px; right: -210px;">
+            <div class="callout-num">3</div>
+            <div class="callout-text">&#47560;&#51648;&#47561; &#51060;&#47784;&#51648; &#51025;&#45813; &#48120;&#47532;&#48372;&#44592;</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================ -->
+    <!-- SECTION 4: Empty State -->
+    <!-- ============================================ -->
+    <div class="mockup-section">
+      <h2>4. Empty State - &#52395; &#47700;&#49884;&#51648;</h2>
+      <p class="desc">
+        &#52376;&#51020; &#52292;&#54021;&#51012; &#49884;&#51089;&#54624; &#46412;&#51032; &#48712; &#54868;&#47732;.<br>
+        &#44048;&#49457;&#51201;&#51064; &#51068;&#47084;&#49828;&#53944;&#50752; &#52628;&#52380; &#47700;&#49884;&#51648;&#47196; &#49324;&#50857;&#51088;&#44032; &#50857;&#44592;&#47484; &#45236;&#50612; &#52395; &#47700;&#49884;&#51648;&#47484; &#48372;&#45244; &#49688; &#51080;&#46020;&#47197; &#50976;&#46020;&#54633;&#45768;&#45796;.
+      </p>
+
+      <div class="phones-row">
+        <div style="position: relative;">
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <!-- Status Bar -->
+              <div class="status-bar">
+                <span class="time">2:30</span>
+                <div class="icons">
+                  <span>&#9679;</span>
+                  <span>WiFi</span>
+                  <span>82%</span>
+                </div>
+              </div>
+
+              <!-- Chat Top Bar -->
+              <div class="chat-top-bar">
+                <button class="chat-back-btn">&larr;</button>
+                <div class="chat-pet-info">
+                  <div class="chat-pet-avatar">
+                    <span>&#128021;</span>
+                    <div class="online-dot"></div>
+                  </div>
+                  <div>
+                    <div class="chat-pet-name">&#53097;&#51060;</div>
+                    <div class="chat-pet-status">
+                      <span style="font-size: 6px;">&#9679;</span> &#47924;&#51648;&#44060;&#45796;&#47532; &#45320;&#47672;&#50640;&#49436; &#51217;&#49549; &#51473;
+                    </div>
+                  </div>
+                </div>
+                <div class="chat-actions">
+                  <div class="icon-btn">&#8942;</div>
+                </div>
+              </div>
+
+              <!-- Empty State -->
+              <div class="empty-state">
+                <div class="empty-illustration">
+                  <span>&#128021;</span>
+                  <span class="sparkle">&#10024;</span>
+                  <span class="sparkle">&#10024;</span>
+                  <span class="sparkle">&#10024;</span>
+                </div>
+                <div class="empty-title">&#53097;&#51060;&#50640;&#44172; &#52395; &#47700;&#49884;&#51648;&#47484; &#48372;&#45236;&#48372;&#49464;&#50836;</div>
+                <div class="empty-desc">
+                  &#53097;&#51060;&#44032; &#47924;&#51648;&#44060;&#45796;&#47532; &#45320;&#47672;&#50640;&#49436;<br>
+                  &#44480;&#50668;&#50868; &#51060;&#47784;&#51648;&#47196; &#45813;&#51109;&#54644; &#51460; &#44144;&#50640;&#50836;.
+                </div>
+
+                <!-- Suggested Messages -->
+                <div class="suggested-messages">
+                  <div class="suggested-msg">&#128140; &#48372;&#44256; &#49910;&#50612;</div>
+                  <div class="suggested-msg">&#9728;&#65039; &#50724;&#45720; &#45216;&#50472; &#51339;&#50500;</div>
+                  <div class="suggested-msg">&#127846; &#44036;&#49885; &#47673;&#44256; &#49910;&#50612;?</div>
+                  <div class="suggested-msg">&#128062; &#49328;&#52293;&#44032;&#51088;</div>
+                </div>
+              </div>
+
+              <!-- Chat Input -->
+              <div class="chat-input-area">
+                <div class="chat-input-row">
+                  <div class="chat-input-wrapper">
+                    <input type="text" placeholder="&#53097;&#51060;&#50640;&#44172; &#47700;&#49884;&#51648; &#48372;&#45236;&#44592;...">
+                    <button class="emoji-btn">&#128522;</button>
+                  </div>
+                  <button class="chat-send-btn disabled">&#10148;</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="frame-label">Empty State</div>
+
+          <!-- Annotations -->
+          <div class="callout" style="top: 320px; right: -170px;">
+            <div class="callout-num">1</div>
+            <div class="callout-text">&#44048;&#49457;&#51201; &#50504;&#45236; &#47700;&#49884;&#51648;</div>
+          </div>
+          <div class="callout" style="top: 520px; left: -180px;">
+            <div class="callout-text">&#52628;&#52380; &#47700;&#49884;&#51648; &#53596;</div>
+            <div class="callout-num">2</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================ -->
+    <!-- SECTION 5: Annotations & Design Notes -->
+    <!-- ============================================ -->
+    <div class="mockup-section">
+      <h2>5. &#54645;&#49900; &#49444;&#44228; &#50896;&#52825; (Design Principles)</h2>
+      <p class="desc">AI Messenger&#51032; &#54645;&#49900; &#50896;&#52825;&#44284; &#44592;&#49696;&#51201; &#51228;&#50557; &#49324;&#54637;.</p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px;">
+        <!-- Principle 1 -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">&#128172; &#51025;&#45813; &#54805;&#49885;</span>
+            <span class="badge badge-blue">Core</span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+            &#54187;&#51008; <strong style="color: var(--accent-blue);">&#50724;&#51649; &#51060;&#47784;&#51648; 2-3&#44060; &#51312;&#54633;</strong>&#51004;&#47196;&#47564; &#51025;&#45813;&#54633;&#45768;&#45796;.
+            &#53581;&#49828;&#53944; &#51025;&#45813;&#51008; &#50630;&#51004;&#47728;, &#51060;&#47484; &#53685;&#54644; &#49892;&#51228; &#46041;&#47932;&#44284; &#45824;&#54868;&#54616;&#45716; &#46319;&#54620; &#44048;&#49457;&#51012; &#47564;&#46317;&#45768;&#45796;.
+          </p>
+          <div class="divider"></div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+            <span class="tag">&#128062;&#127795;&#128149;</span>
+            <span class="tag">&#128054;&#127846;&#128523;</span>
+            <span class="tag">&#128570;&#127769;</span>
+            <span class="tag">&#128149;&#127752;&#128054;</span>
+          </div>
+        </div>
+
+        <!-- Principle 2 -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">&#9203; &#46524;&#47112;&#51060; &#47700;&#52964;&#45768;&#51608;</span>
+            <span class="badge badge-orange">Immersion</span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+            &#51025;&#45813; &#46524;&#47112;&#51060;: <strong style="color: var(--accent-orange);">5~30&#48516; &#47004;&#45924;</strong>.<br>
+            &#51593;&#49884; &#51025;&#45813;&#51008; &#52292;&#54021;&#48391;&#52376;&#47100; &#45712;&#44760;&#51648;&#47564;, &#46524;&#47112;&#51060;&#45716; "&#47924;&#51648;&#44060;&#45796;&#47532; &#45320;&#47672;"&#46972;&#45716; &#49464;&#44228;&#44288;&#44284; &#50612;&#50872;&#47532;&#47728; &#44048;&#49457;&#51201; &#47792;&#51077;&#44048;&#51012; &#45458;&#51077;&#45768;&#45796;.
+          </p>
+          <div class="divider"></div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <div style="flex: 1;">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 65%; background: var(--gradient-accent);"></div>
+              </div>
+            </div>
+            <span style="font-size: 11px; color: var(--text-muted);">Min 5&#48516; / Max 30&#48516;</span>
+          </div>
+        </div>
+
+        <!-- Principle 3 -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">&#129504; AI &#52968;&#53581;&#49828;&#53944; &#48516;&#49437;</span>
+            <span class="badge badge-purple">AI</span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+            AI&#45716; &#54187; &#54532;&#47196;&#54596;&#50640; &#51200;&#51109;&#46108; <strong style="color: var(--accent-purple);">&#52968;&#53581;&#49828;&#53944; &#48320;&#49688;</strong>&#47484; &#54876;&#50857;&#54616;&#50668;
+            &#51060;&#47784;&#51648;&#47484; &#49440;&#53469;&#54633;&#45768;&#45796;. &#51060;&#47492;, &#51339;&#50500;&#54616;&#45912; &#44036;&#49885;, &#49328;&#52293; &#51109;&#49548;, &#49457;&#44201; &#46321;&#51012; &#48152;&#50689;&#54633;&#45768;&#45796;.
+          </p>
+          <div class="divider"></div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+            <span class="tag">&#128055; &#51060;&#47492;</span>
+            <span class="tag">&#127846; &#44036;&#49885;</span>
+            <span class="tag">&#127795; &#49328;&#52293;</span>
+            <span class="tag">&#128149; &#49457;&#44201;</span>
+          </div>
+        </div>
+
+        <!-- Principle 4 -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">&#128276; &#54392;&#49884; &#50508;&#47548;</span>
+            <span class="badge badge-green">Notify</span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+            &#46524;&#47112;&#51060; &#54980; &#51025;&#45813;&#51060; &#50756;&#47308;&#46104;&#47732; <strong style="color: var(--accent-green);">&#54392;&#49884; &#50508;&#47548;</strong>&#51012; &#51204;&#49569;&#54633;&#45768;&#45796;.
+            &#50508;&#47548;&#51012; &#53485;&#54616;&#47732; &#48148;&#47196; &#52292;&#54021;&#54868;&#47732;&#51004;&#47196; &#51060;&#46041;&#54616;&#50668; &#54187;&#51032; &#51025;&#45813;&#51012; &#54869;&#51064;&#54633;&#45768;&#45796;.
+          </p>
+          <div class="divider"></div>
+          <div style="font-size: 11px; color: var(--text-muted);">FCM (Firebase Cloud Messaging) &#49324;&#50857;</div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================ -->
+    <!-- SECTION 6: Flow Diagram -->
+    <!-- ============================================ -->
+    <div class="mockup-section">
+      <h2>6. &#47700;&#49884;&#51648; &#54540;&#47196;&#50864; (Message Flow)</h2>
+      <p class="desc">&#47700;&#49884;&#51648; &#51204;&#49569;&#48512;&#53552; &#54392;&#49884; &#50508;&#47548;&#44620;&#51648;&#51032; &#51204;&#52404; &#54540;&#47196;&#50864;.</p>
+
+      <div class="flow-diagram-messenger">
+        <div>
+          <div class="flow-node start">&#128172; &#47700;&#49884;&#51648;&#51204;&#49569;</div>
+          <div class="flow-label">&#49324;&#50857;&#51088; &#53581;&#49828;&#53944; &#51077;&#47141;</div>
+        </div>
+        <span class="flow-connector">&rarr;</span>
+        <div>
+          <div class="flow-node process">&#129302; AI&#52376;&#47532;</div>
+          <div class="flow-label">&#52968;&#53581;&#49828;&#53944; &#48516;&#49437; &amp; &#51060;&#47784;&#51648; &#49440;&#53469;</div>
+        </div>
+        <span class="flow-connector">&rarr;</span>
+        <div>
+          <div class="flow-node delay">&#9203; &#46524;&#47112;&#51060;</div>
+          <div class="flow-label">&#47004;&#45924; 5~30&#48516;</div>
+        </div>
+        <span class="flow-connector">&rarr;</span>
+        <div>
+          <div class="flow-node output">&#128062; &#51060;&#47784;&#51648;&#51025;&#45813;</div>
+          <div class="flow-label">2-3&#44060; &#51060;&#47784;&#51648; &#51312;&#54633;</div>
+        </div>
+        <span class="flow-connector">&rarr;</span>
+        <div>
+          <div class="flow-node notify">&#128276; &#54392;&#49884;&#50508;&#47548;</div>
+          <div class="flow-label">FCM &#50508;&#47548; &#51204;&#49569;</div>
+        </div>
+      </div>
+
+      <!-- Detailed Sub-flow -->
+      <div style="margin-top: 16px;">
+        <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px;">AI &#52376;&#47532; &#49464;&#48512; &#54540;&#47196;&#50864;</div>
+        <div class="flow-diagram-messenger" style="background: rgba(102,126,234,0.06); border: 1px solid rgba(102,126,234,0.15);">
+          <div>
+            <div class="flow-node process">&#47700;&#49884;&#51648; &#49688;&#49888;</div>
+          </div>
+          <span class="flow-connector">&rarr;</span>
+          <div>
+            <div class="flow-node process">&#54187; &#54532;&#47196;&#54596; &#51312;&#54924;</div>
+            <div class="flow-label">Firestore</div>
+          </div>
+          <span class="flow-connector">&rarr;</span>
+          <div>
+            <div class="flow-node process">&#53581;&#49828;&#53944; NLP &#48516;&#49437;</div>
+            <div class="flow-label">&#51032;&#46020;/&#44048;&#51221; &#54028;&#50501;</div>
+          </div>
+          <span class="flow-connector">&rarr;</span>
+          <div>
+            <div class="flow-node process">&#51060;&#47784;&#51648; &#47588;&#54609;</div>
+            <div class="flow-label">&#53076;&#53581;&#49828;&#53944; &#48320;&#49688; &#48152;&#50689;</div>
+          </div>
+          <span class="flow-connector">&rarr;</span>
+          <div>
+            <div class="flow-node delay">&#46524;&#47112;&#51060; &#50696;&#50557;</div>
+            <div class="flow-label">Cloud Tasks</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================ -->
+    <!-- SECTION 7: Spec Table -->
+    <!-- ============================================ -->
+    <div class="mockup-section">
+      <h2>7. &#44592;&#49696; &#49324;&#50577; (Technical Spec)</h2>
+      <p class="desc">AI Messenger &#44592;&#45733;&#51032; &#49345;&#49464; &#44592;&#49696; &#49324;&#50577;.</p>
+
+      <!-- Message Format -->
+      <div style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px;">&#47700;&#49884;&#51648; &#54805;&#49885; (Message Format)</div>
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th style="width: 25%;">&#54637;&#47785;</th>
+            <th style="width: 30%;">&#49324;&#50577;</th>
+            <th>&#49444;&#47749;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#49324;&#50857;&#51088; &#47700;&#49884;&#51648;</strong></td>
+            <td><code>text (&#54620;&#44397;&#50612;)</code></td>
+            <td>&#51068;&#48152; &#53581;&#49828;&#53944; &#47700;&#49884;&#51648;, &#52572;&#45824; 500&#51088;</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#54187; &#51025;&#45813;</strong></td>
+            <td><code>emoji[] (2-3&#44060;)</code></td>
+            <td>&#50724;&#51649; &#51060;&#47784;&#51648; &#51312;&#54633;&#51004;&#47196;&#47564; &#51025;&#45813; (&#53581;&#49828;&#53944; &#50630;&#51020;)</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#53440;&#51076;&#49828;&#53484;&#54532;</strong></td>
+            <td><code>Firestore Timestamp</code></td>
+            <td>&#49436;&#48260; &#53440;&#51076;&#49828;&#53484;&#54532; &#44592;&#51456;</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#51069;&#51020; &#49345;&#53468;</strong></td>
+            <td><code>boolean</code></td>
+            <td>&#49324;&#50857;&#51088; &#47700;&#49884;&#51648;&#50640;&#47564; &#54364;&#49884;</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#47700;&#49884;&#51648; ID</strong></td>
+            <td><code>auto-generated</code></td>
+            <td>Firestore document ID</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Delay Range -->
+      <div style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin: 24px 0 12px;">&#46524;&#47112;&#51060; &#48276;&#50948; (Delay Range)</div>
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th style="width: 25%;">&#54637;&#47785;</th>
+            <th style="width: 30%;">&#44050;</th>
+            <th>&#49444;&#47749;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#52572;&#49548; &#46524;&#47112;&#51060;</strong></td>
+            <td><code>5&#48516; (300s)</code></td>
+            <td>&#44032;&#51109; &#48736;&#47480; &#51025;&#45813; &#49884;&#44036;</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#52572;&#45824; &#46524;&#47112;&#51060;</strong></td>
+            <td><code>30&#48516; (1800s)</code></td>
+            <td>&#44032;&#51109; &#45720;&#51008; &#51025;&#45813; &#49884;&#44036;</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#48516;&#54252;</strong></td>
+            <td><code>Gaussian (&#956;=15, &#963;=5)</code></td>
+            <td>15&#48516; &#44540;&#52376;&#50640; &#51665;&#51473;&#46108; &#51221;&#44508; &#48516;&#54252;</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#53440;&#51060;&#47672; &#50696;&#50557;</strong></td>
+            <td><code>Cloud Tasks</code></td>
+            <td>&#46524;&#47112;&#51060; &#54980; &#54632;&#49688; &#49892;&#54665; &#50696;&#50557;</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#53440;&#51060;&#54609; &#51064;&#46356;&#52992;&#51060;&#53552;</strong></td>
+            <td><code>&#46524;&#47112;&#51060; &#51333;&#47308; 30&#52488; &#51204;</code></td>
+            <td>&#51025;&#45813; &#51649;&#51204; &#53440;&#51060;&#54609; &#50528;&#45768;&#47700;&#51060;&#49496; &#54364;&#49884;</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Emoji Selection Logic -->
+      <div style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin: 24px 0 12px;">&#51060;&#47784;&#51648; &#49440;&#53469; &#47196;&#51649; (Emoji Selection Logic)</div>
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th style="width: 25%;">&#49324;&#50857;&#51088; &#47700;&#49884;&#51648; &#51032;&#46020;</th>
+            <th style="width: 35%;">&#51060;&#47784;&#51648; &#49440;&#53469; &#44508;&#52825;</th>
+            <th>&#50696;&#49884;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#49328;&#52293;/&#50808;&#52636;</strong></td>
+            <td>&#48156;&#48148;&#45797; + &#51109;&#49548; + &#44048;&#51221;</td>
+            <td><code>&#128062;&#127795;&#128149;</code></td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#44036;&#49885;/&#51020;&#49885;</strong></td>
+            <td>&#54187; &#50620;&#44404; + &#44036;&#49885;&#47749; + &#44048;&#51221;</td>
+            <td><code>&#128054;&#127846;&#128523;</code></td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#44536;&#47532;&#50880;/&#48372;&#44256;&#49910;&#51020;</strong></td>
+            <td>&#54616;&#53944; + &#47924;&#51648;&#44060; + &#54187; &#50620;&#44404;</td>
+            <td><code>&#128149;&#127752;&#128054;</code></td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#45216;&#50472;/&#54872;&#44221;</strong></td>
+            <td>&#53468;&#50577;/&#45804; + &#54413; + &#48156;&#48148;&#45797;</td>
+            <td><code>&#9728;&#65039;&#127800;&#128062;</code></td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#45440;&#51060;/&#54876;&#46041;</strong></td>
+            <td>&#48156;&#48148;&#45797; + &#54876;&#46041; + &#44048;&#51221;</td>
+            <td><code>&#128062;&#9917;&#128516;</code></td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#51064;&#49324;/&#50504;&#48512;</strong></td>
+            <td>&#54187; &#50620;&#44404; + &#49552; + &#54616;&#53944;</td>
+            <td><code>&#128054;&#128075;&#128149;</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Context Variables -->
+      <div style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin: 24px 0 12px;">&#52968;&#53581;&#49828;&#53944; &#48320;&#49688; (Context Variables)</div>
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th style="width: 25%;">&#48320;&#49688;&#47749;</th>
+            <th style="width: 20%;">&#53440;&#51077;</th>
+            <th style="width: 25%;">&#50696;&#49884;</th>
+            <th>&#50857;&#46020;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>petName</code></td>
+            <td><code>string</code></td>
+            <td>"&#53097;&#51060;"</td>
+            <td>&#54187; &#51060;&#47492;</td>
+          </tr>
+          <tr>
+            <td><code>petType</code></td>
+            <td><code>string</code></td>
+            <td>"dog"</td>
+            <td>&#46041;&#47932; &#51333;&#47448; (&#51060;&#47784;&#51648; &#54400; &#44208;&#51221;)</td>
+          </tr>
+          <tr>
+            <td><code>petEmoji</code></td>
+            <td><code>string</code></td>
+            <td>"&#128021;"</td>
+            <td>&#45824;&#54364; &#51060;&#47784;&#51648;</td>
+          </tr>
+          <tr>
+            <td><code>favoriteSnack</code></td>
+            <td><code>string</code></td>
+            <td>"&#44256;&#44396;&#47560;"</td>
+            <td>&#44036;&#49885; &#44288;&#47144; &#51060;&#47784;&#51648; &#49440;&#53469;&#50640; &#54876;&#50857;</td>
+          </tr>
+          <tr>
+            <td><code>walkingPlace</code></td>
+            <td><code>string</code></td>
+            <td>"&#54620;&#44053; &#44277;&#50896;"</td>
+            <td>&#49328;&#52293;/&#50808;&#52636; &#44288;&#47144; &#51060;&#47784;&#51648; &#49440;&#53469;&#50640; &#54876;&#50857;</td>
+          </tr>
+          <tr>
+            <td><code>personality</code></td>
+            <td><code>string[]</code></td>
+            <td>["&#54876;&#48156;", "&#50528;&#44368;"]</td>
+            <td>&#44048;&#51221; &#51060;&#47784;&#51648; &#49440;&#53469;&#50640; &#54876;&#50857;</td>
+          </tr>
+          <tr>
+            <td><code>memorialDate</code></td>
+            <td><code>Timestamp</code></td>
+            <td>2024-06-15</td>
+            <td>&#44592;&#51068; &#44288;&#47144; &#53945;&#48324; &#51060;&#47784;&#51648; &#53944;&#47532;&#44144;</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Storage Spec -->
+      <div style="font-size: 14px; font-weight: 600; color: var(--text-primary); margin: 24px 0 12px;">&#45936;&#51060;&#53552; &#51200;&#51109;&#49548; (Storage)</div>
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th style="width: 25%;">&#54637;&#47785;</th>
+            <th style="width: 30%;">&#49345;&#49464;</th>
+            <th>&#49444;&#47749;</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#51200;&#51109;&#49548;</strong></td>
+            <td><code>Firestore</code></td>
+            <td>&#47700;&#49884;&#51648; &#47928;&#49436; &#51200;&#51109;</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#44221;&#47196;</strong></td>
+            <td><code>users/{uid}/pets/{petId}/messages</code></td>
+            <td>&#49324;&#50857;&#51088; &gt; &#54187; &gt; &#47700;&#49884;&#51648; &#44228;&#52789; &#44396;&#51312;</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#51064;&#45937;&#49828;</strong></td>
+            <td><code>createdAt DESC</code></td>
+            <td>&#49884;&#44036; &#50669;&#49692; &#51221;&#47148; (&#52572;&#49888; &#47700;&#49884;&#51648; &#47676;&#51200;)</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#54168;&#51060;&#51648;&#45348;&#51060;&#49496;</strong></td>
+            <td><code>20&#44148;/&#54168;&#51060;&#51648;</code></td>
+            <td>&#47924;&#54620; &#49828;&#53356;&#47204; &#47196;&#46377;</td>
+          </tr>
+          <tr>
+            <td><strong style="color: var(--text-primary);">&#49892;&#49884;&#44036; &#44396;&#46021;</strong></td>
+            <td><code>onSnapshot()</code></td>
+            <td>Firestore &#49892;&#49884;&#44036; &#47532;&#49828;&#45320;</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+
+    <!-- ============================================ -->
+    <!-- SECTION 8: Firestore Document Structure -->
+    <!-- ============================================ -->
+    <div class="mockup-section">
+      <h2>8. Firestore &#47928;&#49436; &#44396;&#51312;</h2>
+      <p class="desc">&#47700;&#49884;&#51648; &#51200;&#51109;&#50640; &#49324;&#50857;&#46104;&#45716; Firestore &#47928;&#49436; &#49828;&#53412;&#47560;.</p>
+
+      <div class="api-endpoint">
+        <span class="api-method post">PATH</span>
+        <span class="api-path">users/{uid}/pets/{petId}/messages/{messageId}</span>
+        <div class="api-desc">&#47700;&#49884;&#51648; &#47928;&#49436; &#44221;&#47196;</div>
+      </div>
+
+      <pre><code>{
+  "id": "auto-generated",
+  "type": "user" | "pet",
+  "content": "&#53097;&#50500;, &#50724;&#45720; &#49328;&#52293;&#44032;&#44256; &#49910;&#45796;",  // type=user: &#53581;&#49828;&#53944;
+  "emojis": ["&#128062;", "&#127795;", "&#128149;"],          // type=pet: &#51060;&#47784;&#51648; &#48176;&#50676;
+  "isRead": true,
+  "createdAt": Timestamp,
+  "metadata": {
+    "delaySeconds": 720,              // &#51201;&#50857;&#46108; &#46524;&#47112;&#51060; (&#52488;)
+    "intentDetected": "walk",         // AI&#44032; &#44048;&#51648;&#54620; &#51032;&#46020;
+    "contextUsed": ["walkingPlace", "personality"]  // &#54876;&#50857;&#46108; &#52968;&#53581;&#49828;&#53944; &#48320;&#49688;
+  }
+}</code></pre>
+
+      <div class="api-endpoint" style="margin-top: 16px;">
+        <span class="api-method post">PATH</span>
+        <span class="api-path">users/{uid}/pets/{petId}/messenger_state</span>
+        <div class="api-desc">&#47700;&#49888;&#51200; &#49345;&#53468; &#47928;&#49436; (&#45824;&#44592; &#49345;&#53468;, &#47560;&#51648;&#47561; &#51069;&#51020; &#46321;)</div>
+      </div>
+
+      <pre><code>{
+  "lastMessageAt": Timestamp,
+  "pendingReply": {
+    "scheduledAt": Timestamp,         // &#51025;&#45813; &#50696;&#51221; &#49884;&#44036;
+    "messageRef": "messages/{id}",    // &#45824;&#49345; &#47700;&#49884;&#51648; &#52280;&#51312;
+    "delaySeconds": 720
+  },
+  "unreadCount": 2,
+  "lastPetEmojis": ["&#128062;", "&#127795;", "&#128149;"]
+}</code></pre>
+    </div>
+
+
+    <!-- ============================================ -->
+    <!-- SECTION 9: API Endpoints -->
+    <!-- ============================================ -->
+    <div class="mockup-section">
+      <h2>9. API &#50644;&#46300;&#54252;&#51064;&#53944;</h2>
+      <p class="desc">&#47700;&#49888;&#51200; &#44592;&#45733;&#50640; &#54596;&#50836;&#54620; &#49436;&#48260; API.</p>
+
+      <div class="api-endpoint">
+        <span class="api-method post">POST</span>
+        <span class="api-path">/api/messenger/send</span>
+        <div class="api-desc">&#49324;&#50857;&#51088; &#47700;&#49884;&#51648; &#51204;&#49569; &rarr; AI &#52376;&#47532; &rarr; &#46524;&#47112;&#51060; &#50696;&#50557;</div>
+      </div>
+
+      <div class="api-endpoint">
+        <span class="api-method get">GET</span>
+        <span class="api-path">/api/messenger/{petId}/messages</span>
+        <div class="api-desc">&#47700;&#49884;&#51648; &#47785;&#47197; &#51312;&#54924; (&#54168;&#51060;&#51648;&#45348;&#51060;&#49496; &#51648;&#50896;)</div>
+      </div>
+
+      <div class="api-endpoint">
+        <span class="api-method get">GET</span>
+        <span class="api-path">/api/messenger/{petId}/state</span>
+        <div class="api-desc">&#47700;&#49888;&#51200; &#49345;&#53468; &#51312;&#54924; (&#45824;&#44592; &#49345;&#53468;, &#51069;&#51648; &#50506;&#51008; &#49688;)</div>
+      </div>
+
+      <div class="api-endpoint">
+        <span class="api-method post">POST</span>
+        <span class="api-path">/api/messenger/{petId}/read</span>
+        <div class="api-desc">&#47700;&#49884;&#51648; &#51069;&#51020; &#52376;&#47532;</div>
+      </div>
+
+      <div class="api-endpoint">
+        <span class="api-method get">GET</span>
+        <span class="api-path">/api/messenger/pets</span>
+        <div class="api-desc">&#54187; &#47785;&#47197; + &#47560;&#51648;&#47561; &#47700;&#49884;&#51648; &#48120;&#47532;&#48372;&#44592; (&#49440;&#53469; &#54868;&#47732;&#50857;)</div>
+      </div>
+    </div>
+
+
+    <!-- ============================================ -->
+    <!-- SECTION 10: Summary Notes -->
+    <!-- ============================================ -->
+    <div class="mockup-section">
+      <h2>10. &#44396;&#54788; &#52404;&#53356;&#47532;&#49828;&#53944;</h2>
+      <p class="desc">&#44060;&#48156; &#49884; &#54869;&#51064;&#54644;&#50556; &#54624; &#54645;&#49900; &#54637;&#47785;.</p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px;">
+        <div class="card">
+          <div class="flex gap-8" style="align-items: flex-start;">
+            <div style="width: 24px; height: 24px; border-radius: 6px; background: rgba(102,126,234,0.2); display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; margin-top: 1px;">&#10003;</div>
+            <div>
+              <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">&#54187;&#51008; &#51060;&#47784;&#51648;&#47564; &#51025;&#45813;</div>
+              <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">&#53581;&#49828;&#53944; &#51025;&#45813; &#50630;&#51020;, 2-3&#44060; &#51060;&#47784;&#51648; &#51312;&#54633;&#47564;</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="flex gap-8" style="align-items: flex-start;">
+            <div style="width: 24px; height: 24px; border-radius: 6px; background: rgba(255,167,38,0.2); display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; margin-top: 1px;">&#10003;</div>
+            <div>
+              <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">&#47004;&#45924; &#46524;&#47112;&#51060; 5-30&#48516;</div>
+              <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">&#51221;&#44508; &#48516;&#54252; (&#956;=15, &#963;=5), &#51593;&#49884; &#51025;&#45813; &#50630;&#51020;</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="flex gap-8" style="align-items: flex-start;">
+            <div style="width: 24px; height: 24px; border-radius: 6px; background: rgba(100,200,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; margin-top: 1px;">&#10003;</div>
+            <div>
+              <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">&#52968;&#53581;&#49828;&#53944; &#44592;&#48152; &#51060;&#47784;&#51648; &#49440;&#53469;</div>
+              <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">&#54187; &#54532;&#47196;&#54596;(&#44036;&#49885;, &#49328;&#52293;&#51109;&#49548;, &#49457;&#44201;) &#48152;&#50689;</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="flex gap-8" style="align-items: flex-start;">
+            <div style="width: 24px; height: 24px; border-radius: 6px; background: rgba(56,239,125,0.2); display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; margin-top: 1px;">&#10003;</div>
+            <div>
+              <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Firestore &#49892;&#49884;&#44036; &#46041;&#44592;&#54868;</div>
+              <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">onSnapshot() &#47532;&#49828;&#45320;&#47196; &#51593;&#49884; UI &#48152;&#50689;</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="flex gap-8" style="align-items: flex-start;">
+            <div style="width: 24px; height: 24px; border-radius: 6px; background: rgba(240,147,251,0.2); display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; margin-top: 1px;">&#10003;</div>
+            <div>
+              <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">FCM &#54392;&#49884; &#50508;&#47548;</div>
+              <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">&#46524;&#47112;&#51060; &#54980; &#51025;&#45813; &#50756;&#47308; &#49884; &#54392;&#49884; &#50508;&#47548; &#51204;&#49569;</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="flex gap-8" style="align-items: flex-start;">
+            <div style="width: 24px; height: 24px; border-radius: 6px; background: rgba(255,107,107,0.2); display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; margin-top: 1px;">&#10003;</div>
+            <div>
+              <div style="font-size: 13px; font-weight: 600; color: var(--text-primary);">&#45824;&#44592; &#49345;&#53468; UI &#50504;&#45236;</div>
+              <div style="font-size: 11px; color: var(--text-secondary); margin-top: 2px;">&#53440;&#51060;&#47672; &#48176;&#51648;, &#49444;&#47749; &#52852;&#46300;, &#53440;&#51060;&#54609; &#51064;&#46356;&#52992;&#51060;&#53552;</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /mockup-page -->
+</body>
+</html>

@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PetHolo Mockup - 06 Credits & Settings</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    /* ── Credit Balance Hero ── */
+    .credit-balance-hero {
+      text-align: center;
+      padding: 28px 20px 24px;
+    }
+
+    .credit-coin-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffd700, #ffaa00);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin: 0 auto 12px;
+      box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+    }
+
+    .credit-balance-value {
+      font-size: 64px;
+      font-weight: 800;
+      line-height: 1;
+      background: linear-gradient(135deg, #ffd700, #ffaa00, #ffd700);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -2px;
+    }
+
+    .credit-balance-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* ── Credit Cost Grid ── */
+    .cost-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .cost-item {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      text-align: center;
+    }
+
+    .cost-item-icon {
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .cost-item-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+      line-height: 1.3;
+    }
+
+    .cost-item-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent-yellow);
+    }
+
+    .cost-item-value.refund {
+      color: var(--accent-green);
+      font-size: 14px;
+    }
+
+    /* ── Transaction Ledger ── */
+    .ledger-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .ledger-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .ledger-link {
+      font-size: 12px;
+      color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    .tx-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .tx-item:last-child {
+      border-bottom: none;
+    }
+
+    .tx-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .tx-icon.debit {
+      background: rgba(255,107,107,0.12);
+    }
+
+    .tx-icon.credit {
+      background: rgba(56,239,125,0.12);
+    }
+
+    .tx-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .tx-desc {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .tx-date {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .tx-amount {
+      font-size: 15px;
+      font-weight: 700;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .tx-amount.negative {
+      color: var(--accent-red);
+    }
+
+    .tx-amount.positive {
+      color: var(--accent-green);
+    }
+
+    /* ── Pricing Cards ── */
+    .pricing-card {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 12px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .pricing-card:hover {
+      border-color: rgba(100,200,255,0.3);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .pricing-card.selected {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 20px rgba(100,200,255,0.15);
+    }
+
+    .pricing-card.popular {
+      border-color: rgba(255,167,38,0.4);
+    }
+
+    .popular-badge {
+      position: absolute;
+      top: -1px;
+      right: 16px;
+      background: linear-gradient(135deg, #ffa726, #ff7043);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 0 0 8px 8px;
+    }
+
+    .pricing-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .pricing-coin {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .pricing-coin.small {
+      background: rgba(255,215,0,0.12);
+    }
+
+    .pricing-coin.large {
+      background: rgba(255,167,38,0.15);
+    }
+
+    .pricing-name {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .pricing-credits {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .pricing-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .pricing-price {
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .pricing-unit {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .pricing-radio {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .pricing-radio.checked {
+      border-color: var(--accent-blue);
+    }
+
+    .pricing-radio.checked::after {
+      content: '';
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+    }
+
+    /* ── Cafe24 Shop Link ── */
+    .cafe24-shop-link {
+      text-align: center;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .cafe24-shop-link a {
+      color: var(--accent-blue);
+      font-size: 13px;
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(100,200,255,0.4);
+      padding-bottom: 1px;
+    }
+
+    .cafe24-shop-link .cafe24-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ── Payment Method ── */
+    .payment-methods {
+      margin-bottom: 20px;
+    }
+
+    .payment-method-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .payment-method-item.selected {
+      border-color: var(--accent-blue);
+    }
+
+    .payment-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .payment-name {
+      flex: 1;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .payment-check {
+      color: var(--accent-blue);
+      font-size: 16px;
+      opacity: 0;
+    }
+
+    .payment-method-item.selected .payment-check {
+      opacity: 1;
+    }
+
+    /* ── Settings List ── */
+    .profile-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 20px 0;
+      margin-bottom: 8px;
+    }
+
+    .profile-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .profile-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .profile-email {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .profile-tier {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .tier-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .tier-badge.silver {
+      background: linear-gradient(135deg, rgba(192,192,192,0.2), rgba(169,169,169,0.15));
+      color: #c0c0c0;
+      border: 1px solid rgba(192,192,192,0.3);
+    }
+
+    .tier-badge.bronze {
+      background: linear-gradient(135deg, rgba(205,127,50,0.2), rgba(184,115,51,0.15));
+      color: #cd7f32;
+      border: 1px solid rgba(205,127,50,0.3);
+    }
+
+    .settings-group {
+      margin-bottom: 20px;
+    }
+
+    .settings-group-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+      padding: 0 0 8px;
+    }
+
+    .settings-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      cursor: pointer;
+    }
+
+    .settings-item:last-child {
+      border-bottom: none;
+    }
+
+    .settings-item-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--bg-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .settings-item-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .settings-item-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .settings-item-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .settings-item-trail {
+      font-size: 13px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ── Toggle Switch ── */
+    .toggle {
+      width: 44px;
+      height: 24px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.12);
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+
+    .toggle.active {
+      background: var(--accent-blue);
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.2s;
+    }
+
+    .toggle.active::after {
+      transform: translateX(20px);
+    }
+
+    /* ── Danger Zone ── */
+    .danger-zone {
+      padding: 16px 0;
+      margin-top: 8px;
+    }
+
+    .danger-zone .btn-logout {
+      width: 100%;
+      padding: 14px;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .danger-zone .btn-logout:hover {
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .danger-zone .delete-account {
+      display: block;
+      text-align: center;
+      margin-top: 16px;
+      font-size: 12px;
+      color: var(--accent-red);
+      cursor: pointer;
+      opacity: 0.7;
+      text-decoration: none;
+    }
+
+    .danger-zone .delete-account:hover {
+      opacity: 1;
+    }
+
+    .support-link {
+      display: block;
+      text-align: center;
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    /* ── Tier Modal ── */
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: var(--bg-secondary);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-height: 90%;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .modal-content::-webkit-scrollbar { width: 0; }
+
+    .modal-header {
+      padding: 20px 20px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg-surface);
+      border: none;
+      color: var(--text-secondary);
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    /* ── Tier Comparison ── */
+    .tier-card {
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .tier-card.bronze-card {
+      background: linear-gradient(135deg, rgba(205,127,50,0.1), rgba(184,115,51,0.05));
+      border: 1px solid rgba(205,127,50,0.2);
+    }
+
+    .tier-card.silver-card {
+      background: linear-gradient(135deg, rgba(192,192,192,0.12), rgba(169,169,169,0.06));
+      border: 1px solid rgba(192,192,192,0.25);
+    }
+
+    .tier-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .tier-card-icon {
+      font-size: 24px;
+    }
+
+    .tier-card-name {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .tier-card-sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .tier-features {
+      list-style: none;
+      padding: 0;
+    }
+
+    .tier-features li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .tier-features li .check {
+      color: var(--accent-green);
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .tier-features li .cross {
+      color: var(--accent-red);
+      font-size: 14px;
+      flex-shrink: 0;
+      opacity: 0.6;
+    }
+
+    /* ── Comparison Table (in-modal) ── */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin: 16px 0;
+    }
+
+    .compare-table th {
+      text-align: center;
+      padding: 10px 8px;
+      font-weight: 600;
+      font-size: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .compare-table th:first-child {
+      text-align: left;
+      color: var(--text-secondary);
+    }
+
+    .compare-table th.bronze-col {
+      color: #cd7f32;
+    }
+
+    .compare-table th.silver-col {
+      color: #c0c0c0;
+    }
+
+    .compare-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    .compare-table td:first-child {
+      text-align: left;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    /* ── Section Divider ── */
+    .or-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 16px 0;
+    }
+
+    .or-divider::before,
+    .or-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+    }
+
+    .or-divider span {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* ── Phone Container with Annotations ── */
+    .phone-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    /* ── Section Label inside phone ── */
+    .section-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .section-label .dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+    }
+  </style>
+</head>
+<body>
+  <div class="mockup-page">
+
+    <!-- ====== Page Header ====== -->
+    <h1>06. Credits & Settings</h1>
+    <p class="subtitle">
+      PetHolo(펫홀로) 크레딧 시스템 및 계정 설정 화면. 크레딧 잔액 대시보드, 구매, 거래 내역, 계정 관리 및 등급 시스템을 포함합니다.
+    </p>
+
+    <!-- ====== Section 1: Credits Dashboard + Purchase ====== -->
+    <div class="mockup-section">
+      <h2>1. Credits Dashboard / Purchase</h2>
+      <p class="desc">크레딧 잔액 확인, 사용 비용 요약, 거래 내역 조회 및 크레딧 구매 화면입니다. 거래 내역은 불변(immutable) 감사 추적 로그입니다.</p>
+
+      <div class="phones-row">
+
+        <!-- ── Phone 1: Credits Dashboard ── -->
+        <div class="phone-container">
+          <div class="phone-frame">
+            <div class="phone-screen">
+
+              <!-- Status Bar -->
+              <div class="status-bar">
+                <span class="time">9:41</span>
+                <div class="icons">
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                  <span>&#128267;</span>
+                </div>
+              </div>
+
+              <!-- Top Bar -->
+              <div class="top-bar">
+                <h1>크레딧</h1>
+                <div class="actions">
+                  <div class="icon-btn">&#128176;</div>
+                </div>
+              </div>
+
+              <div class="content">
+
+                <!-- Credit Balance Hero -->
+                <div class="credit-balance-hero">
+                  <div class="credit-coin-icon">&#11044;</div>
+                  <div class="credit-balance-value">120</div>
+                  <div class="credit-balance-label">보유 크레딧</div>
+                </div>
+
+                <!-- Credit Cost Grid -->
+                <div class="section-label">
+                  <span class="dot"></span>
+                  크레딧 사용 비용
+                </div>
+                <div class="cost-grid">
+                  <div class="cost-item">
+                    <div class="cost-item-icon">&#127909;</div>
+                    <div class="cost-item-label">베이스 영상 생성</div>
+                    <div class="cost-item-value">40C</div>
+                  </div>
+                  <div class="cost-item">
+                    <div class="cost-item-icon">&#128131;</div>
+                    <div class="cost-item-label">모션 생성</div>
+                    <div class="cost-item-value">40C</div>
+                  </div>
+                  <div class="cost-item">
+                    <div class="cost-item-icon">&#128247;</div>
+                    <div class="cost-item-label">이미지 재생성</div>
+                    <div class="cost-item-value">10C</div>
+                  </div>
+                  <div class="cost-item">
+                    <div class="cost-item-icon">&#9851;</div>
+                    <div class="cost-item-label">삭제 시 환불</div>
+                    <div class="cost-item-value refund">50% (20C)</div>
+                  </div>
+                </div>
+
+                <!-- Transaction Ledger -->
+                <div class="divider"></div>
+                <div class="ledger-header">
+                  <span class="ledger-title">최근 거래 내역</span>
+                  <span class="ledger-link">전체보기 &#8250;</span>
+                </div>
+
+                <div class="tx-item">
+                  <div class="tx-icon debit">&#127909;</div>
+                  <div class="tx-info">
+                    <div class="tx-desc">베이스 영상 생성</div>
+                    <div class="tx-date">2024.12.01</div>
+                  </div>
+                  <div class="tx-amount negative">-40C</div>
+                </div>
+
+                <div class="tx-item">
+                  <div class="tx-icon credit">&#128176;</div>
+                  <div class="tx-info">
+                    <div class="tx-desc">카페24 자동충전</div>
+                    <div class="tx-date">2024.11.28</div>
+                  </div>
+                  <div class="tx-amount positive">+120C</div>
+                </div>
+
+                <div class="tx-item">
+                  <div class="tx-icon credit">&#9851;</div>
+                  <div class="tx-info">
+                    <div class="tx-desc">모션 삭제 환불</div>
+                    <div class="tx-date">2024.12.03</div>
+                  </div>
+                  <div class="tx-amount positive">+20C</div>
+                </div>
+
+              </div>
+
+              <!-- Bottom Nav -->
+              <div class="bottom-nav">
+                <div class="nav-item">
+                  <span class="nav-icon">&#127968;</span>
+                  <span>홈</span>
+                </div>
+                <div class="nav-item">
+                  <span class="nav-icon">&#128054;</span>
+                  <span>내 반려</span>
+                </div>
+                <div class="nav-item active">
+                  <span class="nav-icon">&#128176;</span>
+                  <span>크레딧</span>
+                </div>
+                <div class="nav-item">
+                  <span class="nav-icon">&#9881;</span>
+                  <span>설정</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Annotations for Dashboard -->
+          <div class="annotation arrow-left" style="top: 230px; left: 400px;">
+            골드 그라데이션 잔액 표시
+          </div>
+          <div class="annotation arrow-left" style="top: 440px; left: 400px;">
+            50% 환불 정책 명시
+          </div>
+          <div class="annotation arrow-left" style="top: 590px; left: 400px;">
+            Immutable audit trail 거래 로그
+          </div>
+        </div>
+
+        <!-- ── Phone 2: Credit Purchase ── -->
+        <div class="phone-container">
+          <div class="phone-frame">
+            <div class="phone-screen">
+
+              <!-- Status Bar -->
+              <div class="status-bar">
+                <span class="time">9:41</span>
+                <div class="icons">
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                  <span>&#128267;</span>
+                </div>
+              </div>
+
+              <!-- Top Bar -->
+              <div class="top-bar">
+                <h1>크레딧 구매</h1>
+                <div class="actions">
+                  <div class="icon-btn">&#10005;</div>
+                </div>
+              </div>
+
+              <div class="content">
+
+                <!-- Pricing Cards -->
+                <div class="section-label">
+                  <span class="dot"></span>
+                  크레딧 팩 선택
+                </div>
+
+                <div class="pricing-card">
+                  <div class="pricing-header">
+                    <div class="pricing-coin small">&#128310;</div>
+                    <div>
+                      <div class="pricing-name">40 크레딧 팩</div>
+                      <div class="pricing-credits">크레딧당 &#8361;300</div>
+                    </div>
+                  </div>
+                  <div class="pricing-bottom">
+                    <div>
+                      <div class="pricing-price">&#8361;12,000</div>
+                      <div class="pricing-unit">부가세 포함</div>
+                    </div>
+                    <div class="pricing-radio"></div>
+                  </div>
+                </div>
+
+                <div class="pricing-card popular selected">
+                  <div class="popular-badge">&#11088; 인기</div>
+                  <div class="pricing-header">
+                    <div class="pricing-coin large">&#128311;</div>
+                    <div>
+                      <div class="pricing-name">120 크레딧 팩</div>
+                      <div class="pricing-credits">크레딧당 &#8361;242 <span class="badge badge-green" style="font-size:10px; padding:2px 6px;">19% 할인</span></div>
+                    </div>
+                  </div>
+                  <div class="pricing-bottom">
+                    <div>
+                      <div class="pricing-price">&#8361;29,000</div>
+                      <div class="pricing-unit">부가세 포함</div>
+                    </div>
+                    <div class="pricing-radio checked"></div>
+                  </div>
+                </div>
+
+                <!-- Cafe24 Shop Link -->
+                <div class="cafe24-shop-link">
+                  <a href="https://petholo.cafe24.com" target="_blank">&#128722; 카페24 자사몰에서 구매</a>
+                  <div class="cafe24-sub">카페24 자사몰에서 크레딧 팩을 구매하시면 자동 충전됩니다</div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Payment Method -->
+                <div class="section-label">
+                  <span class="dot"></span>
+                  결제 수단
+                </div>
+
+                <div class="payment-methods">
+                  <div class="payment-method-item selected">
+                    <div class="payment-icon">&#128179;</div>
+                    <div class="payment-name">신용/체크카드</div>
+                    <div class="payment-check">&#10003;</div>
+                  </div>
+                  <div class="payment-method-item">
+                    <div class="payment-icon">&#127975;</div>
+                    <div class="payment-name">카카오페이</div>
+                    <div class="payment-check">&#10003;</div>
+                  </div>
+                  <div class="payment-method-item">
+                    <div class="payment-icon">&#128178;</div>
+                    <div class="payment-name">네이버페이</div>
+                    <div class="payment-check">&#10003;</div>
+                  </div>
+                </div>
+
+                <!-- Purchase Button -->
+                <button class="btn btn-primary btn-full" style="padding: 16px; font-size: 16px; font-weight: 700;">
+                  &#8361;29,000 구매하기
+                </button>
+
+                <p style="text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 12px; line-height: 1.5;">
+                  Cafe24 결제 시스템을 통해 안전하게 처리됩니다<br>
+                  구매 후 크레딧은 즉시 충전됩니다
+                </p>
+
+              </div>
+
+              <!-- Bottom Nav -->
+              <div class="bottom-nav">
+                <div class="nav-item">
+                  <span class="nav-icon">&#127968;</span>
+                  <span>홈</span>
+                </div>
+                <div class="nav-item">
+                  <span class="nav-icon">&#128054;</span>
+                  <span>내 반려</span>
+                </div>
+                <div class="nav-item active">
+                  <span class="nav-icon">&#128176;</span>
+                  <span>크레딧</span>
+                </div>
+                <div class="nav-item">
+                  <span class="nav-icon">&#9881;</span>
+                  <span>설정</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Annotations for Purchase -->
+          <div class="annotation arrow-left" style="top: 280px; left: 400px;">
+            Cafe24 shop 연동 결제
+          </div>
+          <div class="annotation arrow-left" style="top: 440px; left: 400px;">
+            카페24 자사몰 구매 링크
+          </div>
+          <div class="annotation arrow-left" style="top: 640px; left: 400px;">
+            PG사 결제창 연동
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== Section 2: Account Settings + Tier Modal ====== -->
+    <div class="mockup-section">
+      <h2>2. Account Settings / Tier Info</h2>
+      <p class="desc">계정 관리, 알림 및 앱 설정, 로그아웃/탈퇴 기능과 등급(Tier) 상세 비교 모달입니다. 등급 업그레이드는 카페24에서 풀세트 구매로만 가능합니다.</p>
+
+      <div class="phones-row">
+
+        <!-- ── Phone 3: Account Settings ── -->
+        <div class="phone-container">
+          <div class="phone-frame">
+            <div class="phone-screen">
+
+              <!-- Status Bar -->
+              <div class="status-bar">
+                <span class="time">9:41</span>
+                <div class="icons">
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                  <span>&#128267;</span>
+                </div>
+              </div>
+
+              <!-- Top Bar -->
+              <div class="top-bar">
+                <h1>설정</h1>
+                <div class="actions">
+                  <div class="icon-btn" style="font-size:14px;">&#128276;</div>
+                </div>
+              </div>
+
+              <div class="content">
+
+                <!-- Profile Section -->
+                <div class="profile-section">
+                  <div class="profile-avatar">&#128100;</div>
+                  <div class="profile-info">
+                    <div class="profile-email">카페24 연동 계정</div>
+                    <div class="profile-tier">
+                      <span class="tier-badge silver">&#9733; Silver</span>
+                      <span style="font-size:11px; color: var(--text-muted); cursor:pointer;">&#9432; 등급 안내</span>
+                    </div>
+                  </div>
+                  <div style="font-size:18px; color:var(--text-muted);">&#8250;</div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- General Settings -->
+                <div class="settings-group">
+                  <div class="settings-group-label">일반</div>
+
+                  <div class="settings-item">
+                    <div class="settings-item-icon">&#128276;</div>
+                    <div class="settings-item-content">
+                      <div class="settings-item-label">알림 설정</div>
+                      <div class="settings-item-sub">푸시 알림, 생성 완료 알림</div>
+                    </div>
+                    <div class="toggle active"></div>
+                  </div>
+
+                  <div class="settings-item">
+                    <div class="settings-item-icon">&#127760;</div>
+                    <div class="settings-item-content">
+                      <div class="settings-item-label">언어 설정</div>
+                    </div>
+                    <div class="settings-item-trail">
+                      한국어 &#8250;
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Legal Settings -->
+                <div class="settings-group">
+                  <div class="settings-group-label">서비스 정보</div>
+
+                  <div class="settings-item">
+                    <div class="settings-item-icon">&#128196;</div>
+                    <div class="settings-item-content">
+                      <div class="settings-item-label">이용약관</div>
+                    </div>
+                    <div class="settings-item-trail">&#8250;</div>
+                  </div>
+
+                  <div class="settings-item">
+                    <div class="settings-item-icon">&#128274;</div>
+                    <div class="settings-item-content">
+                      <div class="settings-item-label">개인정보처리방침</div>
+                    </div>
+                    <div class="settings-item-trail">&#8250;</div>
+                  </div>
+
+                  <div class="settings-item">
+                    <div class="settings-item-icon">&#128187;</div>
+                    <div class="settings-item-content">
+                      <div class="settings-item-label">앱 버전</div>
+                    </div>
+                    <div class="settings-item-trail">
+                      <span class="badge badge-blue" style="font-size:10px;">v1.0.0</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Danger Zone -->
+                <div class="danger-zone">
+                  <button class="btn-logout">로그아웃</button>
+                  <a href="#" class="delete-account">회원 탈퇴</a>
+                  <a href="#" class="support-link">&#128172; 고객센터 연락하기</a>
+                </div>
+
+              </div>
+
+              <!-- Bottom Nav -->
+              <div class="bottom-nav">
+                <div class="nav-item">
+                  <span class="nav-icon">&#127968;</span>
+                  <span>홈</span>
+                </div>
+                <div class="nav-item">
+                  <span class="nav-icon">&#128054;</span>
+                  <span>내 반려</span>
+                </div>
+                <div class="nav-item">
+                  <span class="nav-icon">&#128176;</span>
+                  <span>크레딧</span>
+                </div>
+                <div class="nav-item active">
+                  <span class="nav-icon">&#9881;</span>
+                  <span>설정</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Annotations for Settings -->
+          <div class="annotation arrow-left" style="top: 155px; left: 400px;">
+            카페24 SSO 연동 계정
+          </div>
+          <div class="annotation arrow-left" style="top: 195px; left: 400px;">
+            등급 배지 클릭 시 모달
+          </div>
+          <div class="annotation arrow-left" style="top: 660px; left: 400px;">
+            회원 탈퇴 = 소프트 삭제 + 30일 유예
+          </div>
+        </div>
+
+        <!-- ── Phone 4: Tier Info Modal ── -->
+        <div class="phone-container">
+          <div class="phone-frame">
+            <div class="phone-screen">
+
+              <!-- Status Bar -->
+              <div class="status-bar">
+                <span class="time">9:41</span>
+                <div class="icons">
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                  <span>&#128267;</span>
+                </div>
+              </div>
+
+              <!-- Background settings (dimmed) -->
+              <div style="padding: 0 20px; opacity: 0.15; pointer-events:none;">
+                <div style="padding: 16px 0;"></div>
+                <div style="height:60px; background:var(--bg-surface); border-radius:12px; margin-bottom:12px;"></div>
+                <div style="height:1px; background:rgba(255,255,255,0.06); margin:12px 0;"></div>
+                <div style="height:44px; background:var(--bg-surface); border-radius:8px; margin-bottom:8px;"></div>
+                <div style="height:44px; background:var(--bg-surface); border-radius:8px; margin-bottom:8px;"></div>
+                <div style="height:44px; background:var(--bg-surface); border-radius:8px; margin-bottom:8px;"></div>
+              </div>
+
+              <!-- Modal Overlay -->
+              <div class="modal-overlay">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h3>&#127942; 등급 안내</h3>
+                    <button class="modal-close">&#10005;</button>
+                  </div>
+                  <div class="modal-body">
+
+                    <!-- Bronze Tier -->
+                    <div class="tier-card bronze-card">
+                      <div class="tier-card-header">
+                        <div class="tier-card-icon">&#129353;</div>
+                        <div>
+                          <div class="tier-card-name" style="color:#cd7f32;">Bronze</div>
+                          <div class="tier-card-sub">체험 모드</div>
+                        </div>
+                      </div>
+                      <ul class="tier-features">
+                        <li><span class="check">&#10003;</span> 앱 기본 탐색</li>
+                        <li><span class="cross">&#10007;</span> 크레딧 0개 (생성 불가)</li>
+                        <li><span class="cross">&#10007;</span> 홀로그램 재생 불가</li>
+                      </ul>
+                    </div>
+
+                    <!-- Silver Tier -->
+                    <div class="tier-card silver-card">
+                      <div class="tier-card-header">
+                        <div class="tier-card-icon">&#129352;</div>
+                        <div>
+                          <div class="tier-card-name" style="color:#c0c0c0;">Silver</div>
+                          <div class="tier-card-sub">정식 이용</div>
+                        </div>
+                        <span class="badge badge-green" style="margin-left:auto; font-size:10px;">FULL ACCESS</span>
+                      </div>
+                      <ul class="tier-features">
+                        <li><span class="check">&#10003;</span> 초기 120 크레딧 지급</li>
+                        <li><span class="check">&#10003;</span> 베이스 영상 / 모션 생성</li>
+                        <li><span class="check">&#10003;</span> 홀로그램 재생 가능</li>
+                        <li><span class="check">&#10003;</span> 크레딧 추가 구매 가능</li>
+                      </ul>
+                    </div>
+
+                    <!-- Comparison Table -->
+                    <table class="compare-table">
+                      <thead>
+                        <tr>
+                          <th>기능</th>
+                          <th class="bronze-col">Bronze</th>
+                          <th class="silver-col">Silver</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>초기 크레딧</td>
+                          <td>0C</td>
+                          <td style="color:var(--accent-green); font-weight:600;">120C</td>
+                        </tr>
+                        <tr>
+                          <td>베이스 영상 생성</td>
+                          <td style="color:var(--accent-red);">&#10007;</td>
+                          <td style="color:var(--accent-green);">&#10003;</td>
+                        </tr>
+                        <tr>
+                          <td>모션 생성</td>
+                          <td style="color:var(--accent-red);">&#10007;</td>
+                          <td style="color:var(--accent-green);">&#10003;</td>
+                        </tr>
+                        <tr>
+                          <td>이미지 재생성</td>
+                          <td style="color:var(--accent-red);">&#10007;</td>
+                          <td style="color:var(--accent-green);">&#10003;</td>
+                        </tr>
+                        <tr>
+                          <td>홀로그램 재생</td>
+                          <td style="color:var(--accent-red);">&#10007;</td>
+                          <td style="color:var(--accent-green);">&#10003;</td>
+                        </tr>
+                        <tr>
+                          <td>크레딧 추가 구매</td>
+                          <td style="color:var(--accent-red);">&#10007;</td>
+                          <td style="color:var(--accent-green);">&#10003;</td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <!-- CTA -->
+                    <button class="btn btn-primary btn-full" style="padding: 14px; font-size: 15px; margin-top: 8px;">
+                      &#128722; 카페24에서 풀세트 구매
+                    </button>
+                    <p style="text-align:center; font-size:11px; color:var(--text-muted); margin-top:8px; line-height:1.4;">
+                      카페24 자사몰에서 풀세트를 구매하시면<br>
+                      Silver로 자동 업그레이드됩니다
+                    </p>
+
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <!-- Annotations for Tier Modal -->
+          <div class="annotation arrow-left" style="top: 200px; left: 400px;">
+            업그레이드 = 카페24에서 풀세트 구매
+          </div>
+          <div class="annotation arrow-left" style="top: 550px; left: 400px;">
+            기능별 등급 제한 비교
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ====== Spec Tables ====== -->
+    <div class="mockup-section">
+      <h2>3. Specifications</h2>
+      <p class="desc">크레딧 비용, 등급 비교, 환불 정책 상세 사양입니다.</p>
+
+      <!-- Credit Cost Breakdown -->
+      <h3 style="font-size:16px; margin-bottom:12px; color:var(--accent-cyan);">3-1. 크레딧 비용 분류 (Credit Cost Breakdown)</h3>
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th>작업 (Action)</th>
+            <th>크레딧 비용</th>
+            <th>설명</th>
+            <th>비고</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>베이스 영상 생성</td>
+            <td style="color:var(--accent-yellow); font-weight:600;">40C</td>
+            <td>사진 기반 3D 홀로그램 베이스 영상 생성</td>
+            <td>AI 모델 추론 비용 포함</td>
+          </tr>
+          <tr>
+            <td>모션 생성</td>
+            <td style="color:var(--accent-yellow); font-weight:600;">40C</td>
+            <td>베이스 영상에 모션(움직임) 적용</td>
+            <td>베이스 영상 필수 선행</td>
+          </tr>
+          <tr>
+            <td>이미지 재생성</td>
+            <td style="color:var(--accent-yellow); font-weight:600;">10C</td>
+            <td>기존 생성 결과 재시도 (다른 결과)</td>
+            <td>동일 소스 이미지 기반</td>
+          </tr>
+          <tr>
+            <td>삭제 시 환불</td>
+            <td style="color:var(--accent-green); font-weight:600;">+50%</td>
+            <td>생성물 삭제 시 원래 비용의 50% 환불</td>
+            <td>40C 생성물 삭제 = +20C 환불</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Tier Comparison -->
+      <h3 style="font-size:16px; margin: 24px 0 12px; color:var(--accent-cyan);">3-2. 등급 비교표 (Tier Comparison)</h3>
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>Bronze (체험)</th>
+            <th>Silver (정식)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>가입 조건</td>
+            <td>카페24 SSO 로그인 (무료)</td>
+            <td>카페24에서 풀세트 구매</td>
+          </tr>
+          <tr>
+            <td>초기 크레딧</td>
+            <td>0C</td>
+            <td style="color:var(--accent-green); font-weight:600;">120C</td>
+          </tr>
+          <tr>
+            <td>베이스 영상 생성</td>
+            <td style="color:var(--accent-red);">불가</td>
+            <td style="color:var(--accent-green);">가능 (40C)</td>
+          </tr>
+          <tr>
+            <td>모션 생성</td>
+            <td style="color:var(--accent-red);">불가</td>
+            <td style="color:var(--accent-green);">가능 (40C)</td>
+          </tr>
+          <tr>
+            <td>이미지 재생성</td>
+            <td style="color:var(--accent-red);">불가</td>
+            <td style="color:var(--accent-green);">가능 (10C)</td>
+          </tr>
+          <tr>
+            <td>홀로그램 재생</td>
+            <td style="color:var(--accent-red);">불가</td>
+            <td style="color:var(--accent-green);">가능</td>
+          </tr>
+          <tr>
+            <td>크레딧 추가 구매</td>
+            <td style="color:var(--accent-red);">불가</td>
+            <td style="color:var(--accent-green);">가능</td>
+          </tr>
+          <tr>
+            <td>앱 탐색 / UI 조회</td>
+            <td style="color:var(--accent-green);">가능</td>
+            <td style="color:var(--accent-green);">가능</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Refund Rules -->
+      <h3 style="font-size:16px; margin: 24px 0 12px; color:var(--accent-cyan);">3-3. 환불 정책 (Refund Rules)</h3>
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th>규칙</th>
+            <th>상세</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>삭제 환불 비율</td>
+            <td>원래 생성 비용의 <strong style="color:var(--accent-green);">50%</strong> 자동 환불</td>
+          </tr>
+          <tr>
+            <td>베이스 영상 삭제</td>
+            <td>40C 소비 &rarr; 삭제 시 <strong style="color:var(--accent-green);">+20C</strong> 환불</td>
+          </tr>
+          <tr>
+            <td>모션 삭제</td>
+            <td>40C 소비 &rarr; 삭제 시 <strong style="color:var(--accent-green);">+20C</strong> 환불</td>
+          </tr>
+          <tr>
+            <td>이미지 재생성 삭제</td>
+            <td>10C 소비 &rarr; 삭제 시 <strong style="color:var(--accent-green);">+5C</strong> 환불</td>
+          </tr>
+          <tr>
+            <td>환불 시점</td>
+            <td>삭제 확인 즉시 (동기 처리)</td>
+          </tr>
+          <tr>
+            <td>환불 기록</td>
+            <td>거래 내역에 환불 트랜잭션 자동 기록 (immutable)</td>
+          </tr>
+          <tr>
+            <td>크레딧 유효기간</td>
+            <td>무제한 (만료 없음)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Purchase & Integration Info -->
+      <h3 style="font-size:16px; margin: 24px 0 12px; color:var(--accent-cyan);">3-4. 구매 / 통합 정보 (Purchase & Integration)</h3>
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>상세</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>결제 연동</td>
+            <td>Cafe24 쇼핑몰 PG 결제 시스템 연동</td>
+          </tr>
+          <tr>
+            <td>카페24 자동충전 방식</td>
+            <td>카페24 자사몰에서 풀세트 구매 &rarr; 주문 연동 &rarr; 크레딧 자동충전 + 등급 업그레이드</td>
+          </tr>
+          <tr>
+            <td>40 크레딧 팩</td>
+            <td>&#8361;12,000 (크레딧당 &#8361;300)</td>
+          </tr>
+          <tr>
+            <td>120 크레딧 팩</td>
+            <td>&#8361;29,000 (크레딧당 &#8361;242, <strong style="color:var(--accent-green);">19% 할인</strong>)</td>
+          </tr>
+          <tr>
+            <td>거래 내역 특성</td>
+            <td>Immutable audit trail &mdash; 모든 크레딧 변동은 불변 기록으로 저장, 수정/삭제 불가</td>
+          </tr>
+          <tr>
+            <td>등급 업그레이드 방법</td>
+            <td>카페24에서 풀세트 구매만 가능 (앱 내 직접 업그레이드 없음)</td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+
+    <!-- ====== Flow Diagram ====== -->
+    <div class="mockup-section">
+      <h2>4. Credit Flow</h2>
+      <p class="desc">크레딧 획득부터 사용까지의 전체 흐름입니다.</p>
+
+      <div class="flow-diagram">
+        <div class="flow-step">카페24 자사몰 구매</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">주문 연동</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step active">카페24 자동충전</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">Silver 업그레이드<br>+ 크레딧 충전</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">콘텐츠 생성<br>(크레딧 차감)</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">삭제 시<br>50% 환불</div>
+      </div>
+
+      <div class="flow-diagram" style="margin-top:12px;">
+        <div class="flow-step">카페24 자사몰 접속</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">크레딧 팩 구매</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step active">카페24 결제 완료</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">즉시 크레딧 충전</div>
+        <span class="flow-arrow">&rarr;</span>
+        <div class="flow-step">거래 내역 기록<br>(immutable)</div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

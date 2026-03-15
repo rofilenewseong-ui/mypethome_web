@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>03. Pet Register Flow - PetHolo Mockup</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    /* ── Page-specific: Pet Register Flow ── */
+
+    /* Step indicator */
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 0;
+    }
+
+    .step-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      border: 2px solid rgba(255,255,255,0.1);
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      transition: all 0.3s;
+    }
+
+    .step-dot.active {
+      background: var(--gradient-accent);
+      color: var(--bg-primary);
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 12px rgba(0,210,255,0.3);
+    }
+
+    .step-dot.done {
+      background: var(--accent-green);
+      color: #fff;
+      border-color: var(--accent-green);
+    }
+
+    .step-line {
+      width: 32px;
+      height: 2px;
+      border-radius: 1px;
+      background: rgba(255,255,255,0.1);
+      transition: background 0.3s;
+    }
+
+    .step-line.done {
+      background: var(--accent-green);
+    }
+
+    .step-label {
+      text-align: center;
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    /* Emoji selector grid */
+    .emoji-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      padding: 4px;
+    }
+
+    .emoji-item {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: var(--radius-md);
+      border: 2px solid rgba(255,255,255,0.06);
+      background: var(--bg-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .emoji-item:hover {
+      border-color: rgba(100,200,255,0.3);
+      transform: scale(1.05);
+    }
+
+    .emoji-item.selected {
+      border-color: var(--accent-cyan);
+      background: rgba(0,210,255,0.1);
+      box-shadow: 0 0 12px rgba(0,210,255,0.2);
+      transform: scale(1.08);
+    }
+
+    /* Photo upload area */
+    .photo-upload {
+      border: 2px dashed rgba(255,255,255,0.15);
+      border-radius: var(--radius-lg);
+      padding: 32px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--bg-surface);
+      position: relative;
+    }
+
+    .photo-upload:hover {
+      border-color: var(--accent-blue);
+      background: rgba(100,200,255,0.05);
+    }
+
+    .photo-upload.uploaded {
+      border-style: solid;
+      border-color: var(--accent-green);
+      background: rgba(56,239,125,0.05);
+    }
+
+    .photo-upload .upload-icon {
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+
+    .photo-upload .upload-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .photo-upload .upload-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .photo-upload .required-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      background: rgba(255,107,107,0.15);
+      color: var(--accent-red);
+    }
+
+    .photo-upload .uploaded-preview {
+      width: 100%;
+      height: 140px;
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .photo-upload .uploaded-preview .check-mark {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #fff;
+    }
+
+    /* Photo guideline card */
+    .guideline-card {
+      background: rgba(255,167,38,0.06);
+      border: 1px solid rgba(255,167,38,0.15);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+
+    .guideline-card .guideline-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-orange);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .guideline-card .guideline-item {
+      font-size: 11px;
+      color: var(--text-secondary);
+      padding: 3px 0;
+      padding-left: 14px;
+      position: relative;
+    }
+
+    .guideline-card .guideline-item::before {
+      content: '\00B7';
+      position: absolute;
+      left: 4px;
+      font-weight: bold;
+    }
+
+    /* Upload progress */
+    .upload-progress-area {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+
+    .upload-progress-area .file-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+    }
+
+    .upload-progress-area .file-icon {
+      font-size: 18px;
+    }
+
+    .upload-progress-area .file-info {
+      flex: 1;
+    }
+
+    .upload-progress-area .file-name {
+      font-size: 12px;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .upload-progress-area .file-size {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .upload-progress-area .file-status {
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    /* Success animation */
+    .success-circle {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: var(--gradient-success);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 44px;
+      animation: successPop 0.6s ease-out;
+      box-shadow: 0 0 30px rgba(56,239,125,0.3);
+    }
+
+    @keyframes successPop {
+      0% { transform: scale(0); opacity: 0; }
+      60% { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Pet card preview */
+    .pet-card-preview {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .pet-card-preview .pet-emoji {
+      font-size: 48px;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+    }
+
+    .pet-card-preview .pet-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .pet-card-preview .pet-breed {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .pet-card-preview .pet-dates {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Profile type selector */
+    .profile-type-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .profile-type-card {
+      border-radius: var(--radius-lg);
+      border: 2px solid rgba(255,255,255,0.08);
+      background: var(--bg-surface);
+      padding: 20px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .profile-type-card:hover {
+      border-color: rgba(100,200,255,0.3);
+    }
+
+    .profile-type-card.selected {
+      border-color: var(--accent-cyan);
+      background: rgba(0,210,255,0.06);
+      box-shadow: 0 0 15px rgba(0,210,255,0.15);
+    }
+
+    .profile-type-card .type-illustration {
+      width: 80px;
+      height: 100px;
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,0.04);
+      margin: 0 auto 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+    }
+
+    .profile-type-card .type-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .profile-type-card .type-en {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Credit cost display */
+    .credit-cost-banner {
+      background: rgba(100,200,255,0.06);
+      border: 1px solid rgba(100,200,255,0.15);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .credit-cost-banner .credit-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--gradient-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .credit-cost-banner .credit-text {
+      flex: 1;
+    }
+
+    .credit-cost-banner .credit-amount {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+
+    .credit-cost-banner .credit-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Time estimate tag */
+    .time-estimate {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.05);
+      color: var(--text-secondary);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    /* Link text */
+    .link-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-align: center;
+      cursor: pointer;
+      padding: 12px 0;
+      transition: color 0.2s;
+    }
+
+    .link-text:hover {
+      color: var(--text-secondary);
+    }
+
+    /* Required mark */
+    .required-mark {
+      color: var(--accent-red);
+      font-size: 11px;
+      font-weight: 700;
+      margin-left: 4px;
+    }
+
+    /* Optional mark */
+    .optional-mark {
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 500;
+      margin-left: 4px;
+    }
+
+    /* Annotation connector lines */
+    .annotation-line {
+      position: absolute;
+      border-left: 2px dashed rgba(255,167,38,0.4);
+      z-index: 199;
+    }
+
+    /* Info row inside cards */
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+    }
+
+    .info-row:not(:last-child) {
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .info-row .info-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .info-row .info-value {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="mockup-page">
+
+    <!-- ============================================================
+         HEADER
+         ============================================================ -->
+    <h1>03. Pet Register Flow</h1>
+    <p class="subtitle">
+      PetHolo (펫홀로) - 반려동물 등록 플로우<br>
+      정보 입력 &rarr; 사진 업로드 &rarr; 등록 완료 &rarr; 프로필 생성 (AI 영상 생성)
+    </p>
+
+    <!-- ============================================================
+         FLOW DIAGRAM
+         ============================================================ -->
+    <div class="mockup-section">
+      <h2>User Flow</h2>
+      <p class="desc">펫 등록에서 AI 프로필 영상 생성 대기까지의 전체 흐름</p>
+
+      <div class="flow-diagram">
+        <div class="flow-step active">정보입력</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step">사진업로드</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step">등록완료</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step">프로필생성</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step">AI생성대기</div>
+      </div>
+
+      <div class="flow-diagram" style="margin-top:8px; background: rgba(56,239,125,0.04); border: 1px solid rgba(56,239,125,0.1);">
+        <div class="flow-step" style="font-size:11px;">
+          <span style="color:var(--accent-green);">Step 1</span><br>
+          이름/품종/날짜
+        </div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step" style="font-size:11px;">
+          <span style="color:var(--accent-green);">Step 2</span><br>
+          정면사진(필수)<br>측면사진(필수)
+        </div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step" style="font-size:11px;">
+          <span style="color:var(--accent-green);">Step 3</span><br>
+          펫 카드 프리뷰<br>CTA: 프로필 만들기
+        </div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step" style="font-size:11px;">
+          <span style="color:var(--accent-green);">Step 4</span><br>
+          서있기/앉기 선택<br>40C 차감
+        </div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step" style="font-size:11px;">
+          <span style="color:var(--accent-green);">Step 5</span><br>
+          영상 생성 중<br>약 5-10분 소요
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================================
+         SCREEN 1: PET INFO INPUT
+         ============================================================ -->
+    <div class="mockup-section">
+      <h2>Screen 1 &mdash; Pet Info Input (반려동물 정보 입력)</h2>
+      <p class="desc">
+        기본 정보(이름, 품종, 날짜)와 이모지를 선택합니다.
+        좋아하는 간식, 산책 장소는 AI 메신저 대화 맥락에 활용됩니다.
+      </p>
+
+      <div class="phones-row">
+        <div style="position:relative;">
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <!-- Status Bar -->
+              <div class="status-bar">
+                <span class="time">9:41</span>
+                <span class="icons">
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                </span>
+              </div>
+
+              <!-- Top Bar -->
+              <div class="top-bar">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:18px; cursor:pointer; color:var(--text-secondary);">&larr;</span>
+                  <h1 style="font-size:18px;">등록하기</h1>
+                </div>
+                <div class="actions">
+                  <span style="font-size:11px; color:var(--text-muted); padding-top:4px;">STEP 1/2</span>
+                </div>
+              </div>
+
+              <div class="content" style="padding-top:8px;">
+                <!-- Step Indicator -->
+                <div class="step-indicator">
+                  <div class="step-dot active">1</div>
+                  <div class="step-line"></div>
+                  <div class="step-dot">2</div>
+                </div>
+                <p class="step-label">정보 입력</p>
+
+                <div style="height:16px;"></div>
+
+                <!-- [삭제됨] 이모지 선택 — 실제 코드에서 emoji 필드 제거 완료. 대신 frontPhoto URL을 아바타로 사용 -->
+
+                <!-- Name -->
+                <div class="input-group">
+                  <label>이름 <span class="required-mark">*</span></label>
+                  <input class="input-field" type="text" placeholder="우리 아이의 이름" value="초코" style="border-color:rgba(100,200,255,0.3);">
+                </div>
+
+                <!-- Breed -->
+                <div class="input-group">
+                  <label>품종</label>
+                  <input class="input-field" type="text" placeholder="예: 포메라니안, 페르시안" value="포메라니안">
+                </div>
+
+                <!-- Birth Date -->
+                <div class="input-group">
+                  <label>생년월일 <span class="required-mark">*</span></label>
+                  <input class="input-field" type="date" value="2015-03-15" style="color-scheme:dark;">
+                </div>
+
+                <!-- Passing Date -->
+                <div class="input-group">
+                  <label>추모일 <span class="required-mark">*</span></label>
+                  <input class="input-field" type="date" value="2024-11-20" style="color-scheme:dark;">
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Optional fields -->
+                <p style="font-size:11px; color:var(--text-secondary); font-weight:600; margin-bottom:10px;">
+                  AI 메신저 대화에 활용됩니다 <span class="optional-mark">(선택사항)</span>
+                </p>
+
+                <!-- Favorite snack -->
+                <div class="input-group">
+                  <label>좋아하는 간식</label>
+                  <input class="input-field" type="text" placeholder="예: 닭가슴살, 츄르">
+                </div>
+
+                <!-- Walking place -->
+                <div class="input-group">
+                  <label>자주 가던 산책 장소</label>
+                  <input class="input-field" type="text" placeholder="예: 한강공원, 동네 뒷산">
+                </div>
+
+                <!-- Memo -->
+                <div class="input-group">
+                  <label>함께 했던 이야기</label>
+                  <textarea class="input-field" rows="3" placeholder="기억하고 싶은 것들..." style="resize:none;"></textarea>
+                </div>
+
+                <div style="height:8px;"></div>
+
+                <!-- Next button -->
+                <button class="btn btn-primary btn-full" style="padding:16px; font-size:15px;">
+                  다음
+                </button>
+
+                <div style="height:40px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Annotations -->
+          <div class="annotation arrow-left" style="top:200px; left:calc(100% + 16px); max-width:220px; white-space:normal;">
+            이모지 선택: 앱 전체에서 이 반려동물을<br>나타내는 아이콘으로 사용됨
+          </div>
+          <div class="annotation arrow-left" style="top:600px; left:calc(100% + 16px); max-width:220px; white-space:normal;">
+            선택사항 필드: AI 메신저가 대화할 때<br>맥락 정보로 활용 (간식, 산책 장소)
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================================
+         SCREEN 2: PHOTO UPLOAD
+         ============================================================ -->
+    <div class="mockup-section">
+      <h2>Screen 2 &mdash; Photo Upload (사진 업로드)</h2>
+      <p class="desc">
+        정면 사진과 측면 사진을 업로드합니다. 이 사진이 AI 홀로그램 생성의 기본 소스가 됩니다.
+        고품질 사진일수록 더 좋은 결과를 얻을 수 있습니다.
+      </p>
+
+      <div class="phones-row">
+
+        <!-- 2A: Upload empty state -->
+        <div style="position:relative;">
+          <p style="text-align:center; font-size:12px; color:var(--text-muted); margin-bottom:12px; font-weight:600;">
+            업로드 전
+          </p>
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="status-bar">
+                <span class="time">9:41</span>
+                <span class="icons">
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                </span>
+              </div>
+
+              <div class="top-bar">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:18px; cursor:pointer; color:var(--text-secondary);">&larr;</span>
+                  <h1 style="font-size:18px;">등록하기</h1>
+                </div>
+                <div class="actions">
+                  <span style="font-size:11px; color:var(--text-muted); padding-top:4px;">STEP 2/2</span>
+                </div>
+              </div>
+
+              <div class="content" style="padding-top:8px;">
+                <!-- Step indicator -->
+                <div class="step-indicator">
+                  <div class="step-dot done">&#10003;</div>
+                  <div class="step-line done"></div>
+                  <div class="step-dot active">2</div>
+                </div>
+                <p class="step-label">사진 업로드</p>
+
+                <div style="height:16px;"></div>
+
+                <!-- Front photo upload -->
+                <div class="photo-upload" style="margin-bottom:12px;">
+                  <span class="required-badge">필수</span>
+                  <div class="upload-icon">&#128247;</div>
+                  <div class="upload-label">정면 사진</div>
+                  <div class="upload-hint">얼굴이 잘 보이는 사진을 올려주세요</div>
+                  <div style="margin-top:8px;">
+                    <span class="badge badge-blue" style="font-size:10px;">탭하여 업로드</span>
+                  </div>
+                </div>
+
+                <!-- Side photo upload -->
+                <div class="photo-upload" style="margin-bottom:16px;">
+                  <span class="required-badge">필수</span>
+                  <div class="upload-icon">&#128247;</div>
+                  <div class="upload-label">측면 사진</div>
+                  <div class="upload-hint">전신이 보이는 사진을 권장합니다</div>
+                  <div style="margin-top:8px;">
+                    <span class="badge badge-blue" style="font-size:10px;">탭하여 업로드</span>
+                  </div>
+                </div>
+
+                <!-- Photo guidelines -->
+                <div class="guideline-card">
+                  <div class="guideline-title">
+                    <span>&#128161;</span> 사진 안내
+                  </div>
+                  <div class="guideline-item">깨끗한 배경에서 촬영된 사진이 좋습니다</div>
+                  <div class="guideline-item">전신이 보이는 사진을 권장합니다</div>
+                  <div class="guideline-item">고화질(1024x1024 이상) 권장</div>
+                  <div class="guideline-item">JPG/PNG, 10MB 이하</div>
+                </div>
+
+                <div style="height:16px;"></div>
+
+                <!-- Submit button (disabled) -->
+                <button class="btn btn-secondary btn-full" style="padding:16px; font-size:15px; opacity:0.4; cursor:not-allowed;">
+                  등록 완료
+                </button>
+
+                <div style="height:40px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2B: Upload completed state -->
+        <div style="position:relative;">
+          <p style="text-align:center; font-size:12px; color:var(--text-muted); margin-bottom:12px; font-weight:600;">
+            업로드 완료
+          </p>
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="status-bar">
+                <span class="time">9:42</span>
+                <span class="icons">
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                </span>
+              </div>
+
+              <div class="top-bar">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:18px; cursor:pointer; color:var(--text-secondary);">&larr;</span>
+                  <h1 style="font-size:18px;">등록하기</h1>
+                </div>
+                <div class="actions">
+                  <span style="font-size:11px; color:var(--text-muted); padding-top:4px;">STEP 2/2</span>
+                </div>
+              </div>
+
+              <div class="content" style="padding-top:8px;">
+                <!-- Step indicator -->
+                <div class="step-indicator">
+                  <div class="step-dot done">&#10003;</div>
+                  <div class="step-line done"></div>
+                  <div class="step-dot active">2</div>
+                </div>
+                <p class="step-label">사진 업로드</p>
+
+                <div style="height:16px;"></div>
+
+                <!-- Front photo uploaded -->
+                <div class="photo-upload uploaded" style="margin-bottom:12px; padding:16px 20px;">
+                  <div class="uploaded-preview">
+                    <div style="font-size:56px; opacity:0.3;">&#128054;</div>
+                    <div class="check-mark">&#10003;</div>
+                  </div>
+                  <div class="upload-label" style="color:var(--accent-green);">&#10003; 정면 사진</div>
+                  <div class="upload-hint">front_photo.jpg (2.3MB)</div>
+                </div>
+
+                <!-- Side photo uploaded -->
+                <div class="photo-upload uploaded" style="margin-bottom:16px; padding:16px 20px;">
+                  <div class="uploaded-preview">
+                    <div style="font-size:56px; opacity:0.3;">&#128054;</div>
+                    <div class="check-mark">&#10003;</div>
+                  </div>
+                  <div class="upload-label" style="color:var(--accent-green);">&#10003; 측면 사진</div>
+                  <div class="upload-hint">side_photo.jpg (3.1MB)</div>
+                </div>
+
+                <!-- Upload progress indicator -->
+                <div class="upload-progress-area" style="margin-bottom:16px;">
+                  <div class="file-row">
+                    <span class="file-icon">&#128444;</span>
+                    <div class="file-info">
+                      <div class="file-name">front_photo.jpg</div>
+                      <div class="file-size">2.3 MB</div>
+                    </div>
+                    <span class="file-status" style="color:var(--accent-green);">&#10003; 완료</span>
+                  </div>
+                  <div class="file-row">
+                    <span class="file-icon">&#128444;</span>
+                    <div class="file-info">
+                      <div class="file-name">side_photo.jpg</div>
+                      <div class="file-size">3.1 MB</div>
+                    </div>
+                    <span class="file-status" style="color:var(--accent-green);">&#10003; 완료</span>
+                  </div>
+                  <div style="margin-top:8px;">
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width:100%; background:var(--gradient-success);"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Photo guidelines -->
+                <div class="guideline-card">
+                  <div class="guideline-title">
+                    <span>&#128161;</span> 사진 안내
+                  </div>
+                  <div class="guideline-item">깨끗한 배경에서 촬영된 사진이 좋습니다</div>
+                  <div class="guideline-item">전신이 보이는 사진을 권장합니다</div>
+                  <div class="guideline-item">고화질(1024x1024 이상) 권장</div>
+                  <div class="guideline-item">JPG/PNG, 10MB 이하</div>
+                </div>
+
+                <div style="height:16px;"></div>
+
+                <!-- Submit button (active) -->
+                <button class="btn btn-primary btn-full" style="padding:16px; font-size:15px;">
+                  등록 완료
+                </button>
+
+                <div style="height:40px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Annotations -->
+          <div class="annotation arrow-left" style="top:160px; left:calc(100% + 16px); max-width:240px; white-space:normal;">
+            정면 사진: AI가 얼굴 특징을 분석하여<br>홀로그램 영상에 반영
+          </div>
+          <div class="annotation arrow-left" style="top:380px; left:calc(100% + 16px); max-width:240px; white-space:normal;">
+            측면 사진: 체형/비율 분석에 활용<br>전신이 보여야 자연스러운 결과
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================================
+         SCREEN 3: REGISTRATION COMPLETE
+         ============================================================ -->
+    <div class="mockup-section">
+      <h2>Screen 3 &mdash; Registration Complete (등록 완료)</h2>
+      <p class="desc">
+        등록이 완료되면 성공 애니메이션과 함께 펫 카드 프리뷰를 보여줍니다.
+        최초 가입 시 프로필 생성으로 자동 유도, 이후 추가 등록 시 선택지를 제공합니다.
+      </p>
+
+      <div class="phones-row">
+
+        <!-- 3A: First Pet (최초 등록) -->
+        <div style="position:relative;">
+          <p style="text-align:center; font-size:12px; color:var(--text-muted); margin-bottom:12px; font-weight:600;">
+            최초 가입 (첫 번째 펫)
+          </p>
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="status-bar">
+                <span class="time">9:43</span>
+                <span class="icons">
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                </span>
+              </div>
+
+              <div class="top-bar">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:18px; cursor:pointer; color:var(--text-secondary);">&larr;</span>
+                  <h1 style="font-size:18px;">등록 완료</h1>
+                </div>
+              </div>
+
+              <div class="content" style="padding-top:20px;">
+                <!-- Success animation -->
+                <div class="success-circle">&#10003;</div>
+
+                <!-- Pet card preview -->
+                <div class="pet-card-preview" style="margin-bottom:20px;">
+                  <div class="pet-emoji">&#128053;</div>
+                  <div class="pet-name">초코</div>
+                  <div class="pet-breed">포메라니안</div>
+                  <div class="pet-dates">
+                    <span>&#127874; 2015.03.15</span>
+                    <span>&#128330; 2024.11.20</span>
+                  </div>
+                </div>
+
+                <p style="font-size:12px; color:var(--text-secondary); text-align:center; margin-bottom:6px;">
+                  반려동물 등록이 완료되었습니다!
+                </p>
+                <p style="font-size:11px; color:var(--text-muted); text-align:center; margin-bottom:20px;">
+                  바로 첫 프로필을 만들어볼게요
+                </p>
+
+                <!-- First-pet flow banner -->
+                <div class="card" style="background:rgba(56,239,125,0.05); border-color:rgba(56,239,125,0.15); text-align:center; margin-bottom:20px;">
+                  <span style="font-size:24px;">&#10024;</span>
+                  <p style="font-size:11px; font-weight:700; color:var(--accent-green); margin-top:6px;">
+                    최초 가입 흐름
+                  </p>
+                  <p style="font-size:10px; color:var(--text-muted); margin-top:4px; line-height:1.5;">
+                    펫 등록 &rarr; 프로필 생성 &rarr; 영상 생성까지<br>
+                    끊김 없이 자동으로 이어집니다
+                  </p>
+                </div>
+
+                <!-- CTA -->
+                <button class="btn btn-primary btn-full" style="padding:16px; font-size:15px;">
+                  프로필 만들기
+                </button>
+
+                <div style="height:40px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3B: Additional Pet (이후 추가 등록) -->
+        <div style="position:relative;">
+          <p style="text-align:center; font-size:12px; color:var(--text-muted); margin-bottom:12px; font-weight:600;">
+            이후 추가 등록
+          </p>
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="status-bar">
+                <span class="time">9:43</span>
+                <span class="icons">
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                </span>
+              </div>
+
+              <div class="top-bar">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:18px; cursor:pointer; color:var(--text-secondary);">&larr;</span>
+                  <h1 style="font-size:18px;">등록 완료</h1>
+                </div>
+              </div>
+
+              <div class="content" style="padding-top:20px;">
+                <!-- Success animation -->
+                <div class="success-circle">&#10003;</div>
+
+                <!-- Pet card preview -->
+                <div class="pet-card-preview" style="margin-bottom:20px;">
+                  <div class="pet-emoji">&#128049;</div>
+                  <div class="pet-name">나비</div>
+                  <div class="pet-breed">페르시안</div>
+                  <div class="pet-dates">
+                    <span>&#127874; 2018.06.10</span>
+                    <span>&#128330; 2025.01.05</span>
+                  </div>
+                </div>
+
+                <p style="font-size:12px; color:var(--text-secondary); text-align:center; margin-bottom:6px;">
+                  새 반려동물이 등록되었습니다!
+                </p>
+                <p style="font-size:11px; color:var(--text-muted); text-align:center; margin-bottom:20px;">
+                  프로필을 만들거나 홈으로 돌아갈 수 있어요
+                </p>
+
+                <!-- Info card -->
+                <div class="card" style="margin-bottom:20px;">
+                  <div class="info-row">
+                    <span class="info-label">품종</span>
+                    <span class="info-value">페르시안</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">생일</span>
+                    <span class="info-value">2018.06.10</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">떠난 날</span>
+                    <span class="info-value">2025.01.05</span>
+                  </div>
+                </div>
+
+                <!-- Action buttons -->
+                <button class="btn btn-primary btn-full" style="padding:14px; font-size:14px; margin-bottom:10px;">
+                  이 펫으로 프로필 만들기
+                </button>
+                <button class="btn btn-secondary btn-full" style="padding:14px; font-size:14px; margin-bottom:10px;">
+                  다른 펫도 등록
+                </button>
+                <div class="link-text">나중에 하기</div>
+
+                <div style="height:40px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Annotations -->
+          <div class="annotation arrow-left" style="top:240px; left:calc(100% + 16px); max-width:220px; white-space:normal;">
+            선택한 이모지 + 이름이 펫 카드에<br>표시됨 (앱 전체에서 동일하게 사용)
+          </div>
+          <div class="annotation arrow-left" style="top:560px; left:calc(100% + 16px); max-width:220px; white-space:normal;">
+            추가 등록 시 3가지 선택지 제공:<br>프로필 만들기 / 추가 등록 / 홈으로
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================================
+         SCREEN 4: PROFILE CREATION (POSE SELECTION)
+         ============================================================ -->
+    <div class="mockup-section">
+      <h2>Screen 4 &mdash; Profile Creation (프로필 생성)</h2>
+      <p class="desc">
+        등록 후 프로필을 생성합니다. 기본 자세(서있기/앉기)를 선택하면
+        AI가 해당 포즈의 베이스 영상을 생성합니다. 크레딧 40C가 차감됩니다.
+      </p>
+
+      <div class="phones-row">
+        <div style="position:relative;">
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="status-bar">
+                <span class="time">9:44</span>
+                <span class="icons">
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                </span>
+              </div>
+
+              <div class="top-bar">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:18px; cursor:pointer; color:var(--text-secondary);">&larr;</span>
+                  <h1 style="font-size:18px;">자세 선택</h1>
+                </div>
+                <div class="actions">
+                  <span style="font-size:11px; color:var(--text-muted); padding-top:4px;">STEP 1/5</span>
+                </div>
+              </div>
+
+              <div class="content" style="padding-top:8px;">
+                <!-- Step progress bar -->
+                <div style="display:flex; align-items:center; justify-content:center; gap:4px; margin-bottom:6px;">
+                  <div style="width:24px; height:4px; border-radius:2px; background:var(--gradient-accent);"></div>
+                  <div style="width:12px; height:4px; border-radius:2px; background:rgba(255,255,255,0.1);"></div>
+                  <div style="width:12px; height:4px; border-radius:2px; background:rgba(255,255,255,0.1);"></div>
+                  <div style="width:12px; height:4px; border-radius:2px; background:rgba(255,255,255,0.1);"></div>
+                  <div style="width:12px; height:4px; border-radius:2px; background:rgba(255,255,255,0.1);"></div>
+                </div>
+                <p style="text-align:center; font-size:10px; color:var(--text-muted); margin-bottom:16px;">STEP 1/5</p>
+
+                <p style="font-size:14px; font-weight:700; text-align:center; margin-bottom:20px;">
+                  홀로그램의 기본 자세를 선택해 주세요
+                </p>
+
+                <!-- Profile type selection -->
+                <div class="profile-type-grid">
+                  <!-- Standing -->
+                  <div class="profile-type-card selected">
+                    <div class="type-illustration">
+                      <div style="position:relative;">
+                        <span style="font-size:48px;">&#128021;</span>
+                        <div style="position:absolute; bottom:-4px; left:50%; transform:translateX(-50%); font-size:8px; color:var(--accent-cyan);">&#9650; &#9650;</div>
+                      </div>
+                    </div>
+                    <div class="type-name">서있는 자세</div>
+                    <div class="type-en">STANDING</div>
+                    <p style="font-size:10px; color:var(--text-muted); margin-top:6px;">
+                      전신이 보이는 영상
+                    </p>
+                  </div>
+
+                  <!-- Sitting -->
+                  <div class="profile-type-card">
+                    <div class="type-illustration">
+                      <span style="font-size:48px;">&#128054;</span>
+                    </div>
+                    <div class="type-name">앉은 자세</div>
+                    <div class="type-en">SITTING</div>
+                    <p style="font-size:10px; color:var(--text-muted); margin-top:6px;">
+                      앉아있는 모습의 영상
+                    </p>
+                  </div>
+                </div>
+
+                <div style="height:20px;"></div>
+
+                <!-- Credit cost banner -->
+                <div class="credit-cost-banner">
+                  <div class="credit-icon">&#128176;</div>
+                  <div class="credit-text">
+                    <div class="credit-amount">40 크레딧 차감됩니다</div>
+                    <div class="credit-desc">AI 영상 생성 비용 | 현재 잔액: 120C</div>
+                  </div>
+                </div>
+
+                <div style="height:12px;"></div>
+
+                <!-- Time estimate -->
+                <div class="text-center">
+                  <span class="time-estimate">
+                    <span>&#9202;</span> 약 5-10분 소요
+                  </span>
+                </div>
+
+                <div style="height:20px;"></div>
+
+                <!-- Generate button -->
+                <button class="btn btn-primary btn-full" style="padding:16px; font-size:15px;">
+                  AI 영상 생성하기
+                </button>
+
+                <div style="height:40px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Annotations -->
+          <div class="annotation arrow-left" style="top:240px; left:calc(100% + 16px); max-width:240px; white-space:normal;">
+            프로필 타입 = 베이스 영상 포즈<br>STANDING: 서서 걷는 느낌<br>SITTING: 앉아서 고개 돌리는 느낌
+          </div>
+          <div class="annotation arrow-left" style="top:510px; left:calc(100% + 16px); max-width:240px; white-space:normal;">
+            크레딧 차감 안내: 유저가 비용을<br>인지한 상태에서 생성 버튼 클릭
+          </div>
+          <div class="annotation arrow-left" style="top:600px; left:calc(100% + 16px); max-width:240px; white-space:normal;">
+            생성 후 의상 사진 1장 업로드(Step 2) &rarr;<br>AI 이미지 선택(Step 3) &rarr; 영상 생성(Step 4)<br>으로 이어짐<br><br>펫 등록 시 저장한 정면/전신 사진은<br>자동으로 재활용됨 (URL &rarr; base64 변환)
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================================
+         SCREEN 5: AI GENERATION WAITING
+         ============================================================ -->
+    <div class="mockup-section">
+      <h2>Screen 5 &mdash; AI Generation Waiting (AI 생성 대기)</h2>
+      <p class="desc">
+        AI 영상 생성이 진행 중인 상태입니다. 사용자는 페이지를 이탈해도 되며,
+        백그라운드에서 생성이 계속됩니다.
+      </p>
+
+      <div class="phones-row">
+        <div style="position:relative;">
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="status-bar">
+                <span class="time">9:48</span>
+                <span class="icons">
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                  <span>&#9679;</span>
+                </span>
+              </div>
+
+              <div class="top-bar">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:18px; cursor:pointer; color:var(--text-secondary);">&larr;</span>
+                  <h1 style="font-size:18px;">영상 생성 중</h1>
+                </div>
+                <div class="actions">
+                  <span style="font-size:11px; color:var(--text-muted); padding-top:4px;">STEP 4/5</span>
+                </div>
+              </div>
+
+              <div class="content" style="padding-top:40px;">
+                <!-- Generating animation -->
+                <div style="text-align:center;">
+                  <div style="width:88px; height:88px; border-radius:50%; margin:0 auto 24px; display:flex; align-items:center; justify-content:center; font-size:40px; background:linear-gradient(135deg, rgba(100,200,255,0.15), rgba(240,147,251,0.15)); border:2px solid rgba(100,200,255,0.2); animation: pulse 2s ease-in-out infinite;">
+                    &#127916;
+                  </div>
+                  <style>
+                    @keyframes pulse {
+                      0%, 100% { box-shadow: 0 0 0 0 rgba(100,200,255,0.3); }
+                      50% { box-shadow: 0 0 20px 10px rgba(100,200,255,0.1); }
+                    }
+                  </style>
+
+                  <p style="font-size:16px; font-weight:700; margin-bottom:8px;">
+                    영상을 생성하고 있습니다...
+                  </p>
+                  <p style="font-size:12px; color:var(--text-muted); margin-bottom:24px;">
+                    초코의 홀로그램 영상이 만들어지고 있어요
+                  </p>
+
+                  <!-- Progress bar -->
+                  <div style="max-width:260px; margin:0 auto 8px;">
+                    <div class="progress-bar" style="height:8px;">
+                      <div class="progress-fill" style="width:65%; background:var(--gradient-accent);"></div>
+                    </div>
+                  </div>
+                  <p style="font-size:13px; font-weight:600; color:var(--accent-blue);">65%</p>
+
+                  <div style="height:32px;"></div>
+
+                  <!-- Info card -->
+                  <div class="card" style="text-align:left;">
+                    <div class="info-row">
+                      <span class="info-label">반려동물</span>
+                      <span class="info-value">&#128053; 초코</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">자세</span>
+                      <span class="info-value">서있는 자세 (STANDING)</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">예상 소요시간</span>
+                      <span class="info-value">약 5-10분</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">차감 크레딧</span>
+                      <span class="info-value" style="color:var(--accent-blue);">40C</span>
+                    </div>
+                  </div>
+
+                  <div style="height:16px;"></div>
+
+                  <p style="font-size:11px; color:var(--text-muted); line-height:1.6;">
+                    이 페이지를 나가셔도 됩니다.<br>
+                    생성이 완료되면 알림으로 알려드립니다.
+                  </p>
+
+                  <div style="height:20px;"></div>
+
+                  <button class="btn btn-secondary btn-full" style="padding:14px;">
+                    홈으로 돌아가기
+                  </button>
+                </div>
+
+                <div style="height:40px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Annotations -->
+          <div class="annotation arrow-left" style="top:320px; left:calc(100% + 16px); max-width:240px; white-space:normal;">
+            영상 생성: Kling API (Image-to-Video)<br>소요시간: 약 1~3분 (서버 상태에 따라 변동)
+          </div>
+          <div class="annotation arrow-left" style="top:550px; left:calc(100% + 16px); max-width:240px; white-space:normal;">
+            크레딧은 생성 요청 시 즉시 차감<br>실패 시 자동 환불 처리
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ============================================================
+         SPEC TABLE: FIELD VALIDATIONS
+         ============================================================ -->
+    <div class="mockup-section">
+      <h2>Spec &mdash; Field Validations</h2>
+      <p class="desc">펫 등록 및 프로필 생성에 필요한 필드 검증 규칙</p>
+
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th>필드</th>
+            <th>필수</th>
+            <th>타입</th>
+            <th>검증 규칙</th>
+            <th>비고</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>name</code> (이름)</td>
+            <td><span class="badge badge-red">필수</span></td>
+            <td>string</td>
+            <td>1~20자, 한글/영문/숫자/공백</td>
+            <td>중복 허용</td>
+          </tr>
+          <!-- [삭제됨] emoji 필드 — frontPhoto URL이 아바타로 대체 -->
+          <tr>
+            <td><code>breed</code> (품종)</td>
+            <td><span class="badge badge-blue">선택</span></td>
+            <td>string</td>
+            <td>최대 30자</td>
+            <td>&mdash;</td>
+          </tr>
+          <tr>
+            <td><code>birthDate</code> (생년월일)</td>
+            <td><span class="badge badge-red">필수</span></td>
+            <td>date</td>
+            <td>과거 날짜만 허용, passingDate 이전</td>
+            <td>YYYY-MM-DD</td>
+          </tr>
+          <tr>
+            <td><code>passingDate</code> (추모일)</td>
+            <td><span class="badge badge-red">필수</span></td>
+            <td>date</td>
+            <td>과거 날짜만 허용, birthDate 이후</td>
+            <td>YYYY-MM-DD</td>
+          </tr>
+          <tr>
+            <td><code>favoriteSnack</code> (간식)</td>
+            <td><span class="badge badge-blue">선택</span></td>
+            <td>string</td>
+            <td>최대 50자</td>
+            <td>AI 메신저 대화 맥락</td>
+          </tr>
+          <tr>
+            <td><code>walkingPlace</code> (산책 장소)</td>
+            <td><span class="badge badge-blue">선택</span></td>
+            <td>string</td>
+            <td>최대 50자</td>
+            <td>AI 메신저 대화 맥락</td>
+          </tr>
+          <tr>
+            <td><code>memo</code> (이야기)</td>
+            <td><span class="badge badge-blue">선택</span></td>
+            <td>string</td>
+            <td>최대 500자</td>
+            <td>AI 메신저 대화 맥락</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+
+    <!-- ============================================================
+         SPEC TABLE: PHOTO REQUIREMENTS
+         ============================================================ -->
+    <div class="mockup-section">
+      <h2>Spec &mdash; Photo Requirements</h2>
+      <p class="desc">사진 업로드 요구사항 및 AI 생성 품질 영향도</p>
+
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th>항목</th>
+            <th>정면 사진 (frontPhoto)</th>
+            <th>측면 사진 (sidePhoto)</th>
+            <th>의상 사진 (outfitImage)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>필수 여부</td>
+            <td><span class="badge badge-red">필수</span></td>
+            <td><span class="badge badge-red">필수</span></td>
+            <td><span class="badge badge-blue">선택</span></td>
+          </tr>
+          <tr>
+            <td>업로드 시점</td>
+            <td>펫 등록 (Screen 2)</td>
+            <td>펫 등록 (Screen 2)</td>
+            <td>프로필 위자드 Step 2</td>
+          </tr>
+          <tr>
+            <td>저장 형태</td>
+            <td>S3 URL (Firestore pets)</td>
+            <td>S3 URL (Firestore pets)</td>
+            <td>base64 (프론트엔드 전송)</td>
+          </tr>
+          <tr>
+            <td>최소 해상도</td>
+            <td>512 x 512 px</td>
+            <td>512 x 512 px</td>
+            <td>512 x 512 px</td>
+          </tr>
+          <tr>
+            <td>권장 해상도</td>
+            <td>1024 x 1024 px 이상</td>
+            <td>1024 x 1024 px 이상</td>
+            <td>1024 x 1024 px 이상</td>
+          </tr>
+          <tr>
+            <td>허용 포맷</td>
+            <td>JPG, PNG</td>
+            <td>JPG, PNG</td>
+            <td>JPG, PNG</td>
+          </tr>
+          <tr>
+            <td>최대 파일 크기</td>
+            <td>10 MB</td>
+            <td>10 MB</td>
+            <td>10 MB</td>
+          </tr>
+          <tr>
+            <td>촬영 가이드</td>
+            <td>얼굴이 정면으로 보이는 사진<br>깨끗한 배경 권장</td>
+            <td>전신이 보이는 측면 사진<br>체형/비율이 파악 가능해야 함</td>
+            <td>반려동물이 입고 있는<br>옷/악세서리 사진</td>
+          </tr>
+          <tr>
+            <td>AI 활용 목적</td>
+            <td>얼굴 특징 분석<br>(눈, 코, 입, 귀 형태)</td>
+            <td>체형/비율 분석<br>(전체 실루엣, 다리 길이)</td>
+            <td>의상 스타일 반영<br>(옷 패턴, 색상, 악세서리)</td>
+          </tr>
+          <tr>
+            <td>품질 영향도</td>
+            <td><span class="badge badge-red">매우 높음</span></td>
+            <td><span class="badge badge-orange">높음</span></td>
+            <td><span class="badge badge-blue">보통</span></td>
+          </tr>
+          <tr>
+            <td>AI 전송 변환</td>
+            <td>URL &rarr; base64 (백엔드 자동)</td>
+            <td>URL &rarr; base64 (백엔드 자동)</td>
+            <td>base64 그대로 전송</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+
+    <!-- ============================================================
+         SPEC TABLE: CREDIT COSTS
+         ============================================================ -->
+    <div class="mockup-section">
+      <h2>Spec &mdash; Credit Costs</h2>
+      <p class="desc">프로필 생성 관련 크레딧 비용 구조</p>
+
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th>작업</th>
+            <th>크레딧</th>
+            <th>설명</th>
+            <th>차감 시점</th>
+            <th>실패 시</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>펫 등록</td>
+            <td><span class="badge badge-green">무료</span></td>
+            <td>반려동물 정보 + 사진 등록</td>
+            <td>&mdash;</td>
+            <td>&mdash;</td>
+          </tr>
+          <tr>
+            <td>AI 스타트프레임 생성</td>
+            <td><span class="badge badge-blue">10C</span></td>
+            <td>Gemini 기반 AI 이미지 3장 생성</td>
+            <td>생성 요청 시 즉시</td>
+            <td>자동 환불</td>
+          </tr>
+          <tr>
+            <td>AI 베이스 영상 생성</td>
+            <td><span class="badge badge-purple">40C</span></td>
+            <td>Kling Image-to-Video 변환</td>
+            <td>생성 요청 시 즉시</td>
+            <td>자동 환불</td>
+          </tr>
+          <tr>
+            <td>모션 추가 (좌/우 각각)</td>
+            <td><span class="badge badge-purple">40C</span></td>
+            <td>추가 모션 영상 생성</td>
+            <td>생성 요청 시 즉시</td>
+            <td>자동 환불</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+
+    <!-- ============================================================
+         ANNOTATIONS & DESIGN NOTES
+         ============================================================ -->
+    <div class="mockup-section">
+      <h2>Design Notes &amp; Annotations</h2>
+      <p class="desc">개발 시 참고해야 할 설계 주의사항</p>
+
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <span class="card-title" style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:18px;">&#128247;</span>
+            사진 요구사항 &amp; AI 생성 품질
+          </span>
+        </div>
+        <p style="font-size:12px; color:var(--text-secondary); line-height:1.7;">
+          정면 사진과 측면 사진은 AI 홀로그램 생성의 핵심 소스입니다.
+          정면 사진에서 얼굴 특징(눈, 코, 입, 귀 형태)을 분석하고,
+          측면 사진에서 체형과 비율을 파악합니다.
+          사진 품질이 낮거나 배경이 복잡하면 생성 결과가 부정확할 수 있습니다.
+          <strong>최소 512x512px, 권장 1024x1024px 이상</strong>입니다.
+        </p>
+      </div>
+
+      <!-- [삭제됨] 이모지 시스템 디자인 노트 — emoji 필드 제거, frontPhoto URL 아바타로 대체 -->
+
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <span class="card-title" style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:18px;">&#127916;</span>
+            프로필 타입과 베이스 영상
+          </span>
+        </div>
+        <p style="font-size:12px; color:var(--text-secondary); line-height:1.7;">
+          프로필 타입(STANDING / SITTING)은 AI가 생성하는 베이스 영상의 기본 포즈를 결정합니다.
+          <strong>STANDING</strong>: 서서 걷거나 서있는 전신 영상,
+          <strong>SITTING</strong>: 앉아서 고개를 돌리거나 꼬리를 흔드는 영상.
+          선택한 타입에 맞는 베이스 비디오 템플릿 위에 사용자의 펫 이미지를 합성합니다.
+          한 펫에 대해 여러 프로필(자세별)을 만들 수 있습니다.
+        </p>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <span class="card-title" style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:18px;">&#128176;</span>
+            크레딧 차감 플로우
+          </span>
+        </div>
+        <p style="font-size:12px; color:var(--text-secondary); line-height:1.7;">
+          크레딧은 <strong>AI 생성 요청 시 즉시 차감</strong>됩니다.
+          생성 실패(API 타임아웃, 서버 오류 등) 시에는 자동으로 크레딧이 환불됩니다.
+          사용자가 생성 버튼을 누르기 전, 차감될 크레딧 양과 현재 잔액을
+          명확하게 표시하여 인지된 상태에서 결정할 수 있도록 합니다.
+          잔액 부족 시 "크레딧 충전" 버튼으로 스토어 페이지로 이동합니다.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title" style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:18px;">&#128172;</span>
+            AI 메신저 맥락 데이터
+          </span>
+        </div>
+        <p style="font-size:12px; color:var(--text-secondary); line-height:1.7;">
+          선택사항 필드(좋아하는 간식, 산책 장소, 함께 했던 이야기)는
+          AI 메신저 대화에서 반려동물의 성격과 추억을 반영한 자연스러운 대화를 생성하는 데 활용됩니다.
+          예: "초코가 좋아하던 닭가슴살 간식 기억나?" 같은 대화 맥락을 AI가 생성할 수 있습니다.
+          이 데이터는 추후 펫 관리 화면에서 수정할 수 있습니다.
+        </p>
+      </div>
+    </div>
+
+
+    <!-- ============================================================
+         API ENDPOINTS
+         ============================================================ -->
+    <div class="mockup-section">
+      <h2>Related API Endpoints</h2>
+      <p class="desc">이 플로우에서 호출되는 주요 API</p>
+
+      <div class="api-endpoint">
+        <span class="api-method post">POST</span>
+        <span class="api-path">/api/pets</span>
+        <p class="api-desc">반려동물 등록 (multipart/form-data: frontPhoto, sidePhoto, name, birthDate, passingDate, breed, favoriteSnack, walkingPlace, memo)</p>
+      </div>
+
+      <div class="api-endpoint">
+        <span class="api-method post">POST</span>
+        <span class="api-path">/api/profiles</span>
+        <p class="api-desc">프로필 생성 (petId, baseType: STANDING | SITTING)</p>
+      </div>
+
+      <div class="api-endpoint">
+        <span class="api-method post">POST</span>
+        <span class="api-path">/api/ai/startframe/generate</span>
+        <p class="api-desc">스타트 프레임 AI 이미지 3장 생성 (profileId, faceImage, bodyImage, outfitImage) &mdash; 10C<br>
+          <span style="color:var(--text-muted); font-size:11px;">faceImage/bodyImage = 펫 등록 사진 URL 재활용 (백엔드에서 URL&rarr;base64 자동 변환), outfitImage = 의상 사진 base64</span></p>
+      </div>
+
+      <div class="api-endpoint">
+        <span class="api-method post">POST</span>
+        <span class="api-path">/api/ai/startframe/select</span>
+        <p class="api-desc">생성된 3장 중 1장 선택 (jobId, selectedIndex)</p>
+      </div>
+
+      <div class="api-endpoint">
+        <span class="api-method post">POST</span>
+        <span class="api-path">/api/ai/kling/generate</span>
+        <p class="api-desc">Kling 베이스 영상 생성 (profileId, baseVideoId, imageUrl) &mdash; 40C</p>
+      </div>
+
+      <div class="api-endpoint">
+        <span class="api-method get">GET</span>
+        <span class="api-path">/api/ai/jobs/:jobId/status</span>
+        <p class="api-desc">AI 작업 상태 조회 (polling: 3초 간격)</p>
+      </div>
+
+      <div class="api-endpoint">
+        <span class="api-method get">GET</span>
+        <span class="api-path">/api/credits/balance</span>
+        <p class="api-desc">현재 크레딧 잔액 조회</p>
+      </div>
+    </div>
+
+
+    <!-- ============================================================
+         FOOTER
+         ============================================================ -->
+    <div style="text-align:center; padding:40px 0 20px; border-top:1px solid rgba(255,255,255,0.06); margin-top:40px;">
+      <p style="font-size:11px; color:var(--text-muted);">
+        PetHolo (펫홀로) &mdash; Pet Memorial Hologram Service<br>
+        03. Pet Register Flow Mockup<br>
+        <span style="color:var(--text-muted);">Last updated: 2026-03-05</span>
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>

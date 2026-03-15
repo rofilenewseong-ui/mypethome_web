@@ -1,0 +1,2203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PetHolo Admin Dashboard - Mockup 08</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    /* ── Admin-specific Layout ── */
+    .admin-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    /* ── Admin Header / Sidebar Nav ── */
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 20px;
+    }
+
+    .admin-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .admin-logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--gradient-main);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .admin-logo-text {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .admin-logo-text span {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--accent-orange);
+      display: block;
+      margin-top: -2px;
+    }
+
+    .admin-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .admin-user-avatar {
+      width: 32px;
+      height: 32px;
+      background: var(--gradient-accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--bg-primary);
+    }
+
+    .admin-user-info {
+      text-align: right;
+    }
+
+    .admin-user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .admin-user-role {
+      font-size: 10px;
+      color: var(--accent-orange);
+      font-weight: 600;
+    }
+
+    .admin-2fa-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      background: rgba(56,239,125,0.12);
+      color: var(--accent-green);
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    /* ── Admin Tab Navigation ── */
+    .admin-tabs {
+      display: flex;
+      gap: 2px;
+      background: rgba(0,0,0,0.2);
+      border-radius: var(--radius-sm);
+      padding: 3px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    .admin-tab {
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .admin-tab.active {
+      background: var(--bg-card);
+      color: var(--accent-blue);
+    }
+
+    .admin-tab:hover:not(.active) {
+      color: var(--text-secondary);
+    }
+
+    /* ── Stats Cards Grid ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    .stat-card.blue::before { background: var(--gradient-accent); }
+    .stat-card.green::before { background: var(--gradient-success); }
+    .stat-card.purple::before { background: var(--gradient-main); }
+    .stat-card.orange::before { background: linear-gradient(135deg, var(--accent-orange), var(--accent-yellow)); }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .stat-value small {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-left: 2px;
+    }
+
+    .stat-change {
+      font-size: 10px;
+      font-weight: 600;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .stat-change.up { color: var(--accent-green); }
+    .stat-change.down { color: var(--accent-red); }
+
+    /* ── Chart Placeholder ── */
+    .chart-area {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .chart-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .chart-period-selector {
+      display: flex;
+      gap: 2px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 6px;
+      padding: 2px;
+    }
+
+    .chart-period {
+      padding: 4px 10px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border: none;
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .chart-period.active {
+      background: var(--bg-card);
+      color: var(--accent-blue);
+    }
+
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 120px;
+      padding-top: 10px;
+    }
+
+    .chart-bar-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .chart-bar {
+      width: 100%;
+      max-width: 36px;
+      border-radius: 4px 4px 0 0;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .chart-bar.revenue {
+      background: linear-gradient(180deg, var(--accent-blue), var(--accent-purple));
+      opacity: 0.8;
+    }
+
+    .chart-bar.revenue:hover { opacity: 1; }
+
+    .chart-bar-label {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* ── Two Column Layout ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .two-col-wide {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    /* ── Activity Feed ── */
+    .activity-feed {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+
+    .activity-feed-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .activity-item:last-child { border-bottom: none; }
+
+    .activity-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .activity-icon.login { background: rgba(100,200,255,0.15); }
+    .activity-icon.pet { background: rgba(240,147,251,0.15); }
+    .activity-icon.video { background: rgba(102,126,234,0.15); }
+    .activity-icon.credit { background: rgba(56,239,125,0.15); }
+    .activity-icon.admin { background: rgba(255,167,38,0.15); }
+
+    .activity-text {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .activity-text strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .activity-time {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ── System Health ── */
+    .health-panel {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+
+    .health-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .health-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .health-item:last-child { border-bottom: none; }
+
+    .health-service {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .health-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .health-dot.online { background: var(--accent-green); box-shadow: 0 0 6px var(--accent-green); }
+    .health-dot.degraded { background: var(--accent-orange); box-shadow: 0 0 6px var(--accent-orange); }
+    .health-dot.offline { background: var(--accent-red); box-shadow: 0 0 6px var(--accent-red); }
+
+    .health-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .health-latency {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    /* ── Data Table ── */
+    .data-table-wrapper {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .table-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .table-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .table-search-input {
+      flex: 1;
+      padding: 7px 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 12px;
+      outline: none;
+    }
+
+    .table-search-input:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .table-search-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .table-filters {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .filter-select {
+      padding: 6px 10px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-size: 11px;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      padding-right: 24px;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .data-table thead th {
+      text-align: left;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.03);
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      white-space: nowrap;
+    }
+
+    .data-table tbody td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .data-table tbody tr:hover td {
+      background: rgba(100,200,255,0.03);
+    }
+
+    .data-table .mono {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 11px;
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .row-action-btn {
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 600;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .row-action-btn.view {
+      background: rgba(100,200,255,0.12);
+      color: var(--accent-blue);
+    }
+
+    .row-action-btn.edit {
+      background: rgba(56,239,125,0.12);
+      color: var(--accent-green);
+    }
+
+    .row-action-btn.warn {
+      background: rgba(255,167,38,0.12);
+      color: var(--accent-orange);
+    }
+
+    .row-action-btn.danger {
+      background: rgba(255,107,107,0.12);
+      color: var(--accent-red);
+    }
+
+    /* ── Pagination ── */
+    .table-pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .page-info {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .page-buttons {
+      display: flex;
+      gap: 4px;
+    }
+
+    .page-btn {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .page-btn.active {
+      background: var(--accent-blue);
+      color: var(--bg-primary);
+      border-color: var(--accent-blue);
+    }
+
+    .page-btn:hover:not(.active) {
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+    }
+
+    /* ── Modal Preview ── */
+    .modal-overlay {
+      background: rgba(0,0,0,0.5);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-top: 16px;
+      position: relative;
+    }
+
+    .modal-box {
+      background: var(--bg-secondary);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      max-width: 700px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: var(--text-secondary);
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+
+    .modal-section {
+      margin-bottom: 16px;
+    }
+
+    .modal-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .modal-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .modal-info-item {
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .modal-info-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+
+    .modal-info-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* ── Code Generation ── */
+    .code-gen-form {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      padding: 16px;
+      background: rgba(0,0,0,0.15);
+      border-radius: var(--radius-md);
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .code-gen-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .code-gen-field label {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .code-gen-field input,
+    .code-gen-field select {
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 12px;
+      outline: none;
+      width: 120px;
+    }
+
+    .code-gen-field input:focus,
+    .code-gen-field select:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .bulk-actions {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* ── Audit Log ── */
+    .log-action-type {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      letter-spacing: 0.3px;
+    }
+
+    .log-action-type.login { background: rgba(100,200,255,0.15); color: var(--accent-blue); }
+    .log-action-type.pet { background: rgba(240,147,251,0.15); color: var(--accent-pink); }
+    .log-action-type.video { background: rgba(102,126,234,0.15); color: var(--accent-purple); }
+    .log-action-type.credit { background: rgba(56,239,125,0.15); color: var(--accent-green); }
+    .log-action-type.admin { background: rgba(255,167,38,0.15); color: var(--accent-orange); }
+
+    .log-result {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .log-result.success { color: var(--accent-green); }
+    .log-result.fail { color: var(--accent-red); }
+
+    /* ── AI Service Monitor ── */
+    .service-card {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .service-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .service-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .service-name-text {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .service-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .service-status-badge.online {
+      background: rgba(56,239,125,0.12);
+      color: var(--accent-green);
+    }
+
+    .service-status-badge.degraded {
+      background: rgba(255,167,38,0.12);
+      color: var(--accent-orange);
+    }
+
+    .service-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .service-metric {
+      text-align: center;
+      padding: 8px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+    }
+
+    .service-metric-value {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .service-metric-label {
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .queue-bar {
+      height: 4px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .queue-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.3s;
+    }
+
+    .queue-fill.low { background: var(--accent-green); }
+    .queue-fill.mid { background: var(--accent-orange); }
+    .queue-fill.high { background: var(--accent-red); }
+
+    /* ── Error Rate Chart ── */
+    .error-chart-area {
+      height: 80px;
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      padding: 10px 0;
+    }
+
+    .error-bar {
+      flex: 1;
+      border-radius: 2px 2px 0 0;
+      min-width: 4px;
+      transition: all 0.2s;
+    }
+
+    .error-bar.low { background: rgba(56,239,125,0.3); }
+    .error-bar.mid { background: rgba(255,167,38,0.4); }
+    .error-bar.high { background: rgba(255,107,107,0.5); }
+
+    /* ── Job Status ── */
+    .job-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .job-status.waiting {
+      background: rgba(255,255,255,0.08);
+      color: var(--text-muted);
+    }
+
+    .job-status.processing {
+      background: rgba(100,200,255,0.12);
+      color: var(--accent-blue);
+    }
+
+    .job-status.done {
+      background: rgba(56,239,125,0.12);
+      color: var(--accent-green);
+    }
+
+    .job-status.failed {
+      background: rgba(255,107,107,0.12);
+      color: var(--accent-red);
+    }
+
+    .job-status-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* ── Inline Annotation ── */
+    .inline-annotation {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 10px 14px;
+      background: rgba(255,167,38,0.08);
+      border: 1px solid rgba(255,167,38,0.2);
+      border-radius: var(--radius-sm);
+      margin: 12px 0;
+      font-size: 11px;
+      color: var(--accent-orange);
+      line-height: 1.5;
+    }
+
+    .inline-annotation .ann-icon {
+      flex-shrink: 0;
+      font-size: 14px;
+      margin-top: 1px;
+    }
+
+    .inline-annotation strong {
+      color: var(--accent-orange);
+    }
+
+    /* ── Credit Adjustment Form (in modal) ── */
+    .credit-adjust-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .credit-adjust-row .code-gen-field {
+      flex: 1;
+    }
+
+    /* ── Responsive Overflow ── */
+    .table-scroll {
+      overflow-x: auto;
+    }
+
+    .table-scroll::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .table-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .table-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="mockup-page">
+
+  <h1>08. Admin Dashboard</h1>
+  <p class="subtitle">
+    PetHolo 관리자 대시보드 - 사용자/코드/로그/AI 서비스 통합 관리 패널<br>
+    데스크톱 전용 레이아웃 (모바일 미지원)
+  </p>
+
+  <!-- ============================================================
+       SECTION 1 — Admin Dashboard Overview
+       ============================================================ -->
+  <div class="mockup-section">
+    <h2>1. 대시보드 개요</h2>
+    <p class="desc">관리자 로그인 후 메인 화면. 핵심 지표, 매출 추이, 최근 활동, 시스템 상태를 한눈에 확인합니다.</p>
+
+    <div class="admin-container">
+      <!-- Admin Header -->
+      <div class="admin-header">
+        <div class="admin-logo">
+          <div class="admin-logo-icon">&#x1F43E;</div>
+          <div class="admin-logo-text">
+            PetHolo Admin
+            <span>관리자 콘솔</span>
+          </div>
+        </div>
+        <div class="admin-user">
+          <div class="admin-2fa-badge">&#x1F512; 2FA 인증됨</div>
+          <div style="text-align: right;">
+            <div class="admin-user-name">admin@petholo.com</div>
+            <div class="admin-user-role">SUPER_ADMIN</div>
+          </div>
+          <div class="admin-user-avatar">A</div>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="admin-tabs">
+        <button class="admin-tab active">&#x1F4CA; 대시보드</button>
+        <button class="admin-tab">&#x1F465; 사용자 관리</button>
+        <button class="admin-tab">&#x1F511; 코드 관리</button>
+        <button class="admin-tab">&#x1F4DD; 감사 로그</button>
+        <button class="admin-tab">&#x1F916; AI 서비스</button>
+        <button class="admin-tab">&#x2699;&#xFE0F; 설정</button>
+      </div>
+
+      <div class="inline-annotation">
+        <span class="ann-icon">&#x26A0;&#xFE0F;</span>
+        <span><strong>Annotation:</strong> Admin 접근은 Firestore <code>users/{uid}.isAdmin === true</code> + TOTP 기반 2FA 인증 필수. 2FA 미완료 시 대시보드 접근 차단됨.</span>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-label">총 사용자</div>
+          <div class="stat-value">142<small>명</small></div>
+          <div class="stat-change up">&#x25B2; +12% 이번 달</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">활성 사용자 (7일)</div>
+          <div class="stat-value">89<small>명</small></div>
+          <div class="stat-change up">&#x25B2; +8% 전주 대비</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-label">총 펫</div>
+          <div class="stat-value">203<small>마리</small></div>
+          <div class="stat-change up">&#x25B2; +15 이번 주</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-label">오늘 가입</div>
+          <div class="stat-value">3<small>명</small></div>
+          <div class="stat-change down">&#x25BC; -2 어제 대비</div>
+        </div>
+      </div>
+
+      <!-- Revenue Chart -->
+      <div class="chart-area">
+        <div class="chart-header">
+          <div class="chart-title">매출 추이 (크레딧 구매)</div>
+          <div class="chart-period-selector">
+            <button class="chart-period">7일</button>
+            <button class="chart-period active">30일</button>
+            <button class="chart-period">90일</button>
+          </div>
+        </div>
+        <div class="chart-bars">
+          <div class="chart-bar-group">
+            <div class="chart-bar revenue" style="height: 45%;"></div>
+            <div class="chart-bar-label">1월</div>
+          </div>
+          <div class="chart-bar-group">
+            <div class="chart-bar revenue" style="height: 62%;"></div>
+            <div class="chart-bar-label">2월</div>
+          </div>
+          <div class="chart-bar-group">
+            <div class="chart-bar revenue" style="height: 55%;"></div>
+            <div class="chart-bar-label">3월</div>
+          </div>
+          <div class="chart-bar-group">
+            <div class="chart-bar revenue" style="height: 78%;"></div>
+            <div class="chart-bar-label">4월</div>
+          </div>
+          <div class="chart-bar-group">
+            <div class="chart-bar revenue" style="height: 68%;"></div>
+            <div class="chart-bar-label">5월</div>
+          </div>
+          <div class="chart-bar-group">
+            <div class="chart-bar revenue" style="height: 85%;"></div>
+            <div class="chart-bar-label">6월</div>
+          </div>
+          <div class="chart-bar-group">
+            <div class="chart-bar revenue" style="height: 72%;"></div>
+            <div class="chart-bar-label">7월</div>
+          </div>
+          <div class="chart-bar-group">
+            <div class="chart-bar revenue" style="height: 90%;"></div>
+            <div class="chart-bar-label">8월</div>
+          </div>
+          <div class="chart-bar-group">
+            <div class="chart-bar revenue" style="height: 82%;"></div>
+            <div class="chart-bar-label">9월</div>
+          </div>
+          <div class="chart-bar-group">
+            <div class="chart-bar revenue" style="height: 95%;"></div>
+            <div class="chart-bar-label">10월</div>
+          </div>
+          <div class="chart-bar-group">
+            <div class="chart-bar revenue" style="height: 88%;"></div>
+            <div class="chart-bar-label">11월</div>
+          </div>
+          <div class="chart-bar-group">
+            <div class="chart-bar revenue" style="height: 100%;"></div>
+            <div class="chart-bar-label">12월</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity Feed + System Health -->
+      <div class="two-col">
+        <!-- Recent Activity -->
+        <div class="activity-feed">
+          <div class="activity-feed-title">최근 활동</div>
+
+          <div class="activity-item">
+            <div class="activity-icon login">&#x1F513;</div>
+            <div>
+              <div class="activity-text"><strong>김민수</strong>님이 로그인했습니다</div>
+              <div class="activity-time">2분 전</div>
+            </div>
+          </div>
+
+          <div class="activity-item">
+            <div class="activity-icon pet">&#x1F43E;</div>
+            <div>
+              <div class="activity-text"><strong>이지은</strong>님이 펫 <strong>"초코"</strong>를 등록했습니다</div>
+              <div class="activity-time">8분 전</div>
+            </div>
+          </div>
+
+          <div class="activity-item">
+            <div class="activity-icon video">&#x1F3AC;</div>
+            <div>
+              <div class="activity-text"><strong>박서준</strong>님이 영상 생성을 요청했습니다</div>
+              <div class="activity-time">15분 전</div>
+            </div>
+          </div>
+
+          <div class="activity-item">
+            <div class="activity-icon credit">&#x1F4B3;</div>
+            <div>
+              <div class="activity-text"><strong>정하나</strong>님이 크레딧 50개를 구매했습니다</div>
+              <div class="activity-time">22분 전</div>
+            </div>
+          </div>
+
+          <div class="activity-item">
+            <div class="activity-icon admin">&#x1F6E1;&#xFE0F;</div>
+            <div>
+              <div class="activity-text">관리자가 <strong>최유진</strong>님의 크레딧을 조정했습니다 (+10)</div>
+              <div class="activity-time">1시간 전</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Health -->
+        <div class="health-panel">
+          <div class="health-title">시스템 상태</div>
+
+          <div class="health-item">
+            <div class="health-service">
+              <div class="health-dot online"></div>
+              <div class="health-name">Firebase Auth</div>
+            </div>
+            <div class="health-latency">23ms</div>
+          </div>
+
+          <div class="health-item">
+            <div class="health-service">
+              <div class="health-dot online"></div>
+              <div class="health-name">Firestore DB</div>
+            </div>
+            <div class="health-latency">45ms</div>
+          </div>
+
+          <div class="health-item">
+            <div class="health-service">
+              <div class="health-dot online"></div>
+              <div class="health-name">Cloud Storage</div>
+            </div>
+            <div class="health-latency">38ms</div>
+          </div>
+
+          <div class="health-item">
+            <div class="health-service">
+              <div class="health-dot online"></div>
+              <div class="health-name">NanoBanana API</div>
+            </div>
+            <div class="health-latency">156ms</div>
+          </div>
+
+          <div class="health-item">
+            <div class="health-service">
+              <div class="health-dot degraded"></div>
+              <div class="health-name">Kling AI API</div>
+            </div>
+            <div class="health-latency">892ms</div>
+          </div>
+
+          <div class="health-item">
+            <div class="health-service">
+              <div class="health-dot online"></div>
+              <div class="health-name">Cloud Functions</div>
+            </div>
+            <div class="health-latency">67ms</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /admin-container -->
+  </div><!-- /mockup-section -->
+
+
+  <!-- ============================================================
+       SECTION 2 — User Management
+       ============================================================ -->
+  <div class="mockup-section">
+    <h2>2. 사용자 관리</h2>
+    <p class="desc">사용자 검색, 필터링, 상세 정보 확인 및 관리 작업 수행. 크레딧 조정, 계정 정지/삭제 기능 포함.</p>
+
+    <div class="admin-container">
+      <!-- Admin Header (compact) -->
+      <div class="admin-tabs">
+        <button class="admin-tab">&#x1F4CA; 대시보드</button>
+        <button class="admin-tab active">&#x1F465; 사용자 관리</button>
+        <button class="admin-tab">&#x1F511; 코드 관리</button>
+        <button class="admin-tab">&#x1F4DD; 감사 로그</button>
+        <button class="admin-tab">&#x1F916; AI 서비스</button>
+      </div>
+
+      <!-- User Table -->
+      <div class="data-table-wrapper">
+        <div class="table-toolbar">
+          <div class="table-search">
+            <input type="text" class="table-search-input" placeholder="이메일, 이름, ID로 검색...">
+          </div>
+          <div class="table-filters">
+            <select class="filter-select">
+              <option>전체 등급</option>
+              <option>Bronze (체험)</option>
+              <option>Silver (정품)</option>
+            </select>
+            <select class="filter-select">
+              <option>전체 상태</option>
+              <option>활성</option>
+              <option>정지</option>
+              <option>비활성</option>
+            </select>
+            <select class="filter-select">
+              <option>전체 기간</option>
+              <option>오늘</option>
+              <option>최근 7일</option>
+              <option>최근 30일</option>
+              <option>최근 90일</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>이메일</th>
+                <th>이름</th>
+                <th>등급</th>
+                <th>크레딧 잔액</th>
+                <th>펫 수</th>
+                <th>가입일</th>
+                <th>상태</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="mono">USR001</td>
+                <td class="mono">kim.ms@gmail.com</td>
+                <td>김민수</td>
+                <td><span class="badge badge-purple">Silver</span></td>
+                <td>47</td>
+                <td>3</td>
+                <td class="mono">2025-01-15</td>
+                <td><span class="badge badge-green">활성</span></td>
+                <td>
+                  <div class="row-actions">
+                    <button class="row-action-btn view">상세</button>
+                    <button class="row-action-btn edit">크레딧</button>
+                    <button class="row-action-btn warn">정지</button>
+                    <button class="row-action-btn danger">삭제</button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="mono">USR002</td>
+                <td class="mono">lee.je@naver.com</td>
+                <td>이지은</td>
+                <td><span class="badge badge-orange">Bronze</span></td>
+                <td>12</td>
+                <td>1</td>
+                <td class="mono">2025-02-03</td>
+                <td><span class="badge badge-green">활성</span></td>
+                <td>
+                  <div class="row-actions">
+                    <button class="row-action-btn view">상세</button>
+                    <button class="row-action-btn edit">크레딧</button>
+                    <button class="row-action-btn warn">정지</button>
+                    <button class="row-action-btn danger">삭제</button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="mono">USR003</td>
+                <td class="mono">park.sj@kakao.com</td>
+                <td>박서준</td>
+                <td><span class="badge badge-purple">Silver</span></td>
+                <td>85</td>
+                <td>2</td>
+                <td class="mono">2025-01-28</td>
+                <td><span class="badge badge-green">활성</span></td>
+                <td>
+                  <div class="row-actions">
+                    <button class="row-action-btn view">상세</button>
+                    <button class="row-action-btn edit">크레딧</button>
+                    <button class="row-action-btn warn">정지</button>
+                    <button class="row-action-btn danger">삭제</button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="mono">USR004</td>
+                <td class="mono">jung.ha@gmail.com</td>
+                <td>정하나</td>
+                <td><span class="badge badge-orange">Bronze</span></td>
+                <td>5</td>
+                <td>1</td>
+                <td class="mono">2025-03-01</td>
+                <td><span class="badge badge-green">활성</span></td>
+                <td>
+                  <div class="row-actions">
+                    <button class="row-action-btn view">상세</button>
+                    <button class="row-action-btn edit">크레딧</button>
+                    <button class="row-action-btn warn">정지</button>
+                    <button class="row-action-btn danger">삭제</button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="mono">USR005</td>
+                <td class="mono">choi.yj@outlook.com</td>
+                <td>최유진</td>
+                <td><span class="badge badge-orange">Bronze</span></td>
+                <td>0</td>
+                <td>2</td>
+                <td class="mono">2025-02-20</td>
+                <td><span class="badge badge-red">정지</span></td>
+                <td>
+                  <div class="row-actions">
+                    <button class="row-action-btn view">상세</button>
+                    <button class="row-action-btn edit">크레딧</button>
+                    <button class="row-action-btn warn">해제</button>
+                    <button class="row-action-btn danger">삭제</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-pagination">
+          <div class="page-info">총 142명 중 1-5 표시</div>
+          <div class="page-buttons">
+            <button class="page-btn">&laquo;</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">...</button>
+            <button class="page-btn">29</button>
+            <button class="page-btn">&raquo;</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="inline-annotation">
+        <span class="ann-icon">&#x1F4CC;</span>
+        <span><strong>Annotation:</strong> "삭제"는 soft-delete (Firestore <code>status: 'deleted'</code>) 처리. 실제 데이터 삭제는 30일 후 Cloud Function에서 자동 수행. 모든 변경은 감사 로그에 기록됨.</span>
+      </div>
+
+      <!-- User Detail Modal -->
+      <div class="modal-overlay">
+        <div class="modal-box">
+          <button class="modal-close">&#x2715;</button>
+          <div class="modal-title">사용자 상세 - 김민수 (USR001)</div>
+
+          <div class="modal-section">
+            <div class="modal-section-title">기본 정보</div>
+            <div class="modal-info-grid">
+              <div class="modal-info-item">
+                <div class="modal-info-label">이메일</div>
+                <div class="modal-info-value" style="font-size: 12px; font-family: 'SF Mono', monospace;">kim.ms@gmail.com</div>
+              </div>
+              <div class="modal-info-item">
+                <div class="modal-info-label">이름</div>
+                <div class="modal-info-value">김민수</div>
+              </div>
+              <div class="modal-info-item">
+                <div class="modal-info-label">등급</div>
+                <div class="modal-info-value"><span class="badge badge-purple">Silver</span></div>
+              </div>
+              <div class="modal-info-item">
+                <div class="modal-info-label">가입일</div>
+                <div class="modal-info-value" style="font-size: 12px; font-family: 'SF Mono', monospace;">2025-01-15 14:32</div>
+              </div>
+              <div class="modal-info-item">
+                <div class="modal-info-label">마지막 로그인</div>
+                <div class="modal-info-value" style="font-size: 12px; font-family: 'SF Mono', monospace;">2025-03-05 09:15</div>
+              </div>
+              <div class="modal-info-item">
+                <div class="modal-info-label">인증 Provider</div>
+                <div class="modal-info-value">Google OAuth</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-section">
+            <div class="modal-section-title">보유 펫 목록</div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 20px;">&#x1F436;</span>
+                <div>
+                  <div style="font-size: 12px; font-weight: 600; color: var(--text-primary);">뽀삐</div>
+                  <div style="font-size: 10px; color: var(--text-muted);">강아지 / 포메라니안</div>
+                </div>
+              </div>
+              <div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 20px;">&#x1F431;</span>
+                <div>
+                  <div style="font-size: 12px; font-weight: 600; color: var(--text-primary);">나비</div>
+                  <div style="font-size: 10px; color: var(--text-muted);">고양이 / 코리안숏헤어</div>
+                </div>
+              </div>
+              <div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 20px;">&#x1F436;</span>
+                <div>
+                  <div style="font-size: 12px; font-weight: 600; color: var(--text-primary);">초코</div>
+                  <div style="font-size: 10px; color: var(--text-muted);">강아지 / 비숑프리제</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-section">
+            <div class="modal-section-title">크레딧 이력 (최근 5건)</div>
+            <table class="data-table" style="font-size: 11px;">
+              <thead>
+                <tr>
+                  <th>일시</th>
+                  <th>유형</th>
+                  <th>변동</th>
+                  <th>잔액</th>
+                  <th>비고</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="mono">03-05 09:20</td>
+                  <td><span class="badge badge-green" style="font-size: 9px;">구매</span></td>
+                  <td style="color: var(--accent-green);">+50</td>
+                  <td>47</td>
+                  <td>크레딧 구매 (5,000원)</td>
+                </tr>
+                <tr>
+                  <td class="mono">03-04 18:30</td>
+                  <td><span class="badge badge-red" style="font-size: 9px;">사용</span></td>
+                  <td style="color: var(--accent-red);">-3</td>
+                  <td>-3</td>
+                  <td>영상 생성 (뽀삐)</td>
+                </tr>
+                <tr>
+                  <td class="mono">03-03 14:00</td>
+                  <td><span class="badge badge-orange" style="font-size: 9px;">관리자</span></td>
+                  <td style="color: var(--accent-green);">+10</td>
+                  <td>0</td>
+                  <td>CS 보상 크레딧 (사유: 생성 오류 보상)</td>
+                </tr>
+                <tr>
+                  <td class="mono">03-02 09:00</td>
+                  <td><span class="badge badge-red" style="font-size: 9px;">사용</span></td>
+                  <td style="color: var(--accent-red);">-5</td>
+                  <td>-10</td>
+                  <td>영상 생성 (나비)</td>
+                </tr>
+                <tr>
+                  <td class="mono">03-01 11:20</td>
+                  <td><span class="badge badge-blue" style="font-size: 9px;">코드</span></td>
+                  <td style="color: var(--accent-green);">+20</td>
+                  <td>-5</td>
+                  <td>초대 코드 적용 (PH-ABCD1234EF56)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="modal-section">
+            <div class="modal-section-title">크레딧 수동 조정</div>
+            <div class="credit-adjust-row">
+              <div class="code-gen-field">
+                <label>조정 금액</label>
+                <input type="number" placeholder="예: +10, -5" style="width: 100px;">
+              </div>
+              <div class="code-gen-field" style="flex: 2;">
+                <label>사유 (필수)</label>
+                <input type="text" placeholder="크레딧 조정 사유를 입력하세요" style="width: 100%;">
+              </div>
+              <button class="btn btn-primary btn-sm">조정 실행</button>
+            </div>
+          </div>
+
+          <div class="inline-annotation">
+            <span class="ann-icon">&#x1F4CC;</span>
+            <span><strong>Annotation:</strong> 크레딧 수동 조정 시 <code>reason</code> 필수 입력. 감사 로그에 <code>ADMIN_CREDIT_ADJUST</code> 액션으로 기록되며 조정 사유, 관리자 ID, 변동 금액 포함.</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /admin-container -->
+  </div><!-- /mockup-section -->
+
+
+  <!-- ============================================================
+       SECTION 3 — Code Management
+       ============================================================ -->
+  <div class="mockup-section">
+    <h2>3. 코드 관리</h2>
+    <p class="desc">초대 코드 일괄 생성, 사용 현황 추적, 미사용 코드 무효화 및 CSV 내보내기 기능.</p>
+
+    <div class="admin-container">
+      <div class="admin-tabs">
+        <button class="admin-tab">&#x1F4CA; 대시보드</button>
+        <button class="admin-tab">&#x1F465; 사용자 관리</button>
+        <button class="admin-tab active">&#x1F511; 코드 관리</button>
+        <button class="admin-tab">&#x1F4DD; 감사 로그</button>
+        <button class="admin-tab">&#x1F916; AI 서비스</button>
+      </div>
+
+      <!-- Code Generation Form -->
+      <div class="code-gen-form">
+        <div class="code-gen-field">
+          <label>생성 개수</label>
+          <input type="number" value="10" min="1" max="100" style="width: 80px;">
+        </div>
+        <div class="code-gen-field">
+          <label>코드 유형</label>
+          <select style="width: 140px;">
+            <option>일반 초대코드</option>
+            <option>프로모션 코드</option>
+            <option>파트너 코드</option>
+          </select>
+        </div>
+        <div class="code-gen-field">
+          <label>크레딧 부여</label>
+          <input type="number" value="20" min="0" style="width: 80px;">
+        </div>
+        <div class="code-gen-field">
+          <label>만료일</label>
+          <input type="date" value="2026-06-30" style="width: 140px;">
+        </div>
+        <button class="btn btn-primary btn-sm" style="margin-bottom: 0;">&#x2795; 코드 생성</button>
+      </div>
+
+      <!-- Code Table -->
+      <div class="data-table-wrapper">
+        <div class="table-toolbar">
+          <div class="table-search">
+            <input type="text" class="table-search-input" placeholder="코드로 검색...">
+          </div>
+          <div class="table-filters">
+            <select class="filter-select">
+              <option>전체 상태</option>
+              <option>미사용</option>
+              <option>사용완료</option>
+              <option>만료</option>
+            </select>
+            <select class="filter-select">
+              <option>전체 유형</option>
+              <option>일반 초대</option>
+              <option>프로모션</option>
+              <option>파트너</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>코드</th>
+                <th>유형</th>
+                <th>크레딧</th>
+                <th>생성일</th>
+                <th>만료일</th>
+                <th>사용여부</th>
+                <th>사용자</th>
+                <th>사용일</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="mono" style="color: var(--accent-blue); font-weight: 600;">PH-7K2M9XN4QW8B</td>
+                <td><span class="badge badge-blue" style="font-size: 9px;">일반</span></td>
+                <td>20</td>
+                <td class="mono">2025-02-01</td>
+                <td class="mono">2026-06-30</td>
+                <td><span class="badge badge-green">사용완료</span></td>
+                <td>김민수</td>
+                <td class="mono">2025-03-01</td>
+              </tr>
+              <tr>
+                <td class="mono" style="color: var(--accent-blue); font-weight: 600;">PH-A3F8R2TL5H9Y</td>
+                <td><span class="badge badge-blue" style="font-size: 9px;">일반</span></td>
+                <td>20</td>
+                <td class="mono">2025-02-01</td>
+                <td class="mono">2026-06-30</td>
+                <td><span class="badge badge-green">사용완료</span></td>
+                <td>이지은</td>
+                <td class="mono">2025-02-15</td>
+              </tr>
+              <tr>
+                <td class="mono" style="color: var(--accent-blue); font-weight: 600;">PH-D6P1W8ZC3N4J</td>
+                <td><span class="badge badge-purple" style="font-size: 9px;">프로모션</span></td>
+                <td>50</td>
+                <td class="mono">2025-02-15</td>
+                <td class="mono">2025-04-30</td>
+                <td><span class="badge" style="background: rgba(255,255,255,0.08); color: var(--text-muted);">미사용</span></td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td class="mono" style="color: var(--accent-blue); font-weight: 600;">PH-M5B7E9KU2X1V</td>
+                <td><span class="badge badge-blue" style="font-size: 9px;">일반</span></td>
+                <td>20</td>
+                <td class="mono">2025-01-10</td>
+                <td class="mono">2025-03-01</td>
+                <td><span class="badge badge-red">만료</span></td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td class="mono" style="color: var(--accent-blue); font-weight: 600;">PH-Q4G6J8HS1R7C</td>
+                <td><span class="badge badge-orange" style="font-size: 9px;">파트너</span></td>
+                <td>30</td>
+                <td class="mono">2025-03-01</td>
+                <td class="mono">2026-06-30</td>
+                <td><span class="badge" style="background: rgba(255,255,255,0.08); color: var(--text-muted);">미사용</span></td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td class="mono" style="color: var(--accent-blue); font-weight: 600;">PH-L2N8T5YA9F3W</td>
+                <td><span class="badge badge-blue" style="font-size: 9px;">일반</span></td>
+                <td>20</td>
+                <td class="mono">2025-03-01</td>
+                <td class="mono">2026-06-30</td>
+                <td><span class="badge" style="background: rgba(255,255,255,0.08); color: var(--text-muted);">미사용</span></td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="bulk-actions">
+          <button class="btn btn-secondary btn-sm">&#x1F4E5; CSV 내보내기</button>
+          <button class="btn btn-danger btn-sm">&#x1F6AB; 미사용 코드 무효화</button>
+          <div style="flex: 1;"></div>
+          <div class="page-info" style="display: flex; align-items: center;">선택됨: 0건</div>
+        </div>
+
+        <div class="table-pagination">
+          <div class="page-info">총 58개 중 1-6 표시</div>
+          <div class="page-buttons">
+            <button class="page-btn">&laquo;</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">...</button>
+            <button class="page-btn">10</button>
+            <button class="page-btn">&raquo;</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /admin-container -->
+  </div><!-- /mockup-section -->
+
+
+  <!-- ============================================================
+       SECTION 4 — Audit Log
+       ============================================================ -->
+  <div class="mockup-section">
+    <h2>4. 감사 로그 (Audit Log)</h2>
+    <p class="desc">모든 사용자/관리자 액션에 대한 불변 감사 로그. 필터링, 검색, 내보내기 지원.</p>
+
+    <div class="admin-container">
+      <div class="admin-tabs">
+        <button class="admin-tab">&#x1F4CA; 대시보드</button>
+        <button class="admin-tab">&#x1F465; 사용자 관리</button>
+        <button class="admin-tab">&#x1F511; 코드 관리</button>
+        <button class="admin-tab active">&#x1F4DD; 감사 로그</button>
+        <button class="admin-tab">&#x1F916; AI 서비스</button>
+      </div>
+
+      <div class="inline-annotation">
+        <span class="ann-icon">&#x1F512;</span>
+        <span><strong>Annotation:</strong> 감사 로그는 <strong>불변(immutable)</strong> 데이터. Firestore 보안 규칙에서 update/delete 차단. Cloud Functions에서만 write 가능하며, 관리자도 로그 수정/삭제 불가.</span>
+      </div>
+
+      <div class="data-table-wrapper">
+        <div class="table-toolbar">
+          <div class="table-search">
+            <input type="text" class="table-search-input" placeholder="사용자, 액션, IP로 검색...">
+          </div>
+          <div class="table-filters">
+            <select class="filter-select">
+              <option>전체 액션</option>
+              <option>LOGIN</option>
+              <option>PET_CREATE</option>
+              <option>VIDEO_GENERATE</option>
+              <option>CREDIT_PURCHASE</option>
+              <option>ADMIN_ACTION</option>
+            </select>
+            <select class="filter-select">
+              <option>전체 결과</option>
+              <option>성공</option>
+              <option>실패</option>
+            </select>
+            <input type="date" class="table-search-input" style="width: 130px;" value="2025-03-01">
+            <span style="color: var(--text-muted); font-size: 11px;">~</span>
+            <input type="date" class="table-search-input" style="width: 130px;" value="2025-03-05">
+            <button class="btn btn-secondary btn-sm">&#x1F4E5; 내보내기</button>
+          </div>
+        </div>
+
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>시간</th>
+                <th>사용자</th>
+                <th>액션</th>
+                <th>대상</th>
+                <th>IP</th>
+                <th>결과</th>
+                <th>상세</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="mono">03-05 09:15:32</td>
+                <td>김민수</td>
+                <td><span class="log-action-type login">LOGIN</span></td>
+                <td>-</td>
+                <td class="mono">125.178.xx.xx</td>
+                <td><span class="log-result success">&#x2713; 성공</span></td>
+                <td><button class="row-action-btn view">보기</button></td>
+              </tr>
+              <tr>
+                <td class="mono">03-05 09:12:18</td>
+                <td>이지은</td>
+                <td><span class="log-action-type pet">PET_CREATE</span></td>
+                <td>초코 (PET-089)</td>
+                <td class="mono">211.234.xx.xx</td>
+                <td><span class="log-result success">&#x2713; 성공</span></td>
+                <td><button class="row-action-btn view">보기</button></td>
+              </tr>
+              <tr>
+                <td class="mono">03-05 09:05:44</td>
+                <td>박서준</td>
+                <td><span class="log-action-type video">VIDEO_GEN</span></td>
+                <td>뽀삐 (VID-312)</td>
+                <td class="mono">175.223.xx.xx</td>
+                <td><span class="log-result success">&#x2713; 성공</span></td>
+                <td><button class="row-action-btn view">보기</button></td>
+              </tr>
+              <tr>
+                <td class="mono">03-05 08:58:10</td>
+                <td>정하나</td>
+                <td><span class="log-action-type credit">CREDIT_BUY</span></td>
+                <td>50 크레딧</td>
+                <td class="mono">220.95.xx.xx</td>
+                <td><span class="log-result success">&#x2713; 성공</span></td>
+                <td><button class="row-action-btn view">보기</button></td>
+              </tr>
+              <tr>
+                <td class="mono">03-05 08:45:02</td>
+                <td>admin@petholo.com</td>
+                <td><span class="log-action-type admin">ADMIN_ACTION</span></td>
+                <td>최유진 크레딧 +10</td>
+                <td class="mono">10.0.xx.xx</td>
+                <td><span class="log-result success">&#x2713; 성공</span></td>
+                <td><button class="row-action-btn view">보기</button></td>
+              </tr>
+              <tr>
+                <td class="mono">03-05 08:30:55</td>
+                <td>unknown</td>
+                <td><span class="log-action-type login">LOGIN</span></td>
+                <td>-</td>
+                <td class="mono">45.227.xx.xx</td>
+                <td><span class="log-result fail">&#x2717; 실패</span></td>
+                <td><button class="row-action-btn view">보기</button></td>
+              </tr>
+              <tr>
+                <td class="mono">03-05 08:22:13</td>
+                <td>김민수</td>
+                <td><span class="log-action-type video">VIDEO_GEN</span></td>
+                <td>나비 (VID-311)</td>
+                <td class="mono">125.178.xx.xx</td>
+                <td><span class="log-result fail">&#x2717; 실패</span></td>
+                <td><button class="row-action-btn view">보기</button></td>
+              </tr>
+              <tr>
+                <td class="mono">03-05 08:10:07</td>
+                <td>admin@petholo.com</td>
+                <td><span class="log-action-type admin">ADMIN_ACTION</span></td>
+                <td>코드 10개 생성</td>
+                <td class="mono">10.0.xx.xx</td>
+                <td><span class="log-result success">&#x2713; 성공</span></td>
+                <td><button class="row-action-btn view">보기</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-pagination">
+          <div class="page-info">총 2,847건 중 1-8 표시 | 기간: 2025-03-01 ~ 2025-03-05</div>
+          <div class="page-buttons">
+            <button class="page-btn">&laquo;</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn">...</button>
+            <button class="page-btn">356</button>
+            <button class="page-btn">&raquo;</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /admin-container -->
+  </div><!-- /mockup-section -->
+
+
+  <!-- ============================================================
+       SECTION 5 — AI Service Monitor
+       ============================================================ -->
+  <div class="mockup-section">
+    <h2>5. AI 서비스 모니터</h2>
+    <p class="desc">NanoBanana / Kling AI 외부 서비스 상태, 큐 현황, 최근 생성 작업, 에러율 모니터링.</p>
+
+    <div class="admin-container">
+      <div class="admin-tabs">
+        <button class="admin-tab">&#x1F4CA; 대시보드</button>
+        <button class="admin-tab">&#x1F465; 사용자 관리</button>
+        <button class="admin-tab">&#x1F511; 코드 관리</button>
+        <button class="admin-tab">&#x1F4DD; 감사 로그</button>
+        <button class="admin-tab active">&#x1F916; AI 서비스</button>
+      </div>
+
+      <!-- NanoBanana API -->
+      <div class="service-card">
+        <div class="service-header">
+          <div class="service-name">
+            <span style="font-size: 20px;">&#x1F34C;</span>
+            <div class="service-name-text">NanoBanana API</div>
+          </div>
+          <div class="service-status-badge online">
+            <div class="health-dot online" style="width: 6px; height: 6px;"></div>
+            정상 운영중
+          </div>
+        </div>
+        <div class="service-metrics">
+          <div class="service-metric">
+            <div class="service-metric-value">156<span style="font-size: 10px; color: var(--text-muted);">ms</span></div>
+            <div class="service-metric-label">응답 시간</div>
+          </div>
+          <div class="service-metric">
+            <div class="service-metric-value">3</div>
+            <div class="service-metric-label">큐 대기</div>
+          </div>
+          <div class="service-metric">
+            <div class="service-metric-value">98.5<span style="font-size: 10px; color: var(--text-muted);">%</span></div>
+            <div class="service-metric-label">성공률 (24H)</div>
+          </div>
+          <div class="service-metric">
+            <div class="service-metric-value">247</div>
+            <div class="service-metric-label">오늘 처리</div>
+          </div>
+        </div>
+        <div class="queue-bar">
+          <div class="queue-fill low" style="width: 15%;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 6px;">
+          <span style="font-size: 9px; color: var(--text-muted);">큐 사용량: 3/20</span>
+          <span style="font-size: 9px; color: var(--accent-green);">여유</span>
+        </div>
+      </div>
+
+      <!-- Kling AI API -->
+      <div class="service-card">
+        <div class="service-header">
+          <div class="service-name">
+            <span style="font-size: 20px;">&#x1F3AC;</span>
+            <div class="service-name-text">Kling AI API</div>
+          </div>
+          <div class="service-status-badge degraded">
+            <div class="health-dot degraded" style="width: 6px; height: 6px;"></div>
+            성능 저하
+          </div>
+        </div>
+        <div class="service-metrics">
+          <div class="service-metric">
+            <div class="service-metric-value" style="color: var(--accent-orange);">892<span style="font-size: 10px; color: var(--text-muted);">ms</span></div>
+            <div class="service-metric-label">응답 시간</div>
+          </div>
+          <div class="service-metric">
+            <div class="service-metric-value" style="color: var(--accent-orange);">12</div>
+            <div class="service-metric-label">큐 대기</div>
+          </div>
+          <div class="service-metric">
+            <div class="service-metric-value">94.2<span style="font-size: 10px; color: var(--text-muted);">%</span></div>
+            <div class="service-metric-label">성공률 (24H)</div>
+          </div>
+          <div class="service-metric">
+            <div class="service-metric-value">189</div>
+            <div class="service-metric-label">오늘 처리</div>
+          </div>
+        </div>
+        <div class="queue-bar">
+          <div class="queue-fill mid" style="width: 60%;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 6px;">
+          <span style="font-size: 9px; color: var(--text-muted);">큐 사용량: 12/20</span>
+          <span style="font-size: 9px; color: var(--accent-orange);">주의</span>
+        </div>
+      </div>
+
+      <!-- Recent Generation Jobs -->
+      <div style="margin-top: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div style="font-size: 14px; font-weight: 700; color: var(--text-primary);">최근 생성 작업</div>
+          <button class="btn btn-secondary btn-sm">전체 보기</button>
+        </div>
+
+        <div class="data-table-wrapper">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>작업 ID</th>
+                  <th>상태</th>
+                  <th>사용자</th>
+                  <th>유형</th>
+                  <th>서비스</th>
+                  <th>생성 요청</th>
+                  <th>소요 시간</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="mono">JOB-00312</td>
+                  <td><span class="job-status processing"><span class="job-status-dot"></span>처리중</span></td>
+                  <td>박서준</td>
+                  <td>영상 생성</td>
+                  <td><span class="badge badge-purple" style="font-size: 9px;">Kling AI</span></td>
+                  <td class="mono">09:05:44</td>
+                  <td class="mono">2m 31s</td>
+                </tr>
+                <tr>
+                  <td class="mono">JOB-00311</td>
+                  <td><span class="job-status failed"><span class="job-status-dot"></span>실패</span></td>
+                  <td>김민수</td>
+                  <td>영상 생성</td>
+                  <td><span class="badge badge-purple" style="font-size: 9px;">Kling AI</span></td>
+                  <td class="mono">08:22:13</td>
+                  <td class="mono">- (타임아웃)</td>
+                </tr>
+                <tr>
+                  <td class="mono">JOB-00310</td>
+                  <td><span class="job-status done"><span class="job-status-dot"></span>완료</span></td>
+                  <td>정하나</td>
+                  <td>3D 변환</td>
+                  <td><span class="badge badge-blue" style="font-size: 9px;">NanoBanana</span></td>
+                  <td class="mono">08:15:20</td>
+                  <td class="mono">45s</td>
+                </tr>
+                <tr>
+                  <td class="mono">JOB-00309</td>
+                  <td><span class="job-status done"><span class="job-status-dot"></span>완료</span></td>
+                  <td>이지은</td>
+                  <td>3D 변환</td>
+                  <td><span class="badge badge-blue" style="font-size: 9px;">NanoBanana</span></td>
+                  <td class="mono">08:02:55</td>
+                  <td class="mono">38s</td>
+                </tr>
+                <tr>
+                  <td class="mono">JOB-00308</td>
+                  <td><span class="job-status done"><span class="job-status-dot"></span>완료</span></td>
+                  <td>박서준</td>
+                  <td>영상 생성</td>
+                  <td><span class="badge badge-purple" style="font-size: 9px;">Kling AI</span></td>
+                  <td class="mono">07:48:10</td>
+                  <td class="mono">3m 12s</td>
+                </tr>
+                <tr>
+                  <td class="mono">JOB-00307</td>
+                  <td><span class="job-status waiting"><span class="job-status-dot"></span>대기</span></td>
+                  <td>최유진</td>
+                  <td>영상 생성</td>
+                  <td><span class="badge badge-purple" style="font-size: 9px;">Kling AI</span></td>
+                  <td class="mono">09:10:02</td>
+                  <td class="mono">-</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Rate Graph -->
+      <div style="margin-top: 16px;">
+        <div class="chart-area">
+          <div class="chart-header">
+            <div class="chart-title">에러율 추이 (최근 24시간)</div>
+            <div style="display: flex; gap: 12px; align-items: center;">
+              <span style="display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--accent-green);">
+                <span style="width: 8px; height: 8px; border-radius: 2px; background: rgba(56,239,125,0.4);"></span> 정상 (&lt;2%)
+              </span>
+              <span style="display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--accent-orange);">
+                <span style="width: 8px; height: 8px; border-radius: 2px; background: rgba(255,167,38,0.5);"></span> 주의 (2-5%)
+              </span>
+              <span style="display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--accent-red);">
+                <span style="width: 8px; height: 8px; border-radius: 2px; background: rgba(255,107,107,0.6);"></span> 위험 (&gt;5%)
+              </span>
+            </div>
+          </div>
+          <div class="error-chart-area">
+            <div class="error-bar low" style="height: 10%;"></div>
+            <div class="error-bar low" style="height: 8%;"></div>
+            <div class="error-bar low" style="height: 12%;"></div>
+            <div class="error-bar low" style="height: 15%;"></div>
+            <div class="error-bar low" style="height: 10%;"></div>
+            <div class="error-bar low" style="height: 18%;"></div>
+            <div class="error-bar mid" style="height: 35%;"></div>
+            <div class="error-bar mid" style="height: 42%;"></div>
+            <div class="error-bar high" style="height: 68%;"></div>
+            <div class="error-bar high" style="height: 75%;"></div>
+            <div class="error-bar mid" style="height: 45%;"></div>
+            <div class="error-bar mid" style="height: 30%;"></div>
+            <div class="error-bar low" style="height: 20%;"></div>
+            <div class="error-bar low" style="height: 12%;"></div>
+            <div class="error-bar low" style="height: 8%;"></div>
+            <div class="error-bar low" style="height: 10%;"></div>
+            <div class="error-bar low" style="height: 15%;"></div>
+            <div class="error-bar low" style="height: 10%;"></div>
+            <div class="error-bar low" style="height: 8%;"></div>
+            <div class="error-bar low" style="height: 12%;"></div>
+            <div class="error-bar low" style="height: 10%;"></div>
+            <div class="error-bar low" style="height: 15%;"></div>
+            <div class="error-bar low" style="height: 18%;"></div>
+            <div class="error-bar mid" style="height: 28%;"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 9px; color: var(--text-muted);">
+            <span>00:00</span>
+            <span>06:00</span>
+            <span>12:00</span>
+            <span>18:00</span>
+            <span>현재</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="inline-annotation">
+        <span class="ann-icon">&#x26A0;&#xFE0F;</span>
+        <span><strong>Annotation:</strong> Kling AI 08:20~08:50 구간에 에러율 급증 (타임아웃). 자동 재시도 로직 작동 중이며, 3회 실패 시 사용자에게 크레딧 자동 환불 처리됨.</span>
+      </div>
+
+    </div><!-- /admin-container -->
+  </div><!-- /mockup-section -->
+
+
+  <!-- ============================================================
+       Spec Table — Admin Permissions & Configuration
+       ============================================================ -->
+  <div class="mockup-section">
+    <h2>Admin 권한 및 설정 스펙</h2>
+    <p class="desc">관리자 접근 권한, 2FA 요구사항, 로그 보존 정책, 레이트 리밋 설정.</p>
+
+    <table class="spec-table">
+      <thead>
+        <tr>
+          <th style="width: 200px;">항목</th>
+          <th>설명</th>
+          <th style="width: 200px;">값 / 정책</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color: var(--text-primary); font-weight: 600;">Admin 접근 조건</td>
+          <td>Firestore <code>users/{uid}.isAdmin === true</code></td>
+          <td><code>isAdmin</code> flag 필수</td>
+        </tr>
+        <tr>
+          <td style="color: var(--text-primary); font-weight: 600;">2FA 인증</td>
+          <td>TOTP 기반 2단계 인증 (Google Authenticator 호환)</td>
+          <td>모든 Admin 접근 시 필수</td>
+        </tr>
+        <tr>
+          <td style="color: var(--text-primary); font-weight: 600;">2FA 미인증 시</td>
+          <td>대시보드 전체 접근 차단, 2FA 설정 페이지로 리디렉트</td>
+          <td>접근 불가 (HTTP 403)</td>
+        </tr>
+        <tr>
+          <td style="color: var(--text-primary); font-weight: 600;">Admin 역할</td>
+          <td><code>SUPER_ADMIN</code>: 전체 권한, <code>MODERATOR</code>: 사용자/코드 관리만</td>
+          <td>2단계 역할 구분</td>
+        </tr>
+        <tr>
+          <td style="color: var(--text-primary); font-weight: 600;">레이아웃</td>
+          <td>데스크톱 전용 (min-width: 1024px), 모바일 레이아웃 미지원</td>
+          <td>Desktop Only</td>
+        </tr>
+        <tr>
+          <td style="color: var(--text-primary); font-weight: 600;">감사 로그 보존</td>
+          <td>모든 로그 90일 보관, 이후 Cold Storage 이관</td>
+          <td>90일 (Hot) / 무제한 (Cold)</td>
+        </tr>
+        <tr>
+          <td style="color: var(--text-primary); font-weight: 600;">감사 로그 불변성</td>
+          <td>Firestore 보안 규칙에서 update/delete 차단, Cloud Functions에서만 write</td>
+          <td>Immutable (수정/삭제 불가)</td>
+        </tr>
+        <tr>
+          <td style="color: var(--text-primary); font-weight: 600;">크레딧 조정 권한</td>
+          <td>SUPER_ADMIN만 가능, 사유(reason) 필수 입력, 감사 로그 자동 기록</td>
+          <td>SUPER_ADMIN + reason 필수</td>
+        </tr>
+        <tr>
+          <td style="color: var(--text-primary); font-weight: 600;">사용자 삭제</td>
+          <td>Soft-delete 방식, 30일 후 Cloud Function에서 hard-delete 수행</td>
+          <td>30일 유예 기간</td>
+        </tr>
+        <tr>
+          <td style="color: var(--text-primary); font-weight: 600;">코드 생성 제한</td>
+          <td>1회 최대 100개, 1일 최대 500개</td>
+          <td>100/batch, 500/day</td>
+        </tr>
+        <tr>
+          <td style="color: var(--text-primary); font-weight: 600;">API Rate Limit</td>
+          <td>Admin API 요청 제한</td>
+          <td>100 req/min per admin</td>
+        </tr>
+        <tr>
+          <td style="color: var(--text-primary); font-weight: 600;">AI 서비스 모니터링</td>
+          <td>NanoBanana / Kling AI 상태 폴링 주기</td>
+          <td>30초 간격 health check</td>
+        </tr>
+        <tr>
+          <td style="color: var(--text-primary); font-weight: 600;">자동 재시도 정책</td>
+          <td>AI 서비스 실패 시 최대 3회 재시도, 3회 실패 시 크레딧 자동 환불</td>
+          <td>3회 retry, 실패 시 refund</td>
+        </tr>
+        <tr>
+          <td style="color: var(--text-primary); font-weight: 600;">세션 타임아웃</td>
+          <td>Admin 세션 비활동 자동 만료</td>
+          <td>30분 (idle timeout)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Flow Diagram: Admin Access -->
+    <div style="margin-top: 20px; margin-bottom: 12px; font-size: 13px; font-weight: 600; color: var(--text-primary);">Admin 접근 흐름</div>
+    <div class="flow-diagram">
+      <div class="flow-step">로그인</div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-step">isAdmin 확인</div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-step active">2FA 인증</div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-step">세션 생성</div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-step">대시보드 접근</div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-step">감사 로그 기록</div>
+    </div>
+
+    <div style="margin-bottom: 12px; font-size: 13px; font-weight: 600; color: var(--text-primary);">크레딧 수동 조정 흐름</div>
+    <div class="flow-diagram">
+      <div class="flow-step">사용자 선택</div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-step">조정 금액 입력</div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-step active">사유 입력 (필수)</div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-step">Firestore 업데이트</div>
+      <div class="flow-arrow">&#x2192;</div>
+      <div class="flow-step">감사 로그 기록</div>
+    </div>
+
+  </div><!-- /mockup-section -->
+
+</div><!-- /mockup-page -->
+
+</body>
+</html>

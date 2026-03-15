@@ -1,0 +1,187 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "pets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "profiles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "profiles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "petId", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "baseVideos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "profileId", "order": "ASCENDING" },
+        { "fieldPath": "deletedAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "baseVideos",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "profileId", "order": "ASCENDING" },
+        { "fieldPath": "deletedAt", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "motions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "profileId", "order": "ASCENDING" },
+        { "fieldPath": "deletedAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "motions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "profileId", "order": "ASCENDING" },
+        { "fieldPath": "deletedAt", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "motions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "profileId", "order": "ASCENDING" },
+        { "fieldPath": "position", "order": "ASCENDING" },
+        { "fieldPath": "deletedAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "chatRooms",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "lastMessageAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "chatRooms",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "petId", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "chatMessages",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "chatRoomId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "creditTransactions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "trashItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "deletedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "analyticsEvents",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "analyticsEvents",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "event", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "analyticsEvents",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "sessionId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "playbackSessions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "startedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "playbackSessions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "profileId", "order": "ASCENDING" },
+        { "fieldPath": "startedAt", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": [
+    {
+      "collectionGroup": "users",
+      "fieldPath": "email",
+      "indexes": [
+        { "queryScope": "COLLECTION", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "fieldPath": "googleId",
+      "indexes": [
+        { "queryScope": "COLLECTION", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "fieldPath": "cafe24MemberId",
+      "indexes": [
+        { "queryScope": "COLLECTION", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "productCodes",
+      "fieldPath": "code",
+      "indexes": [
+        { "queryScope": "COLLECTION", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "baseVideos",
+      "fieldPath": "klingJobId",
+      "indexes": [
+        { "queryScope": "COLLECTION", "order": "ASCENDING" }
+      ]
+    }
+  ]
+}

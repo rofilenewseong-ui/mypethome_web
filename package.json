@@ -1,0 +1,31 @@
+{
+  "name": "petholo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PetHolo - Pet Memorial Hologram Platform (Monorepo)",
+  "scripts": {
+    "dev": "pnpm -r --parallel run dev",
+    "dev:web": "pnpm --filter @petholo/web dev",
+    "dev:api": "pnpm --filter @petholo/api dev",
+    "build": "pnpm -r run build",
+    "build:web": "pnpm --filter @petholo/web build",
+    "build:api": "pnpm --filter @petholo/api build",
+    "test": "pnpm --filter @petholo/api test",
+    "test:api": "pnpm --filter @petholo/api test",
+    "lint": "pnpm -r run lint",
+    "clean": "pnpm -r exec rm -rf node_modules dist .next && rm -rf node_modules"
+  },
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=9"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp",
+      "protobufjs",
+      "unrs-resolver",
+      "@firebase/util"
+    ]
+  }
+}

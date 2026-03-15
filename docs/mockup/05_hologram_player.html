@@ -1,0 +1,1937 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PetHolo Mockup - 05. Hologram Player</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    /* ── Screen 1: Portrait Entry ── */
+    .profile-selector {
+      display: flex;
+      gap: 12px;
+      padding: 12px 20px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .profile-selector::-webkit-scrollbar { display: none; }
+
+    .profile-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .profile-chip.active {
+      background: rgba(100,200,255,0.12);
+      border-color: var(--accent-blue);
+    }
+    .profile-chip .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--gradient-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    .profile-chip .name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    .profile-chip.active .name {
+      color: var(--accent-blue);
+    }
+
+    /* ── Motion Assignment Layout ── */
+    .motion-layout {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 20px;
+      margin: 16px 0;
+    }
+    .motion-slot {
+      flex: 1;
+      aspect-ratio: 9/16;
+      max-height: 200px;
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+    .motion-slot.left {
+      background: rgba(102,126,234,0.08);
+      border: 2px dashed rgba(102,126,234,0.4);
+    }
+    .motion-slot.left.filled {
+      border-style: solid;
+      border-color: var(--accent-purple);
+      background: rgba(102,126,234,0.15);
+    }
+    .motion-slot.center {
+      flex: 1.4;
+      background: rgba(100,200,255,0.08);
+      border: 2px solid rgba(100,200,255,0.3);
+    }
+    .motion-slot.center.filled {
+      background: rgba(100,200,255,0.12);
+      border-color: var(--accent-blue);
+    }
+    .motion-slot.right {
+      background: rgba(240,147,251,0.08);
+      border: 2px dashed rgba(240,147,251,0.4);
+    }
+    .motion-slot.right.filled {
+      border-style: solid;
+      border-color: var(--accent-pink);
+      background: rgba(240,147,251,0.15);
+    }
+    .slot-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .slot-label.purple { color: var(--accent-purple); }
+    .slot-label.blue { color: var(--accent-blue); }
+    .slot-label.pink { color: var(--accent-pink); }
+
+    .slot-icon {
+      font-size: 28px;
+      opacity: 0.6;
+    }
+    .slot-name {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    .slot-thumb {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      opacity: 0.15;
+    }
+    .slot-info {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+    .slot-change-hint {
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ── Play Button ── */
+    .play-btn-area {
+      padding: 0 20px;
+      margin-top: 20px;
+    }
+    .play-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: var(--radius-lg);
+      border: none;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--gradient-main);
+      color: #fff;
+      box-shadow: 0 4px 25px rgba(102,126,234,0.4);
+      transition: all 0.2s;
+    }
+    .play-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 30px rgba(102,126,234,0.5);
+    }
+    .play-btn .icon { font-size: 20px; }
+
+    .landscape-notice {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* ── Motion Info Cards ── */
+    .motion-info-row {
+      display: flex;
+      gap: 8px;
+      padding: 0 20px;
+      margin-top: 16px;
+    }
+    .motion-info-card {
+      flex: 1;
+      padding: 10px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .motion-info-card .label {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .motion-info-card .value {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* ── Screen 2: Landscape Hologram View ── */
+    .landscape-screen {
+      background: #000 !important;
+      overflow: hidden;
+    }
+    .landscape-screen .phone-screen {
+      overflow: hidden;
+    }
+
+    .hologram-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      position: relative;
+      background: #000;
+    }
+    .holo-zone {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .holo-zone.left {
+      flex: 0.275;
+      border-right: 1px solid rgba(102,126,234,0.3);
+    }
+    .holo-zone.center {
+      flex: 0.45;
+      border-left: 1px solid rgba(100,200,255,0.15);
+      border-right: 1px solid rgba(100,200,255,0.15);
+    }
+    .holo-zone.right {
+      flex: 0.275;
+      border-left: 1px solid rgba(240,147,251,0.3);
+    }
+
+    .holo-zone .glow-border {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .holo-zone.left .glow-border {
+      box-shadow: inset 0 0 30px rgba(102,126,234,0.2), inset 0 0 60px rgba(102,126,234,0.05);
+    }
+    .holo-zone.center .glow-border {
+      box-shadow: inset 0 0 20px rgba(100,200,255,0.08);
+    }
+    .holo-zone.right .glow-border {
+      box-shadow: inset 0 0 30px rgba(240,147,251,0.2), inset 0 0 60px rgba(240,147,251,0.05);
+    }
+
+    .holo-video-placeholder {
+      width: 80%;
+      height: 85%;
+      border-radius: var(--radius-sm);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      position: relative;
+    }
+    .holo-zone.left .holo-video-placeholder {
+      background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.05));
+      border: 1px solid rgba(102,126,234,0.15);
+    }
+    .holo-zone.center .holo-video-placeholder {
+      background: linear-gradient(135deg, rgba(100,200,255,0.06), rgba(0,210,255,0.03));
+      border: 1px solid rgba(100,200,255,0.1);
+    }
+    .holo-zone.right .holo-video-placeholder {
+      background: linear-gradient(135deg, rgba(240,147,251,0.1), rgba(245,87,108,0.05));
+      border: 1px solid rgba(240,147,251,0.15);
+    }
+
+    .holo-pet-icon {
+      font-size: 48px;
+      opacity: 0.4;
+    }
+    .holo-zone.center .holo-pet-icon {
+      font-size: 64px;
+      opacity: 0.5;
+    }
+    .holo-motion-label {
+      font-size: 10px;
+      font-weight: 500;
+      opacity: 0.5;
+    }
+
+    /* Playing animation indicators */
+    .play-indicator {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 2px;
+      align-items: flex-end;
+    }
+    .play-indicator .bar {
+      width: 3px;
+      border-radius: 1px;
+      animation: audioBar 0.8s ease-in-out infinite;
+    }
+    .play-indicator .bar:nth-child(1) { height: 8px; animation-delay: 0s; }
+    .play-indicator .bar:nth-child(2) { height: 12px; animation-delay: 0.15s; }
+    .play-indicator .bar:nth-child(3) { height: 6px; animation-delay: 0.3s; }
+    .play-indicator .bar:nth-child(4) { height: 10px; animation-delay: 0.45s; }
+
+    .holo-zone.left .play-indicator .bar { background: var(--accent-purple); }
+    .holo-zone.center .play-indicator .bar { background: var(--accent-blue); }
+    .holo-zone.right .play-indicator .bar { background: var(--accent-pink); }
+
+    @keyframes audioBar {
+      0%, 100% { transform: scaleY(0.5); }
+      50% { transform: scaleY(1.2); }
+    }
+
+    /* Landscape Overlay UI */
+    .landscape-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 12px 16px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%);
+    }
+    .landscape-back-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+    }
+    .landscape-pet-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .landscape-pet-info .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .landscape-pet-info .name {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* Long press gesture area */
+    .gesture-area {
+      position: absolute;
+      bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 9px;
+      color: rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.05);
+      border: 1px dashed rgba(255,255,255,0.1);
+    }
+    .holo-zone.left .gesture-area { left: 50%; transform: translateX(-50%); }
+    .holo-zone.right .gesture-area { left: 50%; transform: translateX(-50%); }
+
+    /* ── Screen 3: Motion Selection Bottom Sheet ── */
+    .sheet-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 50;
+    }
+    .bottom-sheet {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-secondary);
+      border-radius: 20px 20px 0 0;
+      padding: 0;
+      z-index: 51;
+      max-height: 75%;
+      overflow-y: auto;
+    }
+    .sheet-handle {
+      width: 36px;
+      height: 4px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 2px;
+      margin: 10px auto 0;
+    }
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky;
+      top: 0;
+      background: var(--bg-secondary);
+      z-index: 5;
+    }
+    .sheet-header h3 {
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .sheet-close {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--bg-surface);
+      border: none;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .slot-tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 20px;
+      margin-top: 12px;
+    }
+    .slot-tab {
+      flex: 1;
+      padding: 8px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      cursor: pointer;
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid transparent;
+      border-bottom: none;
+      transition: all 0.2s;
+    }
+    .slot-tab.active-left {
+      color: var(--accent-purple);
+      background: rgba(102,126,234,0.1);
+      border-color: rgba(102,126,234,0.2);
+    }
+    .slot-tab.active-right {
+      color: var(--accent-pink);
+      background: rgba(240,147,251,0.1);
+      border-color: rgba(240,147,251,0.2);
+    }
+
+    .motion-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 16px 20px 32px;
+    }
+    .motion-card {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .motion-card:hover {
+      border-color: rgba(100,200,255,0.3);
+    }
+    .motion-card.assigned-left {
+      border-color: var(--accent-purple);
+      box-shadow: 0 0 12px rgba(102,126,234,0.2);
+    }
+    .motion-card.assigned-right {
+      border-color: var(--accent-pink);
+      box-shadow: 0 0 12px rgba(240,147,251,0.2);
+    }
+    .motion-thumb {
+      width: 100%;
+      aspect-ratio: 9/16;
+      background: rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      position: relative;
+    }
+    .motion-card-info {
+      padding: 8px;
+    }
+    .motion-card-name {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .motion-card-date {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    .position-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      padding: 2px 7px;
+      border-radius: 10px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .position-badge.left {
+      background: var(--accent-purple);
+      color: #fff;
+    }
+    .position-badge.right {
+      background: var(--accent-pink);
+      color: #fff;
+    }
+    .motion-card .check-mark {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #fff;
+    }
+    .motion-card.assigned-left .check-mark {
+      background: var(--accent-purple);
+    }
+    .motion-card.assigned-right .check-mark {
+      background: var(--accent-pink);
+    }
+
+    .drag-hint {
+      padding: 10px 20px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      border-top: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* ── Screen 4: No Content State ── */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 30px;
+      text-align: center;
+      height: calc(100% - 140px);
+    }
+    .empty-state .icon-large {
+      font-size: 80px;
+      margin-bottom: 20px;
+      opacity: 0.3;
+    }
+    .empty-state h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .empty-state p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .empty-cta {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--radius-lg);
+      border: none;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--gradient-accent);
+      color: var(--bg-primary);
+      box-shadow: var(--shadow-button);
+      margin-bottom: 12px;
+    }
+    .empty-credit-cost {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Prism Diagram */
+    .prism-guide {
+      margin-top: 32px;
+      padding: 20px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255,255,255,0.06);
+      width: 100%;
+    }
+    .prism-guide h4 {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--accent-blue);
+      text-align: center;
+    }
+    .prism-diagram {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .prism-visual {
+      width: 160px;
+      height: 160px;
+      position: relative;
+      margin: 8px 0;
+    }
+    .prism-base {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 8px;
+      background: rgba(100,200,255,0.15);
+      border: 1px solid rgba(100,200,255,0.3);
+      border-radius: 2px;
+    }
+    .prism-face {
+      position: absolute;
+      width: 80px;
+      text-align: center;
+      font-size: 9px;
+      font-weight: 500;
+    }
+    .prism-face.top {
+      top: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--accent-blue);
+    }
+    .prism-face.left-face {
+      top: 50%;
+      left: -4px;
+      transform: translateY(-50%) rotate(-30deg);
+      color: var(--accent-purple);
+    }
+    .prism-face.right-face {
+      top: 50%;
+      right: -4px;
+      transform: translateY(-50%) rotate(30deg);
+      color: var(--accent-pink);
+    }
+    /* Pyramid shape via SVG fallback */
+    .prism-shape {
+      width: 100%;
+      height: 100%;
+    }
+    .prism-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+    .prism-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 6px 0;
+    }
+    .prism-step .num {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent-blue);
+      flex-shrink: 0;
+    }
+    .prism-step .text {
+      font-size: 11px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* ── Annotation Styles ── */
+    .annotation-line {
+      position: absolute;
+      z-index: 200;
+      pointer-events: none;
+    }
+
+    /* ── Phone Label ── */
+    .phone-label {
+      text-align: center;
+      margin-top: 12px;
+      margin-bottom: 0;
+    }
+    .phone-label .title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .phone-label .sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ── Section with landscape frame ── */
+    .landscape-wrapper {
+      display: flex;
+      justify-content: center;
+    }
+
+    /* ── Annotation Group ── */
+    .annotated-frame {
+      position: relative;
+      display: inline-block;
+    }
+
+    /* ── Notes Section ── */
+    .notes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .note-card {
+      padding: 16px;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-md);
+    }
+    .note-card h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent-blue);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .note-card p, .note-card li {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .note-card ul {
+      list-style: none;
+      padding: 0;
+    }
+    .note-card ul li {
+      padding: 3px 0;
+      padding-left: 14px;
+      position: relative;
+    }
+    .note-card ul li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      opacity: 0.5;
+    }
+
+    /* ── Brightness indicator ── */
+    .brightness-indicator {
+      position: absolute;
+      bottom: 10px;
+      right: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      background: rgba(255,215,0,0.1);
+      border: 1px solid rgba(255,215,0,0.2);
+      border-radius: 10px;
+      font-size: 9px;
+      color: var(--accent-yellow);
+      z-index: 10;
+    }
+
+    /* ── Loop indicator ── */
+    .loop-indicator {
+      position: absolute;
+      bottom: 10px;
+      left: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      background: rgba(56,239,125,0.08);
+      border: 1px solid rgba(56,239,125,0.15);
+      border-radius: 10px;
+      font-size: 9px;
+      color: var(--accent-green);
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div class="mockup-page">
+
+    <!-- ════════════════════════════════════════════════════
+         Header
+         ════════════════════════════════════════════════════ -->
+    <h1>05. Hologram Player</h1>
+    <p class="subtitle">
+      홀로그램 프리즘을 위한 3분할 영상 재생기. 프로필별 베이스 영상 + 좌/우 모션 영상을 배치하고 가로 모드에서 동시 재생합니다.<br>
+      아크릴 프리즘(10cm x 10cm)에 최적화된 화면 구성으로, 실물 크기의 3D 홀로그램 효과를 제공합니다.
+    </p>
+
+    <!-- ════════════════════════════════════════════════════
+         Flow Diagram
+         ════════════════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>User Flow</h2>
+      <p class="desc">홀로그램 재생까지의 전체 흐름</p>
+      <div class="flow-diagram">
+        <div class="flow-step">프로필 선택</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step">모션 배치</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step active">재생 시작</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step">가로 전환</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step active">3분할 재생</div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step">롱프레스 모션 변경</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         Screen 1: Player - Portrait Entry
+         ════════════════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>Screen 1 &mdash; Portrait Entry</h2>
+      <p class="desc">
+        홀로그램 재생 진입 화면. 프로필을 선택하고 좌/우 모션 슬롯에 영상을 배치한 뒤 재생 버튼을 누릅니다.
+      </p>
+
+      <div class="phones-row">
+        <div class="annotated-frame">
+          <div class="phone-frame">
+            <div class="phone-screen">
+
+              <!-- Status Bar -->
+              <div class="status-bar">
+                <span class="time">9:41</span>
+                <span class="icons">
+                  <span>&#9679;</span>
+                  <span>WiFi</span>
+                  <span>100%</span>
+                </span>
+              </div>
+
+              <!-- Top Bar -->
+              <div class="top-bar">
+                <h1>홀로그램 플레이어</h1>
+                <div class="actions">
+                  <div class="icon-btn" title="도움말">?</div>
+                </div>
+              </div>
+
+              <!-- Profile Selector -->
+              <div class="profile-selector">
+                <div class="profile-chip active">
+                  <div class="avatar">&#128054;</div>
+                  <span class="name">초코</span>
+                </div>
+                <div class="profile-chip">
+                  <div class="avatar">&#128049;</div>
+                  <span class="name">나비</span>
+                </div>
+                <div class="profile-chip">
+                  <div class="avatar">&#128054;</div>
+                  <span class="name">보리</span>
+                </div>
+                <div class="profile-chip" style="opacity:0.4;">
+                  <div class="avatar" style="background: var(--bg-surface); font-size:16px;">+</div>
+                  <span class="name" style="color:var(--text-muted);">추가</span>
+                </div>
+              </div>
+
+              <!-- Motion Layout -->
+              <div style="padding: 0 20px; margin-top: 8px;">
+                <div class="flex-between mb-8">
+                  <span style="font-size:13px; font-weight:600;">모션 배치</span>
+                  <span class="badge badge-blue">초코</span>
+                </div>
+              </div>
+
+              <div class="motion-layout">
+                <!-- LEFT Slot -->
+                <div class="motion-slot left filled">
+                  <div class="slot-thumb">&#128054;</div>
+                  <div class="slot-info">
+                    <div class="slot-label purple">LEFT</div>
+                    <div class="slot-icon" style="font-size:18px;">&#128054;</div>
+                    <div class="slot-name">꼬리 흔들기</div>
+                    <div class="slot-change-hint">탭하여 변경</div>
+                  </div>
+                </div>
+
+                <!-- CENTER Slot (Base Video) -->
+                <div class="motion-slot center filled">
+                  <div class="slot-thumb" style="font-size:50px;">&#128054;</div>
+                  <div class="slot-info">
+                    <div class="slot-label blue">CENTER</div>
+                    <div style="font-size:12px; font-weight:600; color: var(--accent-blue); margin-top:4px;">베이스 영상</div>
+                    <div class="slot-name" style="margin-top:2px;">앉아있는 초코</div>
+                    <div style="font-size:9px; color:var(--text-muted); margin-top:4px;">
+                      <span style="color:var(--accent-green);">&#9679;</span> 생성 완료
+                    </div>
+                  </div>
+                </div>
+
+                <!-- RIGHT Slot -->
+                <div class="motion-slot right filled">
+                  <div class="slot-thumb">&#128054;</div>
+                  <div class="slot-info">
+                    <div class="slot-label pink">RIGHT</div>
+                    <div class="slot-icon" style="font-size:18px;">&#128054;</div>
+                    <div class="slot-name">고개 갸웃</div>
+                    <div class="slot-change-hint">탭하여 변경</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Motion Info Row -->
+              <div class="motion-info-row">
+                <div class="motion-info-card">
+                  <div class="label">해상도</div>
+                  <div class="value" style="color:var(--accent-blue); font-size:12px;">768 x 768</div>
+                </div>
+                <div class="motion-info-card">
+                  <div class="label">프레임</div>
+                  <div class="value" style="color:var(--accent-green); font-size:12px;">30 FPS</div>
+                </div>
+                <div class="motion-info-card">
+                  <div class="label">길이</div>
+                  <div class="value" style="color:var(--accent-purple); font-size:12px;">4초 루프</div>
+                </div>
+              </div>
+
+              <!-- Play Button -->
+              <div class="play-btn-area">
+                <button class="play-btn">
+                  <span class="icon">&#9654;</span>
+                  홀로그램 재생
+                </button>
+                <div class="landscape-notice">
+                  <span>&#128257;</span> 가로 모드로 전환됩니다
+                </div>
+              </div>
+
+              <!-- Quick Settings -->
+              <div style="padding: 0 20px; margin-top: 20px;">
+                <div class="card">
+                  <div class="card-header">
+                    <span class="card-title">재생 설정</span>
+                    <span class="badge badge-green">기본값</span>
+                  </div>
+                  <div style="display:flex; flex-direction:column; gap:10px;">
+                    <div class="flex-between">
+                      <span style="font-size:12px; color:var(--text-secondary);">화면 밝기 자동 최대</span>
+                      <div style="width:36px; height:20px; border-radius:10px; background:var(--accent-green); position:relative;">
+                        <div style="width:16px; height:16px; border-radius:50%; background:#fff; position:absolute; right:2px; top:2px;"></div>
+                      </div>
+                    </div>
+                    <div class="flex-between">
+                      <span style="font-size:12px; color:var(--text-secondary);">영상 무한 반복</span>
+                      <div style="width:36px; height:20px; border-radius:10px; background:var(--accent-green); position:relative;">
+                        <div style="width:16px; height:16px; border-radius:50%; background:#fff; position:absolute; right:2px; top:2px;"></div>
+                      </div>
+                    </div>
+                    <div class="flex-between">
+                      <span style="font-size:12px; color:var(--text-secondary);">화면 자동 꺼짐 방지</span>
+                      <div style="width:36px; height:20px; border-radius:10px; background:var(--accent-green); position:relative;">
+                        <div style="width:16px; height:16px; border-radius:50%; background:#fff; position:absolute; right:2px; top:2px;"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="height:100px;"></div>
+
+              <!-- Bottom Nav -->
+              <div class="bottom-nav">
+                <div class="nav-item">
+                  <span class="nav-icon">&#127968;</span>
+                  <span>홈</span>
+                </div>
+                <div class="nav-item">
+                  <span class="nav-icon">&#127912;</span>
+                  <span>생성</span>
+                </div>
+                <div class="nav-item active">
+                  <span class="nav-icon">&#9670;</span>
+                  <span>홀로그램</span>
+                </div>
+                <div class="nav-item">
+                  <span class="nav-icon">&#128172;</span>
+                  <span>메신저</span>
+                </div>
+                <div class="nav-item">
+                  <span class="nav-icon">&#9881;</span>
+                  <span>설정</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Annotations -->
+          <div class="annotation arrow-left" style="top: 80px; right: -190px;">프로필 가로 스크롤</div>
+          <div class="annotation arrow-left" style="top: 300px; right: -230px;">LEFT/CENTER/RIGHT 슬롯</div>
+          <div class="annotation arrow-left" style="top: 440px; right: -200px;">해상도/프레임/길이 정보</div>
+          <div class="annotation arrow-left" style="top: 530px; right: -230px;">재생 시 자동 가로 전환</div>
+          <div class="annotation arrow-left" style="top: 670px; right: -230px;">프리즘 투영 최적화 설정</div>
+
+          <div class="phone-label">
+            <div class="title">Portrait Entry</div>
+            <div class="sub">375 x 812px &middot; 모션 배치 &amp; 재생 진입</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         Screen 2: Player - Landscape View
+         ════════════════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>Screen 2 &mdash; Landscape Hologram View</h2>
+      <p class="desc">
+        재생 시작 후 자동으로 가로 전환. 3분할 레이아웃으로 아크릴 프리즘에 최적화된 홀로그램을 표시합니다.<br>
+        검은 배경은 프리즘 반사 시 투명하게 보여 홀로그램 효과를 극대화합니다.
+      </p>
+
+      <div class="landscape-wrapper">
+        <div class="annotated-frame">
+          <div class="phone-frame landscape landscape-screen">
+            <div class="phone-screen" style="overflow:hidden;">
+
+              <!-- Hologram 3-Split Container -->
+              <div class="hologram-container">
+
+                <!-- Overlay UI -->
+                <div class="landscape-overlay">
+                  <div class="landscape-back-btn">&larr;</div>
+                  <div class="landscape-pet-info">
+                    <div class="dot"></div>
+                    <span class="name">&#128054; 초코</span>
+                  </div>
+                </div>
+
+                <!-- LEFT Zone -->
+                <div class="holo-zone left">
+                  <div class="glow-border"></div>
+                  <div class="holo-video-placeholder">
+                    <div class="holo-pet-icon">&#128054;</div>
+                    <div class="holo-motion-label" style="color:var(--accent-purple);">꼬리 흔들기</div>
+                    <div class="play-indicator">
+                      <div class="bar"></div>
+                      <div class="bar"></div>
+                      <div class="bar"></div>
+                      <div class="bar"></div>
+                    </div>
+                  </div>
+                  <div class="gesture-area">
+                    <span>&#9759;</span> 길게 눌러 변경
+                  </div>
+                </div>
+
+                <!-- CENTER Zone -->
+                <div class="holo-zone center">
+                  <div class="glow-border"></div>
+                  <div class="holo-video-placeholder">
+                    <div class="holo-pet-icon">&#128054;</div>
+                    <div class="holo-motion-label" style="color:var(--accent-blue);">베이스 영상</div>
+                    <div class="play-indicator">
+                      <div class="bar"></div>
+                      <div class="bar"></div>
+                      <div class="bar"></div>
+                      <div class="bar"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- RIGHT Zone -->
+                <div class="holo-zone right">
+                  <div class="glow-border"></div>
+                  <div class="holo-video-placeholder">
+                    <div class="holo-pet-icon">&#128054;</div>
+                    <div class="holo-motion-label" style="color:var(--accent-pink);">고개 갸웃</div>
+                    <div class="play-indicator">
+                      <div class="bar"></div>
+                      <div class="bar"></div>
+                      <div class="bar"></div>
+                      <div class="bar"></div>
+                    </div>
+                  </div>
+                  <div class="gesture-area">
+                    <span>&#9759;</span> 길게 눌러 변경
+                  </div>
+                </div>
+
+                <!-- Brightness Indicator -->
+                <div class="brightness-indicator">
+                  <span>&#9728;</span> 밝기 MAX
+                </div>
+
+                <!-- Loop Indicator -->
+                <div class="loop-indicator">
+                  <span>&#8634;</span> 반복 재생중
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Annotations -->
+          <div class="annotation arrow-down" style="top: -36px; left: 80px;">LEFT 모션 (27.5%)</div>
+          <div class="annotation arrow-down" style="top: -36px; left: 340px;">CENTER 베이스 (45%)</div>
+          <div class="annotation arrow-down" style="top: -36px; right: 60px;">RIGHT 모션 (27.5%)</div>
+          <div class="annotation arrow-left" style="top: 120px; right: -240px;">검은 배경 = 프리즘 투명</div>
+          <div class="annotation arrow-left" style="top: 200px; right: -280px;">좌/우 롱프레스로 모션 교체</div>
+          <div class="annotation arrow-left" style="top: 340px; right: -210px;">3영상 동시 재생</div>
+
+          <div class="phone-label" style="margin-top: 20px;">
+            <div class="title">Landscape Hologram View</div>
+            <div class="sub">812 x 375px &middot; 3분할 동시 재생 &middot; 프리즘 최적화</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         Screen 3: Motion Selection Bottom Sheet
+         ════════════════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>Screen 3 &mdash; Motion Selection</h2>
+      <p class="desc">
+        모션 슬롯 탭 시 하단 시트로 모션 선택 UI가 표시됩니다. 탭하여 좌/우 슬롯에 모션을 배치합니다.
+      </p>
+
+      <div class="phones-row">
+        <div class="annotated-frame">
+          <div class="phone-frame">
+            <div class="phone-screen">
+
+              <!-- Status Bar -->
+              <div class="status-bar">
+                <span class="time">9:41</span>
+                <span class="icons">
+                  <span>&#9679;</span>
+                  <span>WiFi</span>
+                  <span>100%</span>
+                </span>
+              </div>
+
+              <!-- Top Bar (dimmed behind sheet) -->
+              <div class="top-bar" style="opacity:0.3;">
+                <h1>홀로그램 플레이어</h1>
+              </div>
+
+              <!-- Profile Selector (dimmed) -->
+              <div class="profile-selector" style="opacity:0.3;">
+                <div class="profile-chip active">
+                  <div class="avatar">&#128054;</div>
+                  <span class="name">초코</span>
+                </div>
+              </div>
+
+              <!-- Dimmed Motion Layout -->
+              <div class="motion-layout" style="opacity:0.2;">
+                <div class="motion-slot left filled">
+                  <div class="slot-info">
+                    <div class="slot-label purple">LEFT</div>
+                  </div>
+                </div>
+                <div class="motion-slot center filled">
+                  <div class="slot-info">
+                    <div class="slot-label blue">CENTER</div>
+                  </div>
+                </div>
+                <div class="motion-slot right">
+                  <div class="slot-info">
+                    <div class="slot-label pink">RIGHT</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sheet Overlay -->
+              <div class="sheet-overlay"></div>
+
+              <!-- Bottom Sheet -->
+              <div class="bottom-sheet">
+                <div class="sheet-handle"></div>
+                <div class="sheet-header">
+                  <h3>모션 선택</h3>
+                  <button class="sheet-close">&times;</button>
+                </div>
+
+                <!-- Slot Tabs -->
+                <div class="slot-tabs">
+                  <div class="slot-tab active-left">&#9664; LEFT 슬롯</div>
+                  <div class="slot-tab active-right" style="opacity:0.4;">RIGHT 슬롯 &#9654;</div>
+                </div>
+
+                <!-- Motion Grid -->
+                <div class="motion-grid">
+
+                  <!-- Motion 1 - Assigned to LEFT -->
+                  <div class="motion-card assigned-left">
+                    <div class="motion-thumb">
+                      <span>&#128054;</span>
+                      <div class="check-mark">&#10003;</div>
+                      <div class="position-badge left">LEFT</div>
+                    </div>
+                    <div class="motion-card-info">
+                      <div class="motion-card-name">꼬리 흔들기</div>
+                      <div class="motion-card-date">2024.01.15</div>
+                    </div>
+                  </div>
+
+                  <!-- Motion 2 -->
+                  <div class="motion-card">
+                    <div class="motion-thumb">
+                      <span>&#128054;</span>
+                    </div>
+                    <div class="motion-card-info">
+                      <div class="motion-card-name">고개 갸웃</div>
+                      <div class="motion-card-date">2024.01.14</div>
+                    </div>
+                  </div>
+
+                  <!-- Motion 3 -->
+                  <div class="motion-card">
+                    <div class="motion-thumb">
+                      <span>&#128054;</span>
+                    </div>
+                    <div class="motion-card-info">
+                      <div class="motion-card-name">앉기 동작</div>
+                      <div class="motion-card-date">2024.01.13</div>
+                    </div>
+                  </div>
+
+                  <!-- Motion 4 - Assigned to RIGHT -->
+                  <div class="motion-card assigned-right">
+                    <div class="motion-thumb">
+                      <span>&#128054;</span>
+                      <div class="check-mark">&#10003;</div>
+                      <div class="position-badge right">RIGHT</div>
+                    </div>
+                    <div class="motion-card-info">
+                      <div class="motion-card-name">손 내밀기</div>
+                      <div class="motion-card-date">2024.01.12</div>
+                    </div>
+                  </div>
+
+                  <!-- Motion 5 -->
+                  <div class="motion-card">
+                    <div class="motion-thumb">
+                      <span>&#128054;</span>
+                    </div>
+                    <div class="motion-card-info">
+                      <div class="motion-card-name">뛰어오기</div>
+                      <div class="motion-card-date">2024.01.11</div>
+                    </div>
+                  </div>
+
+                  <!-- Motion 6 -->
+                  <div class="motion-card">
+                    <div class="motion-thumb">
+                      <span>&#128054;</span>
+                    </div>
+                    <div class="motion-card-info">
+                      <div class="motion-card-name">기지개</div>
+                      <div class="motion-card-date">2024.01.10</div>
+                    </div>
+                  </div>
+
+                  <!-- Motion 7 -->
+                  <div class="motion-card">
+                    <div class="motion-thumb">
+                      <span>&#128054;</span>
+                    </div>
+                    <div class="motion-card-info">
+                      <div class="motion-card-name">하품하기</div>
+                      <div class="motion-card-date">2024.01.09</div>
+                    </div>
+                  </div>
+
+                  <!-- Motion 8 -->
+                  <div class="motion-card">
+                    <div class="motion-thumb">
+                      <span>&#128054;</span>
+                    </div>
+                    <div class="motion-card-info">
+                      <div class="motion-card-name">배 보이기</div>
+                      <div class="motion-card-date">2024.01.08</div>
+                    </div>
+                  </div>
+
+                  <!-- Motion 9 -->
+                  <div class="motion-card">
+                    <div class="motion-thumb">
+                      <span>&#128054;</span>
+                    </div>
+                    <div class="motion-card-info">
+                      <div class="motion-card-name">짖기 동작</div>
+                      <div class="motion-card-date">2024.01.07</div>
+                    </div>
+                  </div>
+
+                  <!-- Motion 10 -->
+                  <div class="motion-card">
+                    <div class="motion-thumb">
+                      <span>&#128054;</span>
+                    </div>
+                    <div class="motion-card-info">
+                      <div class="motion-card-name">돌기 동작</div>
+                      <div class="motion-card-date">2024.01.06</div>
+                    </div>
+                  </div>
+
+                  <!-- Motion 11 -->
+                  <div class="motion-card">
+                    <div class="motion-thumb">
+                      <span>&#128054;</span>
+                    </div>
+                    <div class="motion-card-info">
+                      <div class="motion-card-name">눕기</div>
+                      <div class="motion-card-date">2024.01.05</div>
+                    </div>
+                  </div>
+
+                  <!-- Motion 12 -->
+                  <div class="motion-card">
+                    <div class="motion-thumb">
+                      <span>&#128054;</span>
+                    </div>
+                    <div class="motion-card-info">
+                      <div class="motion-card-name">인사하기</div>
+                      <div class="motion-card-date">2024.01.04</div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Drag Hint -->
+                <div class="drag-hint">
+                  <span>&#128073;</span> 모션을 탭하여 선택한 슬롯에 배치하세요
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Annotations -->
+          <div class="annotation arrow-left" style="top: 340px; right: -240px;">LEFT / RIGHT 탭 전환</div>
+          <div class="annotation arrow-left" style="top: 450px; right: -260px;">배치된 모션 = 보라/핑크 테두리</div>
+          <div class="annotation arrow-left" style="top: 560px; right: -230px;">최대 12개 모션 그리드</div>
+          <div class="annotation arrow-left" style="top: 750px; right: -240px;">탭하여 배치 (drag 불필요)</div>
+
+          <div class="phone-label">
+            <div class="title">Motion Selection Sheet</div>
+            <div class="sub">375 x 812px &middot; 모션 선택 바텀시트</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         Screen 4: No Content State
+         ════════════════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>Screen 4 &mdash; No Content State</h2>
+      <p class="desc">
+        아직 베이스 영상이 생성되지 않은 상태. 사용자에게 영상 생성을 유도하고 홀로그램 프리즘 사용법을 안내합니다.
+      </p>
+
+      <div class="phones-row">
+        <div class="annotated-frame">
+          <div class="phone-frame">
+            <div class="phone-screen">
+
+              <!-- Status Bar -->
+              <div class="status-bar">
+                <span class="time">9:41</span>
+                <span class="icons">
+                  <span>&#9679;</span>
+                  <span>WiFi</span>
+                  <span>100%</span>
+                </span>
+              </div>
+
+              <!-- Top Bar -->
+              <div class="top-bar">
+                <h1>홀로그램 플레이어</h1>
+                <div class="actions">
+                  <div class="icon-btn" title="도움말">?</div>
+                </div>
+              </div>
+
+              <!-- Profile Selector -->
+              <div class="profile-selector">
+                <div class="profile-chip active">
+                  <div class="avatar">&#128054;</div>
+                  <span class="name">초코</span>
+                </div>
+              </div>
+
+              <!-- Empty State -->
+              <div class="empty-state">
+                <div class="icon-large">&#9670;</div>
+                <h3>아직 생성된 영상이 없어요</h3>
+                <p>
+                  초코의 베이스 영상을 먼저 만들어주세요.<br>
+                  사진 한 장으로 움직이는 홀로그램을<br>
+                  만들 수 있어요.
+                </p>
+                <button class="empty-cta">
+                  <span>&#10024;</span>
+                  베이스 영상 만들기
+                </button>
+                <div class="empty-credit-cost">
+                  <span>&#9733;</span> 40 크레딧 소요
+                </div>
+
+                <!-- Prism Guide -->
+                <div class="prism-guide">
+                  <h4>&#9670; 홀로그램 프리즘 사용법</h4>
+                  <div class="prism-diagram">
+                    <!-- SVG Prism Diagram -->
+                    <div class="prism-visual">
+                      <svg class="prism-shape" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Prism outline -->
+                        <path d="M80 10 L150 140 L10 140 Z" stroke="rgba(100,200,255,0.4)" stroke-width="1.5" fill="rgba(100,200,255,0.03)"/>
+                        <!-- Center line -->
+                        <line x1="80" y1="10" x2="80" y2="140" stroke="rgba(100,200,255,0.15)" stroke-width="0.5" stroke-dasharray="4 3"/>
+                        <!-- LEFT arrow -->
+                        <path d="M30 120 L50 80" stroke="var(--accent-purple)" stroke-width="1" opacity="0.6"/>
+                        <text x="18" y="130" fill="var(--accent-purple)" font-size="9" opacity="0.8">LEFT</text>
+                        <!-- CENTER label -->
+                        <text x="64" y="90" fill="var(--accent-blue)" font-size="9" opacity="0.8">CENTER</text>
+                        <!-- RIGHT arrow -->
+                        <path d="M130 120 L110 80" stroke="var(--accent-pink)" stroke-width="1" opacity="0.6"/>
+                        <text x="118" y="130" fill="var(--accent-pink)" font-size="9" opacity="0.8">RIGHT</text>
+                        <!-- Phone icon at bottom -->
+                        <rect x="55" y="145" width="50" height="10" rx="2" stroke="rgba(255,255,255,0.2)" stroke-width="0.8" fill="rgba(255,255,255,0.03)"/>
+                        <text x="65" y="153" fill="rgba(255,255,255,0.3)" font-size="7">PHONE</text>
+                        <!-- Reflection arrows -->
+                        <path d="M80 60 L45 100" stroke="rgba(102,126,234,0.3)" stroke-width="0.5" stroke-dasharray="2 2"/>
+                        <path d="M80 60 L115 100" stroke="rgba(240,147,251,0.3)" stroke-width="0.5" stroke-dasharray="2 2"/>
+                        <path d="M80 40 L80 70" stroke="rgba(100,200,255,0.3)" stroke-width="0.5" stroke-dasharray="2 2"/>
+                      </svg>
+                    </div>
+
+                    <div style="width:100%;">
+                      <div class="prism-step">
+                        <div class="num">1</div>
+                        <div class="text">아크릴 프리즘을 스마트폰 위에 올립니다</div>
+                      </div>
+                      <div class="prism-step">
+                        <div class="num">2</div>
+                        <div class="text">3분할 화면이 프리즘 면에 반사됩니다</div>
+                      </div>
+                      <div class="prism-step">
+                        <div class="num">3</div>
+                        <div class="text">검은 배경은 투명해져 3D 효과가 나타납니다</div>
+                      </div>
+                    </div>
+
+                    <div class="prism-desc" style="margin-top:8px;">
+                      프리즘 크기: 10cm &times; 10cm &middot; 45&deg; 반사각
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bottom Nav -->
+              <div class="bottom-nav">
+                <div class="nav-item">
+                  <span class="nav-icon">&#127968;</span>
+                  <span>홈</span>
+                </div>
+                <div class="nav-item">
+                  <span class="nav-icon">&#127912;</span>
+                  <span>생성</span>
+                </div>
+                <div class="nav-item active">
+                  <span class="nav-icon">&#9670;</span>
+                  <span>홀로그램</span>
+                </div>
+                <div class="nav-item">
+                  <span class="nav-icon">&#128172;</span>
+                  <span>메신저</span>
+                </div>
+                <div class="nav-item">
+                  <span class="nav-icon">&#9881;</span>
+                  <span>설정</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Annotations -->
+          <div class="annotation arrow-left" style="top: 260px; right: -240px;">빈 상태 안내 메시지</div>
+          <div class="annotation arrow-left" style="top: 370px; right: -220px;">베이스 영상 생성 CTA</div>
+          <div class="annotation arrow-left" style="top: 400px; right: -190px;">40 크레딧 비용 표시</div>
+          <div class="annotation arrow-left" style="top: 560px; right: -270px;">프리즘 작동 원리 다이어그램</div>
+
+          <div class="phone-label">
+            <div class="title">No Content State</div>
+            <div class="sub">375 x 812px &middot; 빈 상태 + 프리즘 가이드</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         Detailed Annotations
+         ════════════════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>Detailed Annotations</h2>
+      <p class="desc">홀로그램 플레이어의 핵심 동작 원리와 기술적 상세 사항</p>
+
+      <div class="notes-grid">
+
+        <div class="note-card">
+          <h4>&#9670; 3분할 레이아웃 &amp; 프리즘 매핑</h4>
+          <ul>
+            <li>3분할 화면이 아크릴 프리즘(10cm x 10cm)의 각 면에 반사됩니다</li>
+            <li>CENTER(45%): 정면 베이스 영상 &rarr; 프리즘 정면 반사</li>
+            <li>LEFT(27.5%): 좌측 모션 영상 &rarr; 프리즘 좌측 반사</li>
+            <li>RIGHT(27.5%): 우측 모션 영상 &rarr; 프리즘 우측 반사</li>
+            <li>검은 배경(#000)은 프리즘에서 투명하게 보여 3D 부유 효과 연출</li>
+          </ul>
+        </div>
+
+        <div class="note-card">
+          <h4>&#128257; 가로 모드 자동 전환</h4>
+          <ul>
+            <li>재생 버튼 탭 시 자동으로 Landscape 모드로 전환</li>
+            <li>시스템 화면 회전 잠금과 무관하게 강제 전환 (API 활용)</li>
+            <li>뒤로가기 시 Portrait 모드로 자동 복귀</li>
+            <li>상단 UI는 3초 후 자동 숨김 (탭 시 다시 표시)</li>
+          </ul>
+        </div>
+
+        <div class="note-card">
+          <h4>&#9759; 롱프레스 모션 변경</h4>
+          <ul>
+            <li>재생 중 LEFT/RIGHT 영역을 1.5초 이상 롱프레스</li>
+            <li>진동 피드백과 함께 모션 선택 오버레이 표시</li>
+            <li>영상 재생은 중단되지 않고 모션만 교체</li>
+            <li>CENTER(베이스 영상)은 교체 불가 &mdash; 고정</li>
+          </ul>
+        </div>
+
+        <div class="note-card">
+          <h4>&#9728; 화면 밝기 &amp; 최적화</h4>
+          <ul>
+            <li>재생 시작 시 화면 밝기 자동 MAX (프리즘 투영 선명도)</li>
+            <li>재생 종료 시 이전 밝기로 자동 복원</li>
+            <li>화면 자동 꺼짐 방지 (WakeLock API)</li>
+            <li>배터리 20% 이하 시 경고 표시</li>
+          </ul>
+        </div>
+
+        <div class="note-card">
+          <h4>&#8634; 영상 루프 재생</h4>
+          <ul>
+            <li>3개 영상 모두 독립적으로 무한 반복 재생</li>
+            <li>각 영상의 길이가 달라도 개별 루프 처리</li>
+            <li>시작 타이밍 동기화: 최초 재생 시 3개 동시 시작</li>
+            <li>오디오 없음 &mdash; 시각적 추모에 집중</li>
+          </ul>
+        </div>
+
+        <div class="note-card">
+          <h4>&#128247; 영상 포맷 &amp; 스펙</h4>
+          <ul>
+            <li>포맷: MP4 (H.264) / WebM (VP9) 지원</li>
+            <li>해상도: 768 x 768px (정사각형, 각 영상)</li>
+            <li>프레임: 30 FPS 고정</li>
+            <li>길이: 2~8초 (모션별 상이, 개별 루프)</li>
+            <li>배경: 투명 또는 순수 검정(#000)</li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         Technical Spec Table
+         ════════════════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>Technical Specifications</h2>
+      <p class="desc">홀로그램 플레이어 기술 사양 상세</p>
+
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th style="width:30%;">항목</th>
+            <th style="width:35%;">사양</th>
+            <th style="width:35%;">비고</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--text-primary); font-weight:500;">영상 포맷</td>
+            <td>MP4 (H.264) / WebM (VP9)</td>
+            <td>iOS Safari = MP4, Android Chrome = WebM 우선</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-primary); font-weight:500;">영상 해상도</td>
+            <td>768 &times; 768px (정사각형)</td>
+            <td>각 슬롯 동일 해상도, Retina 대응</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-primary); font-weight:500;">프레임 레이트</td>
+            <td>30 FPS</td>
+            <td>부드러운 모션 + 배터리 효율 균형</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-primary); font-weight:500;">영상 길이</td>
+            <td>2~8초 (개별 루프)</td>
+            <td>모션 복잡도에 따라 상이</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-primary); font-weight:500;">프리즘 규격</td>
+            <td>10cm &times; 10cm 아크릴</td>
+            <td>45&deg; 반사각, 피라미드형 4면</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-primary); font-weight:500;">3분할 비율</td>
+            <td>LEFT 27.5% : CENTER 45% : RIGHT 27.5%</td>
+            <td>프리즘 면적비에 최적화</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-primary); font-weight:500;">화면 방향</td>
+            <td>재생 시 Landscape 강제 전환</td>
+            <td>Screen Orientation API 사용</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-primary); font-weight:500;">영상 좌우반전</td>
+            <td>CSS transform: scaleX(-1)</td>
+            <td>아크릴 프리즘 반사 보정 &mdash; 스마트폰을 아크릴에 얹어 재생하면 프리즘에서 반사되므로 영상을 좌우반전하여 올바른 방향으로 표시</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-primary); font-weight:500;">화면 밝기</td>
+            <td>재생 시 자동 최대 밝기</td>
+            <td>Screen Brightness API / Native Bridge</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-primary); font-weight:500;">화면 유지</td>
+            <td>자동 꺼짐 방지</td>
+            <td>WakeLock API / Nosleep.js 폴백</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-primary); font-weight:500;">제스처 &mdash; 롱프레스</td>
+            <td>좌/우 영역 1.5초 롱프레스</td>
+            <td>모션 교체 시 진동 피드백 (Vibration API)</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-primary); font-weight:500;">제스처 &mdash; 탭</td>
+            <td>화면 아무곳 탭</td>
+            <td>UI 오버레이 토글 (3초 자동 숨김)</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-primary); font-weight:500;">제스처 &mdash; 뒤로가기</td>
+            <td>좌상단 버튼 또는 시스템 뒤로가기</td>
+            <td>Portrait 복귀 + 밝기 복원</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-primary); font-weight:500;">배경색</td>
+            <td>#000000 (순수 검정)</td>
+            <td>OLED 픽셀 OFF = 완전 투명 효과</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-primary); font-weight:500;">영상 동기화</td>
+            <td>3영상 동시 시작, 개별 루프</td>
+            <td>requestAnimationFrame 기반 동기</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-primary); font-weight:500;">오디오</td>
+            <td>없음 (무음)</td>
+            <td>시각적 추모 경험에 집중</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         Gesture Controls Reference
+         ════════════════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>Gesture Controls</h2>
+      <p class="desc">재생 모드에서의 제스처 인터랙션 상세</p>
+
+      <table class="spec-table">
+        <thead>
+          <tr>
+            <th style="width:20%;">제스처</th>
+            <th style="width:25%;">영역</th>
+            <th style="width:30%;">동작</th>
+            <th style="width:25%;">피드백</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--accent-purple); font-weight:600;">롱프레스 (1.5s)</td>
+            <td>LEFT 영역</td>
+            <td>좌측 모션 선택 시트 열기</td>
+            <td>진동 + 보라색 글로우</td>
+          </tr>
+          <tr>
+            <td style="color:var(--accent-pink); font-weight:600;">롱프레스 (1.5s)</td>
+            <td>RIGHT 영역</td>
+            <td>우측 모션 선택 시트 열기</td>
+            <td>진동 + 핑크색 글로우</td>
+          </tr>
+          <tr>
+            <td style="color:var(--accent-blue); font-weight:600;">싱글 탭</td>
+            <td>전체 화면</td>
+            <td>UI 오버레이 토글</td>
+            <td>페이드 애니메이션</td>
+          </tr>
+          <tr>
+            <td style="color:var(--accent-green); font-weight:600;">더블 탭</td>
+            <td>CENTER 영역</td>
+            <td>재생/일시정지 토글</td>
+            <td>플레이/포즈 아이콘</td>
+          </tr>
+          <tr>
+            <td style="color:var(--accent-orange); font-weight:600;">스와이프 다운</td>
+            <td>상단 영역</td>
+            <td>재생 종료 &amp; Portrait 복귀</td>
+            <td>슬라이드 다운 전환</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         Full Flow Diagram
+         ════════════════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>Complete Flow</h2>
+      <p class="desc">홀로그램 재생 전체 플로우 다이어그램</p>
+
+      <div class="flow-diagram" style="flex-direction: column; align-items: flex-start; gap: 0;">
+
+        <!-- Row 1: Main Flow -->
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding-bottom:16px; width:100%;">
+          <div class="flow-step active" style="font-size:11px;">&#128054; 프로필 선택</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step" style="font-size:11px;">&#127912; 베이스 영상 확인</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step" style="font-size:11px; border-color:var(--accent-purple);">&#9664; LEFT 모션 배치</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step" style="font-size:11px; border-color:var(--accent-pink);">RIGHT 모션 배치 &#9654;</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step active" style="font-size:11px;">&#9654; 재생 시작</div>
+        </div>
+
+        <div style="height:1px; background:rgba(255,255,255,0.06); width:100%; margin: 4px 0 16px;"></div>
+
+        <!-- Row 2: Playback Flow -->
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding-bottom:16px; width:100%;">
+          <div class="flow-step active" style="font-size:11px;">&#128257; 가로 자동 전환</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step" style="font-size:11px;">&#9728; 밝기 MAX</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step active" style="font-size:11px;">&#9670; 3분할 재생</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step" style="font-size:11px;">&#8634; 무한 루프</div>
+        </div>
+
+        <div style="height:1px; background:rgba(255,255,255,0.06); width:100%; margin: 4px 0 16px;"></div>
+
+        <!-- Row 3: Interaction Flow -->
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; width:100%;">
+          <div class="flow-step" style="font-size:11px;">&#9759; 롱프레스 좌/우</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step" style="font-size:11px;">&#128247; 모션 교체 선택</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step" style="font-size:11px;">&#8635; 즉시 교체 반영</div>
+          <div class="flow-arrow" style="margin: 0 4px;">&middot;&middot;&middot;</div>
+          <div class="flow-step" style="font-size:11px; background:rgba(255,107,107,0.1); border-color:rgba(255,107,107,0.3);">&#8592; 뒤로가기</div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-step" style="font-size:11px;">&#128257; 세로 복귀 + 밝기 복원</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         Implementation Notes
+         ════════════════════════════════════════════════════ -->
+    <div class="mockup-section">
+      <h2>Implementation Notes</h2>
+      <p class="desc">개발 참고 사항</p>
+
+      <div class="notes-grid">
+        <div class="note-card">
+          <h4>&#128241; 플랫폼별 고려사항</h4>
+          <ul>
+            <li><strong>iOS:</strong> Screen Orientation API 미지원 &rarr; CSS transform rotate + 풀스크린으로 대체</li>
+            <li><strong>Android:</strong> Screen Orientation API lock('landscape') 사용</li>
+            <li><strong>PWA:</strong> manifest.json orientation 설정 활용 가능</li>
+            <li><strong>밝기 제어:</strong> Native Bridge (React Native / Capacitor) 필요</li>
+          </ul>
+        </div>
+
+        <div class="note-card">
+          <h4>&#9889; 성능 최적화</h4>
+          <ul>
+            <li>3개 &lt;video&gt; 태그 동시 재생 &mdash; GPU 가속 필수</li>
+            <li>will-change: transform으로 레이어 분리</li>
+            <li>저사양 기기: 해상도 512x512로 자동 다운스케일</li>
+            <li>메모리 관리: 미사용 모션 영상 URL.revokeObjectURL()</li>
+          </ul>
+        </div>
+
+        <div class="note-card">
+          <h4>&#128190; 데이터 구조</h4>
+          <pre><code>{
+  "profileId": "pet_001",
+  "layout": {
+    "left": "motion_003",
+    "center": "base_001",
+    "right": "motion_007"
+  },
+  "settings": {
+    "autoBrightness": true,
+    "autoLoop": true,
+    "wakeLock": true
+  }
+}</code></pre>
+        </div>
+
+        <div class="note-card">
+          <h4>&#127760; API Endpoints</h4>
+          <div class="api-endpoint" style="padding:10px;">
+            <span class="api-method get">GET</span>
+            <span class="api-path">/api/pets/{id}/videos</span>
+            <div class="api-desc">프로필의 모든 영상 목록 (베이스 + 모션)</div>
+          </div>
+          <div class="api-endpoint" style="padding:10px; margin-top:6px;">
+            <span class="api-method post">POST</span>
+            <span class="api-path">/api/hologram/layout</span>
+            <div class="api-desc">홀로그램 레이아웃 저장 (슬롯 배치)</div>
+          </div>
+          <div class="api-endpoint" style="padding:10px; margin-top:6px;">
+            <span class="api-method get">GET</span>
+            <span class="api-path">/api/videos/{id}/stream</span>
+            <div class="api-desc">영상 스트리밍 URL (서명된 CDN URL)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align:center; padding:40px 0 20px; border-top:1px solid rgba(255,255,255,0.06); margin-top:40px;">
+      <div style="font-size:13px; color:var(--text-muted);">
+        PetHolo (&#54187;&#54848;&#47196;) &mdash; Hologram Player Mockup &middot; v1.0
+      </div>
+      <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">
+        Screen 05 of UI Mockup Series
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,2011 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PetHolo - Deployment Guide</title>
+<link rel="stylesheet" href="common.css">
+<style>
+/* ── Deployment Guide Custom Styles ── */
+.arch-diagram {
+  padding: 24px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.arch-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.arch-row:last-child { margin-bottom: 0; }
+
+.arch-box {
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  min-width: 120px;
+  border: 1px solid rgba(255,255,255,0.15);
+  position: relative;
+}
+
+.arch-box.client {
+  background: rgba(102,126,234,0.2);
+  color: var(--accent-purple);
+  border-color: rgba(102,126,234,0.4);
+}
+
+.arch-box.frontend {
+  background: rgba(100,200,255,0.15);
+  color: var(--accent-blue);
+  border-color: rgba(100,200,255,0.3);
+}
+
+.arch-box.backend {
+  background: rgba(56,239,125,0.15);
+  color: var(--accent-green);
+  border-color: rgba(56,239,125,0.3);
+}
+
+.arch-box.database {
+  background: rgba(255,167,38,0.15);
+  color: var(--accent-orange);
+  border-color: rgba(255,167,38,0.3);
+}
+
+.arch-box.external {
+  background: rgba(240,147,251,0.15);
+  color: var(--accent-pink);
+  border-color: rgba(240,147,251,0.3);
+}
+
+.arch-box.storage {
+  background: rgba(255,215,0,0.12);
+  color: var(--accent-yellow);
+  border-color: rgba(255,215,0,0.3);
+}
+
+.arch-box small {
+  display: block;
+  font-size: 10px;
+  opacity: 0.7;
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+.arch-arrow {
+  color: var(--text-muted);
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.arch-arrow.down {
+  display: block;
+  text-align: center;
+  width: 100%;
+  font-size: 18px;
+  margin: 4px 0;
+}
+
+.arch-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-align: center;
+  width: 100%;
+  margin-top: -8px;
+  margin-bottom: 8px;
+}
+
+/* Step Cards */
+.step-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.step-card .step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--gradient-accent);
+  color: var(--bg-primary);
+  font-size: 13px;
+  font-weight: 700;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.step-card .step-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.step-card .step-body {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  padding-left: 38px;
+}
+
+.step-card .step-body p { margin-bottom: 8px; }
+
+/* Code Blocks */
+.code-block {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-sm);
+  margin: 12px 0;
+  overflow: hidden;
+}
+
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.code-header .lang {
+  color: var(--accent-blue);
+}
+
+.code-block pre {
+  margin: 0;
+  padding: 14px;
+  border: none;
+  background: none;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+/* Checklist */
+.checklist {
+  list-style: none;
+  padding: 0;
+}
+
+.checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.checklist li:last-child { border-bottom: none; }
+
+.check-box {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.check-box.checked {
+  background: var(--gradient-success);
+  border-color: transparent;
+  position: relative;
+}
+
+.check-box.checked::after {
+  content: '\2713';
+  position: absolute;
+  top: -1px;
+  left: 2px;
+  color: var(--bg-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Info Box */
+.info-box {
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 12px 0;
+  display: flex;
+  gap: 10px;
+}
+
+.info-box .info-icon { font-size: 16px; flex-shrink: 0; }
+
+.info-box.tip {
+  background: rgba(56,239,125,0.08);
+  border: 1px solid rgba(56,239,125,0.2);
+  color: var(--accent-green);
+}
+
+.info-box.warn {
+  background: rgba(255,167,38,0.08);
+  border: 1px solid rgba(255,167,38,0.2);
+  color: var(--accent-orange);
+}
+
+.info-box.danger {
+  background: rgba(255,107,107,0.08);
+  border: 1px solid rgba(255,107,107,0.2);
+  color: var(--accent-red);
+}
+
+.info-box.info {
+  background: rgba(100,200,255,0.08);
+  border: 1px solid rgba(100,200,255,0.2);
+  color: var(--accent-blue);
+}
+
+/* Option Tabs */
+.option-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.option-tab {
+  padding: 8px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+}
+
+.option-tab.active {
+  background: var(--gradient-accent);
+  color: var(--bg-primary);
+  border-color: transparent;
+}
+
+/* Troubleshoot Card */
+.trouble-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.trouble-card .symptom {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-red);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trouble-card .cause {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.trouble-card .fix {
+  font-size: 12px;
+  color: var(--accent-green);
+  line-height: 1.6;
+}
+
+/* Env Table */
+.env-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin: 12px 0;
+}
+
+.env-table th {
+  text-align: left;
+  padding: 8px 12px;
+  background: rgba(100,200,255,0.08);
+  color: var(--accent-blue);
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.env-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--text-secondary);
+  vertical-align: top;
+}
+
+.env-table td:first-child {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--accent-cyan);
+  white-space: nowrap;
+  font-size: 11px;
+}
+
+.env-table tr:hover td {
+  background: var(--bg-surface);
+}
+
+/* Section numbering */
+.section-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--gradient-main);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.mockup-section h2 {
+  display: flex;
+  align-items: center;
+}
+
+/* Recommended badge */
+.recommended {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--gradient-success);
+  color: var(--bg-primary);
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* TOC */
+.toc {
+  background: var(--bg-surface);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  margin-bottom: 32px;
+}
+
+.toc h3 {
+  font-size: 14px;
+  color: var(--accent-blue);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 2;
+  color: var(--text-secondary);
+}
+
+.toc a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.toc a:hover { color: var(--accent-cyan); }
+
+/* Comment lines in code */
+.code-comment { color: rgba(255,255,255,0.3); }
+.code-key { color: var(--accent-cyan); }
+.code-val { color: var(--accent-green); }
+.code-str { color: var(--accent-orange); }
+</style>
+</head>
+<body>
+<div class="mockup-page">
+
+<!-- ════════════════════════════════════════ -->
+<!-- Header                                  -->
+<!-- ════════════════════════════════════════ -->
+<h1>PetHolo Deployment Guide</h1>
+<p class="subtitle">
+  펫홀로(PetHolo) 서비스의 프로덕션 배포를 위한 종합 가이드입니다.<br>
+  프론트엔드(Next.js) + 백엔드(Express) + Firebase 기반의 전체 인프라 구축 과정을 다룹니다.
+</p>
+
+<!-- ── TOC ── -->
+<div class="toc">
+  <h3>Table of Contents</h3>
+  <ol>
+    <li><a href="#architecture">Architecture Overview (시스템 구조)</a></li>
+    <li><a href="#prerequisites">Prerequisites (사전 준비)</a></li>
+    <li><a href="#env-vars">Environment Variables (환경변수 설정)</a></li>
+    <li><a href="#firebase">Firebase Setup (Firebase 구성)</a></li>
+    <li><a href="#frontend">Frontend Deployment - Vercel</a></li>
+    <li><a href="#backend-railway">Backend Deployment - Option A: Railway</a></li>
+    <li><a href="#backend-cloudrun">Backend Deployment - Option B: Google Cloud Run</a></li>
+    <li><a href="#cicd">CI/CD Pipeline (GitHub Actions)</a></li>
+    <li><a href="#domain">Domain &amp; SSL Setup</a></li>
+    <li><a href="#monitoring">Monitoring &amp; Logging</a></li>
+    <li><a href="#checklist">Post-Deployment Checklist</a></li>
+    <li><a href="#troubleshooting">Troubleshooting</a></li>
+  </ol>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- 1. Architecture Overview                                -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="mockup-section" id="architecture">
+  <h2><span class="section-num">1</span> Architecture Overview</h2>
+  <p class="desc">PetHolo 시스템의 전체 아키텍처입니다. 프론트엔드는 Vercel, 백엔드는 Railway 또는 Cloud Run에 배포하고, 데이터는 Firebase Firestore에 저장합니다.</p>
+
+  <!-- Main Architecture Diagram -->
+  <div class="arch-diagram">
+    <div class="arch-label" style="margin-top:0; margin-bottom:12px; font-size:12px; color:var(--accent-blue); font-weight:600;">Core Architecture</div>
+
+    <div class="arch-row">
+      <div class="arch-box client">
+        Client<br>
+        <small>Mobile Browser (PWA)</small>
+      </div>
+      <span class="arch-arrow">&rarr;</span>
+      <div class="arch-box frontend">
+        Vercel<br>
+        <small>Next.js 16 Frontend</small>
+      </div>
+      <span class="arch-arrow">&rarr;</span>
+      <div class="arch-box backend">
+        Cloud Run / Railway<br>
+        <small>Express 5 API Server</small>
+      </div>
+      <span class="arch-arrow">&rarr;</span>
+      <div class="arch-box database">
+        Firebase Firestore<br>
+        <small>NoSQL Database</small>
+      </div>
+    </div>
+
+    <div class="arch-arrow down">&darr;</div>
+    <div class="arch-label">External Services &amp; Storage</div>
+
+    <div class="arch-row">
+      <div class="arch-box external">
+        NanoBanana AI API<br>
+        <small>Image-to-Video</small>
+      </div>
+      <div class="arch-box external">
+        Kling AI API<br>
+        <small>Motion Generation</small>
+      </div>
+      <div class="arch-box external">
+        Cafe24 Webhook<br>
+        <small>Payment / E-commerce</small>
+      </div>
+      <div class="arch-box storage">
+        Firebase Storage / S3<br>
+        <small>Media Files</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recommended Stack -->
+  <div class="info-box tip">
+    <span class="info-icon">&#9889;</span>
+    <div>
+      <strong>Recommended Stack:</strong><br>
+      Vercel (프론트엔드) + Railway (백엔드, 간편 배포) 또는 Google Cloud Run (백엔드, 스케일링 필요시) + Firebase (DB / Storage / Auth)
+    </div>
+  </div>
+
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Layer</th>
+        <th>Technology</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Frontend</td><td>Next.js 16 + React 19 + Tailwind CSS 4</td><td>모바일 최적화 웹 앱 (PWA)</td></tr>
+      <tr><td>Backend</td><td>Express 5 + TypeScript</td><td>REST API 서버</td></tr>
+      <tr><td>Database</td><td>Firebase Firestore</td><td>NoSQL 문서 데이터베이스</td></tr>
+      <tr><td>Storage</td><td>Firebase Storage / AWS S3</td><td>이미지, 동영상 파일 저장</td></tr>
+      <tr><td>Auth</td><td>JWT + Google OAuth 2.0</td><td>인증 / 인가</td></tr>
+      <tr><td>AI Service</td><td>NanoBanana API + Kling AI API</td><td>AI 기반 영상 생성</td></tr>
+      <tr><td>E-commerce</td><td>Cafe24 Webhook</td><td>결제 / 크레딧 충전</td></tr>
+      <tr><td>State Mgmt</td><td>Zustand</td><td>프론트엔드 상태 관리</td></tr>
+      <tr><td>Monorepo</td><td>pnpm Workspace</td><td>apps/web + apps/api + packages/shared</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- 2. Prerequisites                                        -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="mockup-section" id="prerequisites">
+  <h2><span class="section-num">2</span> Prerequisites</h2>
+  <p class="desc">배포 전 반드시 준비해야 할 도구와 계정 목록입니다.</p>
+
+  <table class="spec-table">
+    <thead>
+      <tr><th>항목</th><th>최소 요구사항</th><th>비고</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Node.js</td><td>18.0+ (LTS 권장: 20.x)</td><td>runtime</td></tr>
+      <tr><td>pnpm</td><td>9.0+</td><td>monorepo 패키지 매니저</td></tr>
+      <tr><td>Git</td><td>2.30+</td><td>소스 관리</td></tr>
+      <tr><td>Firebase Project</td><td>Blaze (종량제) 플랜</td><td>Firestore + Storage + Auth</td></tr>
+      <tr><td>Google Cloud Console</td><td>OAuth 2.0 Client ID</td><td>소셜 로그인용</td></tr>
+      <tr><td>Vercel Account</td><td>Free tier OK</td><td>프론트엔드 호스팅</td></tr>
+      <tr><td>Railway Account</td><td>Hobby plan ($5/mo) OR</td><td>백엔드 Option A</td></tr>
+      <tr><td>Google Cloud Account</td><td>Cloud Run (Free tier 가능)</td><td>백엔드 Option B</td></tr>
+      <tr><td>Domain Name</td><td>선택 (권장)</td><td>petholo.com 등</td></tr>
+      <tr><td>NanoBanana API Key</td><td>유효한 API 키</td><td>AI 영상 생성</td></tr>
+      <tr><td>Kling AI API Key</td><td>유효한 API 키</td><td>모션 생성</td></tr>
+    </tbody>
+  </table>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">1</span> Node.js &amp; pnpm 설치 확인</div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span>설치 확인</div>
+<pre><code><span class="code-comment"># Node.js 버전 확인</span>
+node --version    <span class="code-comment"># v20.x.x 이상</span>
+
+<span class="code-comment"># pnpm 설치 (없는 경우)</span>
+corepack enable
+corepack prepare pnpm@latest --activate
+
+<span class="code-comment"># pnpm 버전 확인</span>
+pnpm --version    <span class="code-comment"># 9.x.x 이상</span></code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">2</span> 프로젝트 클론 &amp; 의존성 설치</div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span>프로젝트 셋업</div>
+<pre><code><span class="code-comment"># 프로젝트 클론</span>
+git clone https://github.com/your-org/petholo.git
+cd petholo
+
+<span class="code-comment"># 모든 workspace 의존성 설치</span>
+pnpm install
+
+<span class="code-comment"># 프로젝트 구조 확인</span>
+ls -la apps/       <span class="code-comment"># web/ api/</span>
+ls -la packages/   <span class="code-comment"># shared/</span></code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">3</span> 로컬 빌드 검증</div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span>빌드 테스트</div>
+<pre><code><span class="code-comment"># 백엔드 빌드 테스트</span>
+cd apps/api
+pnpm build          <span class="code-comment"># tsc 컴파일 → dist/ 폴더 생성</span>
+
+<span class="code-comment"># 프론트엔드 빌드 테스트</span>
+cd ../web
+pnpm build          <span class="code-comment"># next build → .next/ 폴더 생성</span>
+
+<span class="code-comment"># 빌드가 성공해야 배포 진행 가능!</span></code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- 3. Environment Variables                                -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="mockup-section" id="env-vars">
+  <h2><span class="section-num">3</span> Environment Variables</h2>
+  <p class="desc">백엔드와 프론트엔드에서 사용하는 모든 환경변수 목록입니다. 프로덕션 배포 시 반드시 올바르게 설정해야 합니다.</p>
+
+  <div class="info-box danger">
+    <span class="info-icon">&#9888;</span>
+    <div>
+      <strong>보안 주의:</strong> .env 파일은 절대 Git에 커밋하지 마세요. <code>.gitignore</code>에 <code>.env</code>가 포함되어 있는지 반드시 확인하세요.
+    </div>
+  </div>
+
+  <!-- Backend .env Template -->
+  <h3 style="font-size:15px; color:var(--accent-green); margin:20px 0 12px;">Backend (.env) - apps/api/.env</h3>
+
+  <div class="code-block">
+    <div class="code-header"><span class="lang">.env</span>apps/api/.env (Production)</div>
+<pre><code><span class="code-comment"># ────────────────────────────────────────</span>
+<span class="code-comment"># Server Configuration</span>
+<span class="code-comment"># ────────────────────────────────────────</span>
+<span class="code-key">NODE_ENV</span>=production
+<span class="code-key">PORT</span>=4000
+<span class="code-key">CORS_ORIGIN</span>=https://petholo.com,https://www.petholo.com
+
+<span class="code-comment"># ────────────────────────────────────────</span>
+<span class="code-comment"># Firebase (Firestore + Storage)</span>
+<span class="code-comment"># ────────────────────────────────────────</span>
+<span class="code-key">FIREBASE_PROJECT_ID</span>=petholo-prod
+<span class="code-key">FIREBASE_CLIENT_EMAIL</span>=firebase-adminsdk-xxxxx@petholo-prod.iam.gserviceaccount.com
+<span class="code-key">FIREBASE_PRIVATE_KEY</span>="-----BEGIN PRIVATE KEY-----\nMIIEv...your-key...\n-----END PRIVATE KEY-----\n"
+<span class="code-key">FIREBASE_STORAGE_BUCKET</span>=petholo-prod.firebasestorage.app
+
+<span class="code-comment"># ────────────────────────────────────────</span>
+<span class="code-comment"># JWT Authentication</span>
+<span class="code-comment"># ────────────────────────────────────────</span>
+<span class="code-key">JWT_SECRET</span>=your-64-char-random-secret-here-use-openssl-rand-base64-48
+<span class="code-key">JWT_REFRESH_SECRET</span>=another-64-char-random-secret-for-refresh-tokens
+<span class="code-key">JWT_EXPIRES_IN</span>=15m
+<span class="code-key">JWT_REFRESH_EXPIRES_IN</span>=7d
+
+<span class="code-comment"># ────────────────────────────────────────</span>
+<span class="code-comment"># Google OAuth 2.0</span>
+<span class="code-comment"># ────────────────────────────────────────</span>
+<span class="code-key">GOOGLE_CLIENT_ID</span>=123456789-xxxxxxxxx.apps.googleusercontent.com
+<span class="code-key">GOOGLE_CLIENT_SECRET</span>=GOCSPX-xxxxxxxxxxxxxxxxxx
+<span class="code-key">GOOGLE_CALLBACK_URL</span>=https://api.petholo.com/api/auth/google/callback
+
+<span class="code-comment"># ────────────────────────────────────────</span>
+<span class="code-comment"># S3-Compatible Storage (Production)</span>
+<span class="code-comment"># ────────────────────────────────────────</span>
+<span class="code-key">STORAGE_PROVIDER</span>=s3
+<span class="code-key">S3_ENDPOINT</span>=https://s3.ap-northeast-2.amazonaws.com
+<span class="code-key">S3_REGION</span>=ap-northeast-2
+<span class="code-key">S3_BUCKET</span>=petholo-uploads-prod
+<span class="code-key">S3_ACCESS_KEY</span>=AKIA...
+<span class="code-key">S3_SECRET_KEY</span>=wJalr...
+
+<span class="code-comment"># ────────────────────────────────────────</span>
+<span class="code-comment"># AI Services</span>
+<span class="code-comment"># ────────────────────────────────────────</span>
+<span class="code-key">NANOBANANA_API_URL</span>=https://api.nanobanana.ai
+<span class="code-key">NANOBANANA_API_KEY</span>=nb_live_xxxxxxxxxxxxxxxxxxxx
+<span class="code-key">KLING_API_URL</span>=https://api.kling.ai
+<span class="code-key">KLING_API_KEY</span>=kling_xxxxxxxxxxxxxxxxxxxx
+
+<span class="code-comment"># ────────────────────────────────────────</span>
+<span class="code-comment"># Cafe24 Webhook</span>
+<span class="code-comment"># ────────────────────────────────────────</span>
+<span class="code-key">CAFE24_WEBHOOK_SECRET</span>=your-cafe24-webhook-hmac-secret</code></pre>
+  </div>
+
+  <!-- Frontend .env Template -->
+  <h3 style="font-size:15px; color:var(--accent-blue); margin:20px 0 12px;">Frontend (.env.local) - apps/web/.env.local</h3>
+
+  <div class="code-block">
+    <div class="code-header"><span class="lang">.env.local</span>apps/web/.env.local (Production)</div>
+<pre><code><span class="code-comment"># ────────────────────────────────────────</span>
+<span class="code-comment"># Public Environment Variables (클라이언트 노출)</span>
+<span class="code-comment"># NEXT_PUBLIC_ 접두사가 있으면 브라우저에 노출됨</span>
+<span class="code-comment"># ────────────────────────────────────────</span>
+<span class="code-key">NEXT_PUBLIC_API_URL</span>=https://api.petholo.com/api
+<span class="code-key">NEXT_PUBLIC_GOOGLE_CLIENT_ID</span>=123456789-xxxxxxxxx.apps.googleusercontent.com</code></pre>
+  </div>
+
+  <!-- Env Variables Reference Table -->
+  <h3 style="font-size:15px; color:var(--text-primary); margin:20px 0 12px;">환경변수 상세 설명</h3>
+
+  <table class="env-table">
+    <thead>
+      <tr><th>변수명</th><th>설명</th><th>필수</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>NODE_ENV</td><td>실행 환경. production / development</td><td>Yes</td></tr>
+      <tr><td>PORT</td><td>서버 포트 (기본: 4000)</td><td>Yes</td></tr>
+      <tr><td>CORS_ORIGIN</td><td>허용할 프론트엔드 도메인 (쉼표 구분)</td><td>Yes</td></tr>
+      <tr><td>FIREBASE_PROJECT_ID</td><td>Firebase 프로젝트 ID</td><td>Yes</td></tr>
+      <tr><td>FIREBASE_CLIENT_EMAIL</td><td>서비스 계정 이메일</td><td>Yes</td></tr>
+      <tr><td>FIREBASE_PRIVATE_KEY</td><td>서비스 계정 개인키 (JSON에서 추출)</td><td>Yes</td></tr>
+      <tr><td>FIREBASE_STORAGE_BUCKET</td><td>Firebase Storage 버킷명</td><td>Yes</td></tr>
+      <tr><td>JWT_SECRET</td><td>액세스 토큰 서명 시크릿 (최소 32자)</td><td>Yes</td></tr>
+      <tr><td>JWT_REFRESH_SECRET</td><td>리프레시 토큰 서명 시크릿</td><td>Yes</td></tr>
+      <tr><td>JWT_EXPIRES_IN</td><td>액세스 토큰 만료시간 (기본: 15m)</td><td>No</td></tr>
+      <tr><td>JWT_REFRESH_EXPIRES_IN</td><td>리프레시 토큰 만료시간 (기본: 7d)</td><td>No</td></tr>
+      <tr><td>GOOGLE_CLIENT_ID</td><td>Google OAuth Client ID</td><td>Yes</td></tr>
+      <tr><td>GOOGLE_CLIENT_SECRET</td><td>Google OAuth Client Secret</td><td>Yes</td></tr>
+      <tr><td>GOOGLE_CALLBACK_URL</td><td>OAuth 콜백 URL</td><td>Yes</td></tr>
+      <tr><td>STORAGE_PROVIDER</td><td>스토리지 타입: local / s3</td><td>Yes</td></tr>
+      <tr><td>NANOBANANA_API_KEY</td><td>NanoBanana AI API 키</td><td>Yes</td></tr>
+      <tr><td>KLING_API_KEY</td><td>Kling AI API 키</td><td>Yes</td></tr>
+      <tr><td>CAFE24_WEBHOOK_SECRET</td><td>Cafe24 Webhook HMAC 시크릿</td><td>Yes</td></tr>
+    </tbody>
+  </table>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">!</span> JWT Secret 생성 방법</div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span>안전한 시크릿 생성</div>
+<pre><code><span class="code-comment"># 방법 1: openssl (권장)</span>
+openssl rand -base64 48
+<span class="code-comment"># 출력 예: aG9sZG1lYXN1cmVzZXJ2aWNlc2VjcmV0a2V5Z2VuZXJhdG9y...</span>
+
+<span class="code-comment"># 방법 2: Node.js</span>
+node -e "console.log(require('crypto').randomBytes(48).toString('base64'))"
+
+<span class="code-comment"># JWT_SECRET과 JWT_REFRESH_SECRET은 반드시 서로 다른 값을 사용하세요!</span></code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- 4. Firebase Setup                                       -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="mockup-section" id="firebase">
+  <h2><span class="section-num">4</span> Firebase Setup</h2>
+  <p class="desc">Firebase 프로젝트를 생성하고 Firestore, Storage, Auth를 설정하는 상세 과정입니다.</p>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">1</span> Firebase 프로젝트 생성</div>
+    <div class="step-body">
+      <p><a href="https://console.firebase.google.com" style="color:var(--accent-cyan);">Firebase Console</a>에 접속하여 새 프로젝트를 생성합니다.</p>
+      <div class="flow-diagram">
+        <span class="flow-step">Firebase Console 접속</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step">프로젝트 추가</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step">프로젝트명: petholo-prod</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step">Google Analytics 활성화 (선택)</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step active">프로젝트 생성 완료</span>
+      </div>
+      <div class="info-box info">
+        <span class="info-icon">&#128161;</span>
+        <div>프로젝트 ID는 나중에 변경할 수 없으므로 신중하게 정하세요. 예: <code>petholo-prod</code></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">2</span> Firestore 데이터베이스 활성화</div>
+    <div class="step-body">
+      <p>Firebase Console &rarr; <strong>Firestore Database</strong> &rarr; 데이터베이스 만들기</p>
+      <div class="flow-diagram">
+        <span class="flow-step">Firestore Database 클릭</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step">데이터베이스 만들기</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step active">리전: asia-northeast3 (서울)</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step">프로덕션 모드 시작</span>
+      </div>
+      <div class="info-box warn">
+        <span class="info-icon">&#9888;</span>
+        <div><strong>리전 선택 중요:</strong> asia-northeast3 (서울)을 선택하세요. 한번 설정하면 변경할 수 없습니다. 한국 사용자 대상 서비스이므로 지연시간을 최소화합니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">3</span> Firebase Storage 활성화</div>
+    <div class="step-body">
+      <p>Firebase Console &rarr; <strong>Storage</strong> &rarr; 시작하기 &rarr; 프로덕션 모드</p>
+      <p>버킷 위치: <code>asia-northeast3</code> (Firestore와 동일 리전 권장)</p>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">4</span> 서비스 계정 키 생성</div>
+    <div class="step-body">
+      <p>서버에서 Firebase에 접근하기 위한 서비스 계정 키를 생성합니다.</p>
+      <div class="flow-diagram">
+        <span class="flow-step">프로젝트 설정 (&#9881;)</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step">서비스 계정</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step">새 비공개 키 생성</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step active">JSON 파일 다운로드</span>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span>다운로드된 서비스 계정 키 구조</div>
+<pre><code>{
+  "type": "service_account",
+  "project_id": "petholo-prod",
+  "private_key_id": "abc123...",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQI...\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-xxxxx@petholo-prod.iam.gserviceaccount.com",
+  "client_id": "1234567890",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token"
+}</code></pre>
+      </div>
+      <div class="info-box danger">
+        <span class="info-icon">&#128274;</span>
+        <div>
+          <strong>이 JSON 파일은 절대로 Git에 커밋하지 마세요!</strong><br>
+          환경변수로 <code>FIREBASE_PROJECT_ID</code>, <code>FIREBASE_CLIENT_EMAIL</code>, <code>FIREBASE_PRIVATE_KEY</code>를 개별 설정합니다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">5</span> Firestore Security Rules 설정</div>
+    <div class="step-body">
+      <p>Firebase Console &rarr; Firestore &rarr; 규칙 탭에서 아래 규칙을 설정합니다.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">firestore.rules</span>Firestore Security Rules</div>
+<pre><code>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    <span class="code-comment">// 기본: 모든 접근 차단 (서버 SDK는 규칙 무시)</span>
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    <span class="code-comment">// users 컬렉션: 본인 문서만 읽기 허용</span>
+    match /users/{userId} {
+      allow read: if request.auth != null
+                  && request.auth.uid == userId;
+      allow write: if false;
+    }
+
+    <span class="code-comment">// pets 컬렉션: 소유자만 읽기 허용</span>
+    match /pets/{petId} {
+      allow read: if request.auth != null
+                  && resource.data.userId == request.auth.uid;
+      allow write: if false;
+    }
+
+    <span class="code-comment">// profiles 컬렉션: 소유자 읽기 + 공유 링크 읽기</span>
+    match /profiles/{profileId} {
+      allow read: if request.auth != null
+                  && resource.data.userId == request.auth.uid;
+      allow write: if false;
+    }
+  }
+}</code></pre>
+      </div>
+      <div class="info-box info">
+        <span class="info-icon">&#128161;</span>
+        <div>PetHolo는 Firebase Admin SDK를 사용하므로 서버 측 접근은 Security Rules의 영향을 받지 않습니다. 위 규칙은 클라이언트에서 직접 Firestore에 접근하는 것을 방지하는 보안 장치입니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">6</span> Storage CORS 설정</div>
+    <div class="step-body">
+      <p>프론트엔드에서 Storage의 파일에 직접 접근할 수 있도록 CORS를 설정합니다.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span>cors.json</div>
+<pre><code>[
+  {
+    "origin": [
+      "https://petholo.com",
+      "https://www.petholo.com"
+    ],
+    "method": ["GET", "HEAD"],
+    "maxAgeSeconds": 3600,
+    "responseHeader": ["Content-Type"]
+  }
+]</code></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span>gsutil 명령어로 CORS 적용</div>
+<pre><code><span class="code-comment"># Google Cloud SDK 설치 필요</span>
+<span class="code-comment"># https://cloud.google.com/sdk/docs/install</span>
+
+<span class="code-comment"># CORS 설정 적용</span>
+gsutil cors set cors.json gs://petholo-prod.firebasestorage.app
+
+<span class="code-comment"># CORS 설정 확인</span>
+gsutil cors get gs://petholo-prod.firebasestorage.app</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">7</span> Firebase Auth &rarr; Google Provider 활성화</div>
+    <div class="step-body">
+      <p>Firebase Console &rarr; <strong>Authentication</strong> &rarr; Sign-in method &rarr; Google 활성화</p>
+      <div class="flow-diagram">
+        <span class="flow-step">Authentication 메뉴</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step">Sign-in method</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step">Google 제공업체</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step active">사용 설정 ON</span>
+      </div>
+      <p style="margin-top:8px;">Google Cloud Console에서 OAuth 2.0 Client ID를 생성하고, 승인된 리디렉션 URI에 다음을 추가합니다:</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">text</span>OAuth Redirect URIs</div>
+<pre><code><span class="code-comment"># 프로덕션</span>
+https://api.petholo.com/api/auth/google/callback
+
+<span class="code-comment"># 로컬 개발</span>
+http://localhost:4000/api/auth/google/callback</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- 5. Frontend Deployment (Vercel)                         -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="mockup-section" id="frontend">
+  <h2><span class="section-num">5</span> Frontend Deployment (Vercel)</h2>
+  <p class="desc">Next.js 프론트엔드를 Vercel에 배포하는 과정입니다. Vercel은 Next.js의 공식 호스팅 플랫폼으로, zero-config 배포를 지원합니다.</p>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">1</span> GitHub 레포지토리 연결</div>
+    <div class="step-body">
+      <p><a href="https://vercel.com" style="color:var(--accent-cyan);">vercel.com</a>에 로그인 &rarr; "Add New Project" &rarr; GitHub 레포 선택</p>
+      <div class="flow-diagram">
+        <span class="flow-step">Vercel 로그인</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step">Add New Project</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step">Import Git Repository</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step active">petholo 레포 선택</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">2</span> 프로젝트 설정</div>
+    <div class="step-body">
+      <table class="spec-table">
+        <thead><tr><th>설정 항목</th><th>값</th></tr></thead>
+        <tbody>
+          <tr><td>Framework Preset</td><td>Next.js</td></tr>
+          <tr><td>Root Directory</td><td><code>apps/web</code></td></tr>
+          <tr><td>Build Command</td><td><code>pnpm build</code></td></tr>
+          <tr><td>Output Directory</td><td><code>.next</code> (자동 감지)</td></tr>
+          <tr><td>Install Command</td><td><code>pnpm install</code></td></tr>
+          <tr><td>Node.js Version</td><td>20.x</td></tr>
+        </tbody>
+      </table>
+      <div class="info-box warn">
+        <span class="info-icon">&#9888;</span>
+        <div><strong>Root Directory 주의:</strong> Monorepo 구조이므로 반드시 <code>apps/web</code>으로 설정해야 합니다. 루트로 설정하면 빌드가 실패합니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">3</span> 환경변수 설정</div>
+    <div class="step-body">
+      <p>Vercel 프로젝트 &rarr; Settings &rarr; Environment Variables에서 다음 변수들을 추가합니다:</p>
+      <table class="env-table">
+        <thead><tr><th>변수명</th><th>값</th><th>환경</th></tr></thead>
+        <tbody>
+          <tr><td>NEXT_PUBLIC_API_URL</td><td>https://api.petholo.com/api</td><td>Production</td></tr>
+          <tr><td>NEXT_PUBLIC_GOOGLE_CLIENT_ID</td><td>123456...googleusercontent.com</td><td>Production</td></tr>
+          <tr><td>NEXT_PUBLIC_API_URL</td><td>https://api-staging.petholo.com/api</td><td>Preview</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">4</span> 커스텀 도메인 연결</div>
+    <div class="step-body">
+      <p>Vercel 프로젝트 &rarr; Settings &rarr; Domains에서 도메인 추가:</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">DNS</span>도메인 DNS 설정</div>
+<pre><code><span class="code-comment"># A Record (루트 도메인)</span>
+petholo.com        A       76.76.21.21
+
+<span class="code-comment"># CNAME Record (www 서브도메인)</span>
+www.petholo.com    CNAME   cname.vercel-dns.com.</code></pre>
+      </div>
+      <div class="info-box tip">
+        <span class="info-icon">&#9889;</span>
+        <div>Vercel은 자동으로 Let's Encrypt SSL 인증서를 발급합니다. DNS 전파에 최대 48시간이 걸릴 수 있지만, 보통 몇 분 내에 완료됩니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">5</span> Preview Deployments 활용</div>
+    <div class="step-body">
+      <p>모든 Pull Request는 자동으로 Preview URL이 생성됩니다. PR 리뷰 시 실제 배포된 환경에서 테스트할 수 있습니다.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">text</span>Preview URL 형식</div>
+<pre><code><span class="code-comment"># PR #42 의 Preview URL 예시</span>
+https://petholo-git-feature-new-ui-your-org.vercel.app
+
+<span class="code-comment"># 최신 develop 브랜치</span>
+https://petholo-git-develop-your-org.vercel.app</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">6</span> Vercel CLI를 이용한 수동 배포</div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span>Vercel CLI</div>
+<pre><code><span class="code-comment"># Vercel CLI 설치</span>
+pnpm add -g vercel
+
+<span class="code-comment"># 프로젝트 링크 (최초 1회)</span>
+cd apps/web
+vercel link
+
+<span class="code-comment"># Preview 배포</span>
+vercel
+
+<span class="code-comment"># Production 배포</span>
+vercel --prod
+
+<span class="code-comment"># 환경변수 확인</span>
+vercel env ls</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">7</span> vercel.json 설정</div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-header"><span class="lang">json</span>apps/web/vercel.json</div>
+<pre><code>{
+  "framework": "nextjs",
+  "buildCommand": "pnpm build",
+  "installCommand": "pnpm install",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/home",
+      "permanent": false
+    }
+  ]
+}</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- 6. Backend - Railway                                    -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="mockup-section" id="backend-railway">
+  <h2><span class="section-num">6</span> Backend Deployment - Option A: Railway <span class="recommended">RECOMMENDED</span></h2>
+  <p class="desc">Railway는 GitHub 연동으로 간편하게 백엔드를 배포할 수 있는 PaaS 플랫폼입니다. 소규모~중규모 트래픽에 적합합니다.</p>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">1</span> Railway 프로젝트 생성</div>
+    <div class="step-body">
+      <p><a href="https://railway.app" style="color:var(--accent-cyan);">railway.app</a> 접속 &rarr; New Project &rarr; Deploy from GitHub Repo</p>
+      <div class="flow-diagram">
+        <span class="flow-step">Railway 로그인</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step">New Project</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step">Deploy from GitHub</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step active">petholo 레포 선택</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">2</span> 서비스 설정</div>
+    <div class="step-body">
+      <table class="spec-table">
+        <thead><tr><th>설정 항목</th><th>값</th></tr></thead>
+        <tbody>
+          <tr><td>Root Directory</td><td><code>apps/api</code></td></tr>
+          <tr><td>Build Command</td><td><code>pnpm install &amp;&amp; pnpm build</code></td></tr>
+          <tr><td>Start Command</td><td><code>node dist/server.js</code></td></tr>
+          <tr><td>Watch Paths</td><td><code>apps/api/**</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">3</span> 환경변수 설정</div>
+    <div class="step-body">
+      <p>Railway 대시보드 &rarr; Service &rarr; Variables 탭에서 위의 Backend .env 변수들을 모두 추가합니다.</p>
+      <div class="info-box warn">
+        <span class="info-icon">&#9888;</span>
+        <div><strong>FIREBASE_PRIVATE_KEY 주의:</strong> Railway에서는 개행문자(<code>\n</code>)를 실제 줄바꿈으로 입력해야 할 수 있습니다. "Raw Editor" 모드를 사용하세요.</div>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span>Railway CLI로 환경변수 설정</div>
+<pre><code><span class="code-comment"># Railway CLI 설치</span>
+npm install -g @railway/cli
+
+<span class="code-comment"># 로그인</span>
+railway login
+
+<span class="code-comment"># 프로젝트 링크</span>
+railway link
+
+<span class="code-comment"># 환경변수 설정 (하나씩)</span>
+railway variables set NODE_ENV=production
+railway variables set PORT=4000
+railway variables set CORS_ORIGIN=https://petholo.com
+<span class="code-comment"># ... 나머지 변수도 동일하게 설정</span></code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">4</span> railway.toml 설정 파일</div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-header"><span class="lang">toml</span>apps/api/railway.toml</div>
+<pre><code>[build]
+builder = "nixpacks"
+buildCommand = "pnpm install && pnpm build"
+
+[deploy]
+startCommand = "node dist/server.js"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
+
+[service]
+internalPort = 4000</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">5</span> Custom Domain 연결</div>
+    <div class="step-body">
+      <p>Railway 대시보드 &rarr; Service &rarr; Settings &rarr; Networking &rarr; Custom Domain</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">DNS</span>API 서브도메인 설정</div>
+<pre><code><span class="code-comment"># CNAME Record</span>
+api.petholo.com    CNAME   your-service.up.railway.app.</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">6</span> Health Check 확인</div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span>배포 후 확인</div>
+<pre><code><span class="code-comment"># Health check</span>
+curl https://api.petholo.com/api/health
+
+<span class="code-comment"># 기대 응답:</span>
+<span class="code-comment"># {"success":true,"data":{"status":"healthy","timestamp":"...","environment":"production","version":"1.0.0"}}</span></code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box tip">
+    <span class="info-icon">&#9889;</span>
+    <div>
+      <strong>Auto-Deploy:</strong> GitHub 연동 시 <code>main</code> 브랜치에 push하면 자동으로 배포됩니다. Railway 대시보드에서 배포 로그를 실시간으로 확인할 수 있습니다.
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- 7. Backend - Cloud Run                                  -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="mockup-section" id="backend-cloudrun">
+  <h2><span class="section-num">7</span> Backend Deployment - Option B: Google Cloud Run</h2>
+  <p class="desc">Cloud Run은 컨테이너 기반 서버리스 플랫폼입니다. 트래픽에 따라 자동 스케일링되며, 사용한 만큼만 비용을 지불합니다.</p>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">1</span> Dockerfile 작성 (Multi-stage Build)</div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-header"><span class="lang">Dockerfile</span>apps/api/Dockerfile</div>
+<pre><code><span class="code-comment"># ── Stage 1: Build ──</span>
+FROM node:20-alpine AS builder
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /app
+
+<span class="code-comment"># Copy workspace root files</span>
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+COPY packages/ ./packages/
+COPY apps/api/package.json ./apps/api/
+
+<span class="code-comment"># Install dependencies</span>
+RUN pnpm install --frozen-lockfile
+
+<span class="code-comment"># Copy API source code</span>
+COPY apps/api/ ./apps/api/
+
+<span class="code-comment"># Build TypeScript</span>
+WORKDIR /app/apps/api
+RUN pnpm build
+
+<span class="code-comment"># ── Stage 2: Production ──</span>
+FROM node:20-alpine AS runner
+
+<span class="code-comment"># ffmpeg(@ffmpeg-installer/ffmpeg) Alpine 호환 + GIF 변환에 필요</span>
+RUN apk add --no-cache libc6-compat
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /app
+
+<span class="code-comment"># Copy built artifacts</span>
+COPY --from=builder /app/apps/api/dist ./dist
+COPY --from=builder /app/apps/api/package.json ./
+COPY --from=builder /app/apps/api/node_modules ./node_modules
+
+<span class="code-comment"># Create log directory</span>
+RUN mkdir -p logs
+
+<span class="code-comment"># Non-root user for security</span>
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S petholo -u 1001 -G nodejs
+USER petholo
+
+<span class="code-comment"># Expose port</span>
+EXPOSE 4000
+
+<span class="code-comment"># Health check</span>
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:4000/api/health || exit 1
+
+<span class="code-comment"># Start server</span>
+CMD ["node", "dist/server.js"]</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">2</span> .dockerignore 작성</div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-header"><span class="lang">text</span>apps/api/.dockerignore</div>
+<pre><code>node_modules
+dist
+logs
+.env
+.env.*
+*.log
+.git
+.gitignore
+README.md
+firebase-service-account.json</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">3</span> Google Cloud CLI 설정 &amp; 배포</div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span>Cloud Run 배포 명령어</div>
+<pre><code><span class="code-comment"># Google Cloud CLI 인증</span>
+gcloud auth login
+gcloud config set project petholo-prod
+gcloud config set run/region asia-northeast3
+
+<span class="code-comment"># Artifact Registry 레포지토리 생성 (최초 1회)</span>
+gcloud artifacts repositories create petholo-api \
+  --repository-format=docker \
+  --location=asia-northeast3
+
+<span class="code-comment"># Docker 인증 설정</span>
+gcloud auth configure-docker asia-northeast3-docker.pkg.dev
+
+<span class="code-comment"># 이미지 빌드 (프로젝트 루트에서 실행)</span>
+docker build -t asia-northeast3-docker.pkg.dev/petholo-prod/petholo-api/server:latest \
+  -f apps/api/Dockerfile .
+
+<span class="code-comment"># 이미지 Push</span>
+docker push asia-northeast3-docker.pkg.dev/petholo-prod/petholo-api/server:latest
+
+<span class="code-comment"># Cloud Run 서비스 배포</span>
+gcloud run deploy petholo-api \
+  --image=asia-northeast3-docker.pkg.dev/petholo-prod/petholo-api/server:latest \
+  --region=asia-northeast3 \
+  --platform=managed \
+  --port=4000 \
+  --memory=512Mi \
+  --cpu=1 \
+  --min-instances=0 \
+  --max-instances=10 \
+  --timeout=300 \
+  --allow-unauthenticated \
+  --set-env-vars="NODE_ENV=production,PORT=4000"</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">4</span> 환경변수 설정 (Secret Manager 활용)</div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span>Secret Manager를 이용한 보안 환경변수</div>
+<pre><code><span class="code-comment"># Secret 생성</span>
+echo -n "your-jwt-secret-value" | \
+  gcloud secrets create JWT_SECRET --data-file=-
+
+echo -n "your-firebase-private-key" | \
+  gcloud secrets create FIREBASE_PRIVATE_KEY --data-file=-
+
+<span class="code-comment"># Cloud Run에 Secret 마운트</span>
+gcloud run services update petholo-api \
+  --region=asia-northeast3 \
+  --set-secrets="JWT_SECRET=JWT_SECRET:latest,FIREBASE_PRIVATE_KEY=FIREBASE_PRIVATE_KEY:latest" \
+  --set-env-vars="NODE_ENV=production,PORT=4000,CORS_ORIGIN=https://petholo.com,FIREBASE_PROJECT_ID=petholo-prod"</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">5</span> Custom Domain Mapping</div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span>도메인 매핑</div>
+<pre><code><span class="code-comment"># 도메인 매핑</span>
+gcloud run domain-mappings create \
+  --service=petholo-api \
+  --domain=api.petholo.com \
+  --region=asia-northeast3
+
+<span class="code-comment"># DNS 레코드 확인 (출력된 CNAME/A 레코드를 DNS에 등록)</span>
+gcloud run domain-mappings describe \
+  --domain=api.petholo.com \
+  --region=asia-northeast3</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">6</span> Cloud Build 자동배포 설정</div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-header"><span class="lang">yaml</span>cloudbuild.yaml (프로젝트 루트)</div>
+<pre><code>steps:
+  <span class="code-comment"># Step 1: Build Docker image</span>
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'asia-northeast3-docker.pkg.dev/$PROJECT_ID/petholo-api/server:$COMMIT_SHA'
+      - '-t'
+      - 'asia-northeast3-docker.pkg.dev/$PROJECT_ID/petholo-api/server:latest'
+      - '-f'
+      - 'apps/api/Dockerfile'
+      - '.'
+
+  <span class="code-comment"># Step 2: Push to Artifact Registry</span>
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'asia-northeast3-docker.pkg.dev/$PROJECT_ID/petholo-api/server:$COMMIT_SHA'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'asia-northeast3-docker.pkg.dev/$PROJECT_ID/petholo-api/server:latest'
+
+  <span class="code-comment"># Step 3: Deploy to Cloud Run</span>
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'petholo-api'
+      - '--image=asia-northeast3-docker.pkg.dev/$PROJECT_ID/petholo-api/server:$COMMIT_SHA'
+      - '--region=asia-northeast3'
+      - '--platform=managed'
+      - '--quiet'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+images:
+  - 'asia-northeast3-docker.pkg.dev/$PROJECT_ID/petholo-api/server:$COMMIT_SHA'
+  - 'asia-northeast3-docker.pkg.dev/$PROJECT_ID/petholo-api/server:latest'</code></pre>
+      </div>
+      <div class="info-box info">
+        <span class="info-icon">&#128161;</span>
+        <div>Cloud Build 트리거를 설정하면 <code>main</code> 브랜치에 push 시 자동으로 빌드 &rarr; 배포가 진행됩니다. Google Cloud Console &rarr; Cloud Build &rarr; Triggers에서 설정합니다.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- 8. CI/CD Pipeline                                       -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="mockup-section" id="cicd">
+  <h2><span class="section-num">8</span> CI/CD Pipeline (GitHub Actions)</h2>
+  <p class="desc">GitHub Actions를 이용한 자동화된 CI/CD 파이프라인입니다. lint, test, build, deploy를 자동으로 실행합니다.</p>
+
+  <!-- Branch Strategy -->
+  <div class="info-box info">
+    <span class="info-icon">&#128202;</span>
+    <div>
+      <strong>Branch Strategy:</strong><br>
+      <code>main</code> &rarr; Production 배포 (petholo.com / api.petholo.com)<br>
+      <code>develop</code> &rarr; Staging 배포 (staging.petholo.com / api-staging.petholo.com)<br>
+      <code>feature/*</code> &rarr; Preview 배포 (Vercel Preview URL)
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">1</span> GitHub Secrets 설정</div>
+    <div class="step-body">
+      <p>GitHub 레포 &rarr; Settings &rarr; Secrets and variables &rarr; Actions에서 다음 시크릿을 추가합니다:</p>
+      <table class="env-table">
+        <thead><tr><th>Secret Name</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td>VERCEL_TOKEN</td><td>Vercel Personal Access Token</td></tr>
+          <tr><td>VERCEL_ORG_ID</td><td>Vercel Organization ID</td></tr>
+          <tr><td>VERCEL_PROJECT_ID</td><td>Vercel Project ID</td></tr>
+          <tr><td>RAILWAY_TOKEN</td><td>Railway API Token (Option A)</td></tr>
+          <tr><td>GCP_SA_KEY</td><td>Google Cloud 서비스 계정 JSON (Option B)</td></tr>
+          <tr><td>GCP_PROJECT_ID</td><td>Google Cloud 프로젝트 ID (Option B)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">2</span> GitHub Actions Workflow</div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-header"><span class="lang">yaml</span>.github/workflows/deploy.yml</div>
+<pre><code>name: PetHolo CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '9'
+
+jobs:
+  <span class="code-comment"># ── Job 1: Lint & Test ──</span>
+  quality:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint (Frontend)
+        run: pnpm --filter @petholo/web lint
+
+      - name: Build check (Backend)
+        run: pnpm --filter @petholo/api build
+
+      - name: Build check (Frontend)
+        run: pnpm --filter @petholo/web build
+        env:
+          NEXT_PUBLIC_API_URL: https://api.petholo.com/api
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID: placeholder
+
+  <span class="code-comment"># ── Job 2: Deploy Frontend (Vercel) ──</span>
+  deploy-frontend:
+    name: Deploy Frontend
+    needs: quality
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel (Production)
+        if: github.ref == 'refs/heads/main'
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+          working-directory: apps/web
+
+      - name: Deploy to Vercel (Staging)
+        if: github.ref == 'refs/heads/develop'
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: apps/web
+
+  <span class="code-comment"># ── Job 3: Deploy Backend (Railway) ──</span>
+  deploy-backend:
+    name: Deploy Backend
+    needs: quality
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway
+        run: railway up --service petholo-api
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">3</span> 파이프라인 Flow</div>
+    <div class="step-body">
+      <div class="flow-diagram">
+        <span class="flow-step">Push / PR</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step">Install</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step">Lint</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step">Build</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step active">Deploy Frontend</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step active">Deploy Backend</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- 9. Domain & SSL                                         -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="mockup-section" id="domain">
+  <h2><span class="section-num">9</span> Domain &amp; SSL Setup</h2>
+  <p class="desc">도메인 설정과 SSL 인증서 구성 가이드입니다.</p>
+
+  <table class="spec-table">
+    <thead><tr><th>서비스</th><th>도메인</th><th>호스팅</th><th>SSL</th></tr></thead>
+    <tbody>
+      <tr><td>Frontend</td><td>petholo.com</td><td>Vercel</td><td>자동 (Let's Encrypt)</td></tr>
+      <tr><td>Frontend (www)</td><td>www.petholo.com</td><td>Vercel</td><td>자동 (Let's Encrypt)</td></tr>
+      <tr><td>Backend API</td><td>api.petholo.com</td><td>Railway / Cloud Run</td><td>자동</td></tr>
+    </tbody>
+  </table>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">DNS</span> 전체 DNS 레코드 설정</div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-header"><span class="lang">DNS</span>도메인 레지스트라 (Cloudflare, Route53 등) 설정</div>
+<pre><code><span class="code-comment"># ── Frontend (Vercel) ──</span>
+<span class="code-comment"># 루트 도메인</span>
+petholo.com          A       76.76.21.21
+
+<span class="code-comment"># www 서브도메인 (Vercel로 리디렉트)</span>
+www.petholo.com      CNAME   cname.vercel-dns.com.
+
+<span class="code-comment"># ── Backend API ──</span>
+<span class="code-comment"># Railway 사용 시</span>
+api.petholo.com      CNAME   your-service.up.railway.app.
+
+<span class="code-comment"># Cloud Run 사용 시</span>
+api.petholo.com      CNAME   ghs.googlehosted.com.</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box tip">
+    <span class="info-icon">&#9889;</span>
+    <div>
+      <strong>Vercel &amp; Railway 모두 자동 SSL:</strong> 별도의 인증서 설정이 필요 없습니다. DNS 레코드를 올바르게 설정하면 자동으로 Let's Encrypt SSL 인증서가 발급됩니다.
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- 10. Monitoring & Logging                                -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="mockup-section" id="monitoring">
+  <h2><span class="section-num">10</span> Monitoring &amp; Logging</h2>
+  <p class="desc">서비스 운영 시 모니터링과 로깅 구성입니다.</p>
+
+  <table class="spec-table">
+    <thead><tr><th>영역</th><th>도구</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td>Frontend Performance</td><td>Vercel Analytics</td><td>Web Vitals, 페이지 로드 시간 추적</td></tr>
+      <tr><td>Backend Logs</td><td>Railway Logs / Cloud Run Logs</td><td>실시간 서버 로그 확인</td></tr>
+      <tr><td>Database</td><td>Firebase Console</td><td>Firestore 사용량, 읽기/쓰기 횟수</td></tr>
+      <tr><td>Error Tracking</td><td>Sentry (선택)</td><td>프론트엔드/백엔드 에러 실시간 알림</td></tr>
+      <tr><td>Uptime</td><td>UptimeRobot (무료)</td><td>/api/health 엔드포인트 모니터링</td></tr>
+    </tbody>
+  </table>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">1</span> Winston Logger 설정 (현재 구성)</div>
+    <div class="step-body">
+      <p>백엔드는 Winston 로거를 사용하여 구조화된 로그를 출력합니다. 현재 설정:</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">typescript</span>apps/api/src/utils/logger.ts (현재 코드)</div>
+<pre><code>import winston from 'winston';
+import { env } from '../config/env';
+
+const logFormat = winston.format.combine(
+  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+  winston.format.errors({ stack: true }),
+  winston.format.printf(({ timestamp, level, message, stack }) =&gt; {
+    return `${timestamp} [${level.toUpperCase()}]: ${stack || message}`;
+  })
+);
+
+export const logger = winston.createLogger({
+  level: env.isDev ? 'debug' : 'info',
+  format: logFormat,
+  transports: [
+    <span class="code-comment">// 콘솔 출력 (Railway/Cloud Run 로그에 표시)</span>
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        logFormat
+      ),
+    }),
+    <span class="code-comment">// 에러 로그 파일 (5MB x 5개 로테이션)</span>
+    new winston.transports.File({
+      filename: 'logs/error.log',
+      level: 'error',
+      maxsize: 5 * 1024 * 1024,
+      maxFiles: 5,
+    }),
+    <span class="code-comment">// 전체 로그 파일 (10MB x 5개 로테이션)</span>
+    new winston.transports.File({
+      filename: 'logs/combined.log',
+      maxsize: 10 * 1024 * 1024,
+      maxFiles: 5,
+    }),
+  ],
+});</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">2</span> Sentry 연동 (선택사항)</div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span>Sentry 설치</div>
+<pre><code><span class="code-comment"># 백엔드에 Sentry 추가</span>
+cd apps/api
+pnpm add @sentry/node
+
+<span class="code-comment"># 프론트엔드에 Sentry 추가</span>
+cd ../web
+pnpm add @sentry/nextjs</code></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">typescript</span>Sentry 초기화 (서버)</div>
+<pre><code>import * as Sentry from '@sentry/node';
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+  tracesSampleRate: 0.1, <span class="code-comment">// 10% 샘플링</span>
+});</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <div class="step-title"><span class="step-num">3</span> Railway / Cloud Run 로그 확인</div>
+    <div class="step-body">
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span>로그 확인 명령어</div>
+<pre><code><span class="code-comment"># Railway 로그 스트리밍</span>
+railway logs --follow
+
+<span class="code-comment"># Cloud Run 로그 확인</span>
+gcloud run services logs read petholo-api \
+  --region=asia-northeast3 \
+  --limit=100
+
+<span class="code-comment"># Cloud Run 실시간 로그</span>
+gcloud run services logs tail petholo-api \
+  --region=asia-northeast3</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- 11. Post-Deployment Checklist                           -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="mockup-section" id="checklist">
+  <h2><span class="section-num">11</span> Post-Deployment Checklist</h2>
+  <p class="desc">배포 완료 후 반드시 확인해야 할 체크리스트입니다. 모든 항목을 점검한 후 서비스를 공개하세요.</p>
+
+  <div class="card" style="padding:0; overflow:hidden;">
+    <table class="spec-table" style="margin:0;">
+      <thead>
+        <tr><th style="width:40px;"></th><th>점검 항목</th><th>확인 방법</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="check-box"></div></td>
+          <td style="color:var(--text-primary);">Firebase Firestore Rules 배포</td>
+          <td>Firebase Console &rarr; Firestore &rarr; 규칙 탭 확인</td>
+        </tr>
+        <tr>
+          <td><div class="check-box"></div></td>
+          <td style="color:var(--text-primary);">CORS 설정 확인</td>
+          <td><code>CORS_ORIGIN</code>에 프론트엔드 도메인이 포함되어 있는지 확인</td>
+        </tr>
+        <tr>
+          <td><div class="check-box"></div></td>
+          <td style="color:var(--text-primary);">JWT Secret 강도 확인</td>
+          <td>최소 32자 이상의 랜덤 문자열, JWT_SECRET != JWT_REFRESH_SECRET</td>
+        </tr>
+        <tr>
+          <td><div class="check-box"></div></td>
+          <td style="color:var(--text-primary);">Google OAuth Redirect URI 업데이트</td>
+          <td>Google Cloud Console에서 프로덕션 콜백 URL 등록 확인</td>
+        </tr>
+        <tr>
+          <td><div class="check-box"></div></td>
+          <td style="color:var(--text-primary);">API Health Check 응답 200</td>
+          <td><code>curl https://api.petholo.com/api/health</code></td>
+        </tr>
+        <tr>
+          <td><div class="check-box"></div></td>
+          <td style="color:var(--text-primary);">프론트엔드 &harr; API 통신 확인</td>
+          <td>브라우저 개발자 도구 Network 탭에서 CORS 에러 없는지 확인</td>
+        </tr>
+        <tr>
+          <td><div class="check-box"></div></td>
+          <td style="color:var(--text-primary);">Cafe24 Webhook URL 등록</td>
+          <td>Cafe24 관리자 &rarr; Webhook URL: https://api.petholo.com/api/webhooks/cafe24</td>
+        </tr>
+        <tr>
+          <td><div class="check-box"></div></td>
+          <td style="color:var(--text-primary);">AI 서비스 API 키 유효성</td>
+          <td>NanoBanana, Kling AI API 호출 테스트</td>
+        </tr>
+        <tr>
+          <td><div class="check-box"></div></td>
+          <td style="color:var(--text-primary);">Rate Limiting 동작 확인</td>
+          <td>일반: 100req/15min, Auth: 5req/15min, Upload: 30req/1hr</td>
+        </tr>
+        <tr>
+          <td><div class="check-box"></div></td>
+          <td style="color:var(--text-primary);">관리자 계정 생성</td>
+          <td>첫 번째 관리자 계정을 Firestore에서 직접 role: 'admin' 설정</td>
+        </tr>
+        <tr>
+          <td><div class="check-box"></div></td>
+          <td style="color:var(--text-primary);">Storage CORS 설정</td>
+          <td><code>gsutil cors get gs://petholo-prod.firebasestorage.app</code></td>
+        </tr>
+        <tr>
+          <td><div class="check-box"></div></td>
+          <td style="color:var(--text-primary);">SSL 인증서 적용 확인</td>
+          <td>https:// 로 접속하여 자물쇠 아이콘 확인</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info-box tip" style="margin-top:20px;">
+    <span class="info-icon">&#9889;</span>
+    <div>
+      <strong>E2E 테스트:</strong> 모든 체크리스트 완료 후 다음 플로우를 처음부터 끝까지 테스트하세요:<br>
+      <code>회원가입 &rarr; 반려동물 등록 &rarr; 프로필 생성 &rarr; 사진 업로드 &rarr; AI 영상 생성 &rarr; 홀로그램 재생</code>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- 12. Troubleshooting                                     -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="mockup-section" id="troubleshooting">
+  <h2><span class="section-num">12</span> Troubleshooting</h2>
+  <p class="desc">배포 후 자주 발생하는 문제와 해결 방법입니다.</p>
+
+  <div class="trouble-card">
+    <div class="symptom">&#10060; CORS 에러 (Access-Control-Allow-Origin)</div>
+    <div class="cause"><strong>원인:</strong> 백엔드의 <code>CORS_ORIGIN</code> 환경변수에 프론트엔드 도메인이 누락됨</div>
+    <div class="fix">
+      <strong>해결:</strong><br>
+      1. 백엔드 환경변수 확인: <code>CORS_ORIGIN=https://petholo.com,https://www.petholo.com</code><br>
+      2. 프로토콜(https://) 포함 여부 확인<br>
+      3. 끝에 슬래시(/) 가 없는지 확인<br>
+      4. 환경변수 변경 후 서비스 재시작
+    </div>
+  </div>
+
+  <div class="trouble-card">
+    <div class="symptom">&#10060; Firebase Permission Denied</div>
+    <div class="cause"><strong>원인:</strong> 서비스 계정 키가 잘못되었거나 권한이 부족함</div>
+    <div class="fix">
+      <strong>해결:</strong><br>
+      1. <code>FIREBASE_PROJECT_ID</code>, <code>FIREBASE_CLIENT_EMAIL</code>, <code>FIREBASE_PRIVATE_KEY</code> 값 정확성 확인<br>
+      2. FIREBASE_PRIVATE_KEY의 <code>\n</code> 이스케이프 확인 (JSON에서 복사 시 주의)<br>
+      3. 서비스 계정에 "Firebase Admin SDK Administrator Service Agent" 역할 확인<br>
+      4. Firebase Console &rarr; 프로젝트 설정 &rarr; 서비스 계정에서 새 키 재발급
+    </div>
+  </div>
+
+  <div class="trouble-card">
+    <div class="symptom">&#10060; JWT Token Expired / Invalid</div>
+    <div class="cause"><strong>원인:</strong> 토큰 만료 후 리프레시 플로우 실패 또는 시크릿 불일치</div>
+    <div class="fix">
+      <strong>해결:</strong><br>
+      1. 프론트엔드에서 401 응답 시 자동으로 <code>/api/auth/refresh</code> 호출하는지 확인<br>
+      2. <code>JWT_SECRET</code>과 <code>JWT_REFRESH_SECRET</code>이 서로 다른 값인지 확인<br>
+      3. 배포 환경 간 시크릿 값이 동일한지 확인 (스테이징 vs 프로덕션)<br>
+      4. 토큰 만료시간: 액세스 15분, 리프레시 7일
+    </div>
+  </div>
+
+  <div class="trouble-card">
+    <div class="symptom">&#10060; AI 영상 생성 Timeout / 실패</div>
+    <div class="cause"><strong>원인:</strong> API 키 만료, 요청 한도 초과, 또는 네트워크 문제</div>
+    <div class="fix">
+      <strong>해결:</strong><br>
+      1. NanoBanana / Kling AI API 키 유효성 확인 (각 서비스 대시보드에서 확인)<br>
+      2. API 사용량 한도 확인 (Rate Limit / Quota)<br>
+      3. 백엔드 로그에서 구체적인 에러 메시지 확인: <code>railway logs</code><br>
+      4. Cloud Run의 경우 타임아웃 설정 확인 (기본 300초)
+    </div>
+  </div>
+
+  <div class="trouble-card">
+    <div class="symptom">&#10060; Cafe24 Webhook 수신 실패</div>
+    <div class="cause"><strong>원인:</strong> HMAC 시크릿 불일치 또는 Webhook URL 미등록</div>
+    <div class="fix">
+      <strong>해결:</strong><br>
+      1. Cafe24 관리자에서 등록한 Webhook URL 확인: <code>https://api.petholo.com/api/webhooks/cafe24</code><br>
+      2. <code>CAFE24_WEBHOOK_SECRET</code>이 Cafe24 설정과 동일한지 확인<br>
+      3. Webhook rate limit 확인: 분당 50회 제한<br>
+      4. 백엔드 로그에서 Webhook 요청 수신 여부 확인
+    </div>
+  </div>
+
+  <div class="trouble-card">
+    <div class="symptom">&#10060; Vercel 빌드 실패</div>
+    <div class="cause"><strong>원인:</strong> Root Directory 설정 오류, 환경변수 누락, 또는 의존성 문제</div>
+    <div class="fix">
+      <strong>해결:</strong><br>
+      1. Root Directory가 <code>apps/web</code>으로 설정되어 있는지 확인<br>
+      2. <code>NEXT_PUBLIC_*</code> 환경변수가 Vercel에 등록되어 있는지 확인<br>
+      3. 로컬에서 <code>pnpm build</code> 성공 여부 먼저 확인<br>
+      4. Vercel 빌드 로그에서 구체적인 에러 확인
+    </div>
+  </div>
+
+  <div class="trouble-card">
+    <div class="symptom">&#10060; Railway 배포 후 서비스 접속 불가</div>
+    <div class="cause"><strong>원인:</strong> 포트 설정 오류 또는 Health Check 실패</div>
+    <div class="fix">
+      <strong>해결:</strong><br>
+      1. <code>PORT</code> 환경변수가 4000으로 설정되어 있는지 확인<br>
+      2. <code>railway.toml</code>의 <code>internalPort</code>가 PORT와 일치하는지 확인<br>
+      3. Health check path가 <code>/api/health</code>인지 확인<br>
+      4. Railway 대시보드 &rarr; Deployments에서 빌드 로그 확인
+    </div>
+  </div>
+
+  <div class="trouble-card">
+    <div class="symptom">&#10060; 파일 업로드 실패 (Storage)</div>
+    <div class="cause"><strong>원인:</strong> S3/Firebase Storage 설정 오류 또는 CORS 미설정</div>
+    <div class="fix">
+      <strong>해결:</strong><br>
+      1. <code>STORAGE_PROVIDER</code>가 올바르게 설정되어 있는지 확인 (local / s3)<br>
+      2. S3 사용 시: <code>S3_ACCESS_KEY</code>, <code>S3_SECRET_KEY</code>, <code>S3_BUCKET</code> 확인<br>
+      3. Firebase Storage 사용 시: 버킷명과 CORS 설정 확인<br>
+      4. 업로드 파일 크기 제한: 10MB (Express body parser 설정)
+    </div>
+  </div>
+
+  <!-- Quick Reference Commands -->
+  <h3 style="font-size:15px; color:var(--accent-cyan); margin:24px 0 12px;">Quick Reference Commands</h3>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">bash</span>자주 사용하는 디버깅 명령어</div>
+<pre><code><span class="code-comment"># ── Health Check ──</span>
+curl -s https://api.petholo.com/api/health | jq .
+
+<span class="code-comment"># ── CORS 테스트 ──</span>
+curl -I -X OPTIONS https://api.petholo.com/api/health \
+  -H "Origin: https://petholo.com" \
+  -H "Access-Control-Request-Method: GET"
+
+<span class="code-comment"># ── Railway 로그 (실시간) ──</span>
+railway logs --follow
+
+<span class="code-comment"># ── Cloud Run 로그 (최근 100줄) ──</span>
+gcloud run services logs read petholo-api \
+  --region=asia-northeast3 --limit=100
+
+<span class="code-comment"># ── Firebase Firestore Rules 배포 ──</span>
+firebase deploy --only firestore:rules
+
+<span class="code-comment"># ── Vercel 수동 프로덕션 배포 ──</span>
+cd apps/web && vercel --prod
+
+<span class="code-comment"># ── DNS 전파 확인 ──</span>
+dig api.petholo.com +short
+nslookup petholo.com</code></pre>
+  </div>
+</div>
+
+
+<!-- ── Footer ── -->
+<div style="text-align:center; margin-top:60px; padding:40px 0; border-top:1px solid rgba(255,255,255,0.06);">
+  <div style="font-size:24px; margin-bottom:8px;">PetHolo</div>
+  <div style="font-size:12px; color:var(--text-muted);">Deployment Guide v1.0</div>
+  <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">Stack: Next.js 16 + Express 5 + Firebase + Vercel + Railway/Cloud Run</div>
+</div>
+
+</div><!-- /.mockup-page -->
+</body>
+</html>

@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PetHolo - Backend API Specification</title>
+<link rel="stylesheet" href="common.css">
+<style>
+.mockup-page { max-width: 1400px; }
+.ep { background: var(--bg-surface); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius-md); padding: 20px; margin-bottom: 16px; }
+.ep-header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ep-meta { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+.ep-body { margin-top: 14px; }
+.ep-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.5; }
+.auth-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; background: rgba(102,126,234,0.15); color: var(--accent-purple); }
+.credit-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; background: rgba(255,215,0,0.15); color: var(--accent-yellow); }
+.admin-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; background: rgba(255,107,107,0.15); color: var(--accent-red); }
+.webhook-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; background: rgba(56,239,125,0.15); color: var(--accent-green); }
+.json-block { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 14px 16px; font-family: 'SF Mono','Fira Code',monospace; font-size: 11.5px; line-height: 1.65; color: #c0c0c0; overflow-x: auto; margin-bottom: 10px; white-space: pre; }
+.json-block .k { color: var(--accent-blue); }
+.json-block .s { color: var(--accent-green); }
+.json-block .n { color: var(--accent-orange); }
+.json-block .b { color: var(--accent-pink); }
+.json-block .c { color: var(--text-muted); font-style: italic; }
+.json-label { font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.section-group { margin-bottom: 48px; }
+.section-group > h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; }
+.section-group > h2 .num { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; font-size: 14px; font-weight: 800; }
+.section-group > .sg-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; }
+.sg-base { font-family: 'SF Mono','Fira Code',monospace; font-size: 13px; color: var(--accent-cyan); background: rgba(0,210,255,0.08); padding: 2px 8px; border-radius: 4px; }
+.toc { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; margin-bottom: 40px; }
+.toc-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--bg-surface); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius-sm); font-size: 13px; color: var(--text-secondary); text-decoration: none; cursor: pointer; transition: all 0.2s; }
+.toc-item:hover { border-color: rgba(100,200,255,0.3); color: var(--text-primary); }
+.toc-item .toc-num { font-size: 11px; font-weight: 700; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: rgba(100,200,255,0.1); color: var(--accent-blue); }
+.info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px; }
+.info-card { background: var(--bg-surface); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius-md); padding: 20px; }
+.info-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 10px; color: var(--accent-blue); }
+.info-card p, .info-card li { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+.info-card ul { list-style: none; padding: 0; }
+.info-card ul li { padding: 3px 0; }
+.info-card ul li::before { content: "- "; color: var(--text-muted); }
+.schema-block { background: var(--bg-surface); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius-md); padding: 20px; margin-bottom: 16px; }
+.schema-block h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; color: var(--accent-cyan); }
+.schema-block .path { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; font-family: monospace; }
+.flow-box { padding: 20px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-md); margin-bottom: 20px; overflow-x: auto; }
+.flow-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.flow-row:last-child { margin-bottom: 0; }
+.fs { padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; border: 1px solid rgba(255,255,255,0.12); white-space: nowrap; }
+.fs.cafe24 { background: rgba(56,239,125,0.12); color: var(--accent-green); border-color: rgba(56,239,125,0.25); }
+.fs.frontend { background: rgba(100,200,255,0.12); color: var(--accent-blue); border-color: rgba(100,200,255,0.25); }
+.fs.backend { background: rgba(102,126,234,0.12); color: var(--accent-purple); border-color: rgba(102,126,234,0.25); }
+.fs.db { background: rgba(255,167,38,0.12); color: var(--accent-orange); border-color: rgba(255,167,38,0.25); }
+.fs.ext { background: rgba(240,147,251,0.12); color: var(--accent-pink); border-color: rgba(240,147,251,0.25); }
+.fa { color: var(--text-muted); font-size: 16px; }
+.mw-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 16px; }
+.mw-table th { text-align: left; padding: 10px 12px; background: rgba(0,0,0,0.3); color: var(--accent-blue); font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.mw-table td { padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--text-secondary); }
+.mw-table tr:hover td { background: rgba(255,255,255,0.02); }
+.mw-table code { font-size: 11px; }
+@media (max-width: 768px) { .toc { grid-template-columns: 1fr; } .info-grid { grid-template-columns: 1fr; } .ep-meta { margin-left: 0; margin-top: 8px; } }
+</style>
+</head>
+<body>
+<div class="mockup-page">
+
+<h1>PetHolo Backend API Specification</h1>
+<p class="subtitle">Express.js 5 + Firebase Firestore 기반 REST API 전체 명세서<br>Base URL: <code>/api</code> | Auth: JWT (Cafe24 SSO) | Version: 1.0</p>
+
+<!-- ═══ TOC ═══ -->
+<div class="toc">
+  <a class="toc-item" href="#auth"><span class="toc-num">1</span> Auth - Cafe24 SSO</a>
+  <a class="toc-item" href="#pets"><span class="toc-num">2</span> Pets - 반려동물</a>
+  <a class="toc-item" href="#profiles"><span class="toc-num">3</span> Profiles - 프로필</a>
+  <a class="toc-item" href="#base-videos"><span class="toc-num">4</span> Base Videos - 베이스 영상</a>
+  <a class="toc-item" href="#motions"><span class="toc-num">5</span> Motions - 모션</a>
+  <a class="toc-item" href="#ai"><span class="toc-num">6</span> AI - 생성 파이프라인</a>
+  <a class="toc-item" href="#messenger"><span class="toc-num">7</span> Messenger - AI 메신저</a>
+  <a class="toc-item" href="#credits"><span class="toc-num">8</span> Credits - 크레딧</a>
+  <a class="toc-item" href="#trash"><span class="toc-num">9</span> Trash - 휴지통</a>
+  <a class="toc-item" href="#webhooks"><span class="toc-num">10</span> Webhooks - Cafe24</a>
+  <a class="toc-item" href="#admin"><span class="toc-num">11</span> Admin - 관리자</a>
+  <a class="toc-item" href="#auth-flow"><span class="toc-num">*</span> Auth Flow Diagram</a>
+  <a class="toc-item" href="#errors"><span class="toc-num">*</span> Error Format</a>
+  <a class="toc-item" href="#rate-limit"><span class="toc-num">*</span> Rate Limiting</a>
+  <a class="toc-item" href="#firestore"><span class="toc-num">*</span> Firestore Schema</a>
+  <a class="toc-item" href="#middleware"><span class="toc-num">*</span> Middleware Pipeline</a>
+</div>
+
+<!-- ═══ Overview Cards ═══ -->
+<div class="info-grid">
+  <div class="info-card">
+    <h4>Tech Stack</h4>
+    <ul>
+      <li>Express.js 5 (ESM)</li>
+      <li>Firebase Firestore (NoSQL)</li>
+      <li>Firebase Storage (Media)</li>
+      <li>JWT (Access + Refresh Token)</li>
+      <li>Zod (Request Validation)</li>
+      <li>Helmet + CORS + Rate Limit</li>
+    </ul>
+  </div>
+  <div class="info-card">
+    <h4>Authentication</h4>
+    <ul>
+      <li>Cafe24 SSO 토큰 교환 방식</li>
+      <li>Google OAuth 단독 사용 안함</li>
+      <li>Access Token: 1시간 만료</li>
+      <li>Refresh Token: 30일 만료</li>
+      <li>Header: Authorization: Bearer {token}</li>
+      <li>Admin: role 기반 접근 제어</li>
+    </ul>
+  </div>
+  <div class="info-card">
+    <h4>Credit System</h4>
+    <ul>
+      <li>Cafe24 주문 웹훅으로 자동 충전</li>
+      <li>수동 코드 등록 없음 (NO redeem-code)</li>
+      <li>베이스 영상 생성: 40C</li>
+      <li>모션 생성: 40C</li>
+      <li>AI 이미지 재생성: 10C</li>
+      <li>삭제 환불: 20C (영상/모션)</li>
+    </ul>
+  </div>
+  <div class="info-card">
+    <h4>Conventions</h4>
+    <ul>
+      <li>RESTful JSON API</li>
+      <li>UTC timestamps (ISO 8601)</li>
+      <li>Pagination: cursor 기반</li>
+      <li>Error: { code, message, details }</li>
+      <li>Soft delete 기본 (휴지통)</li>
+      <li>HMAC-SHA256 웹훅 검증</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 1. AUTH -->
+<!-- ════════════════════════════════════════ -->
+<div class="section-group" id="auth">
+  <h2><span class="num" style="background:rgba(102,126,234,0.2);color:var(--accent-purple);">1</span> Auth - Cafe24 SSO 인증</h2>
+  <p class="sg-desc">Cafe24 쇼핑몰에서 진입한 사용자의 SSO 토큰을 교환하여 JWT를 발급합니다. Google OAuth 단독 로그인은 사용하지 않습니다.<br>Base Path: <span class="sg-base">/api/auth</span></p>
+
+  <!-- POST /auth/cafe24 -->
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method post">POST</span>
+      <span class="api-path">/api/auth/cafe24</span>
+      <div class="ep-meta"></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Cafe24 SSO 토큰을 PetHolo JWT로 교환합니다. 신규 사용자인 경우 자동으로 계정이 생성됩니다. Cafe24 상점에서 리다이렉트 시 전달받은 authorization code를 사용합니다.</p>
+      <div class="json-label">Request Body</div>
+      <div class="json-block">{
+  <span class="k">"cafe24Code"</span>: <span class="s">"auth_code_from_cafe24_redirect"</span>,
+  <span class="k">"mallId"</span>: <span class="s">"petholo-shop"</span>,
+  <span class="k">"redirectUri"</span>: <span class="s">"https://app.petholo.com/auth/callback"</span>
+}</div>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"accessToken"</span>: <span class="s">"eyJhbGciOiJIUzI1NiIs..."</span>,
+  <span class="k">"refreshToken"</span>: <span class="s">"dGhpcyBpcyByZWZyZXNo..."</span>,
+  <span class="k">"expiresIn"</span>: <span class="n">3600</span>,
+  <span class="k">"user"</span>: {
+    <span class="k">"uid"</span>: <span class="s">"usr_abc123"</span>,
+    <span class="k">"cafe24MemberId"</span>: <span class="s">"member_xyz"</span>,
+    <span class="k">"email"</span>: <span class="s">"user@example.com"</span>,
+    <span class="k">"displayName"</span>: <span class="s">"홍길동"</span>,
+    <span class="k">"tier"</span>: <span class="s">"silver"</span>,
+    <span class="k">"credits"</span>: <span class="n">200</span>,
+    <span class="k">"isNew"</span>: <span class="b">false</span>,
+    <span class="k">"createdAt"</span>: <span class="s">"2026-01-15T09:00:00Z"</span>
+  }
+}</div>
+    </div>
+  </div>
+
+  <!-- POST /auth/refresh -->
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method post">POST</span>
+      <span class="api-path">/api/auth/refresh</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Refresh Token을 사용하여 새로운 Access Token을 발급합니다. Refresh Token은 1회 사용 후 교체됩니다 (rotation).</p>
+      <div class="json-label">Request Body</div>
+      <div class="json-block">{
+  <span class="k">"refreshToken"</span>: <span class="s">"dGhpcyBpcyByZWZyZXNo..."</span>
+}</div>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"accessToken"</span>: <span class="s">"eyJhbGciOiJIUzI1NiIs..."</span>,
+  <span class="k">"refreshToken"</span>: <span class="s">"bmV3IHJlZnJlc2ggdG9r..."</span>,
+  <span class="k">"expiresIn"</span>: <span class="n">3600</span>
+}</div>
+    </div>
+  </div>
+
+  <!-- POST /auth/logout -->
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method post">POST</span>
+      <span class="api-path">/api/auth/logout</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">현재 세션을 종료하고 Refresh Token을 무효화합니다. FCM 토큰도 함께 제거됩니다.</p>
+      <div class="json-label">Request Body</div>
+      <div class="json-block">{
+  <span class="k">"refreshToken"</span>: <span class="s">"dGhpcyBpcyByZWZyZXNo..."</span>
+}</div>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"message"</span>: <span class="s">"로그아웃되었습니다."</span>
+}</div>
+    </div>
+  </div>
+
+  <!-- GET /auth/me -->
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method get">GET</span>
+      <span class="api-path">/api/auth/me</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">현재 로그인된 사용자의 정보를 반환합니다. 크레딧 잔액, 등급, 펫 수 등 요약 정보를 포함합니다.</p>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"uid"</span>: <span class="s">"usr_abc123"</span>,
+  <span class="k">"cafe24MemberId"</span>: <span class="s">"member_xyz"</span>,
+  <span class="k">"email"</span>: <span class="s">"user@example.com"</span>,
+  <span class="k">"displayName"</span>: <span class="s">"홍길동"</span>,
+  <span class="k">"tier"</span>: <span class="s">"silver"</span>,
+  <span class="k">"credits"</span>: <span class="n">200</span>,
+  <span class="k">"petCount"</span>: <span class="n">2</span>,
+  <span class="k">"profileCount"</span>: <span class="n">3</span>,
+  <span class="k">"fcmToken"</span>: <span class="s">"fcm_token_here"</span>,
+  <span class="k">"createdAt"</span>: <span class="s">"2026-01-15T09:00:00Z"</span>,
+  <span class="k">"lastLoginAt"</span>: <span class="s">"2026-03-05T14:30:00Z"</span>
+}</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 2. PETS -->
+<!-- ════════════════════════════════════════ -->
+<div class="section-group" id="pets">
+  <h2><span class="num" style="background:rgba(100,200,255,0.2);color:var(--accent-blue);">2</span> Pets - 반려동물 관리</h2>
+  <p class="sg-desc">반려동물 CRUD. 각 사용자는 최대 5마리의 반려동물을 등록할 수 있습니다. 삭제 시 휴지통으로 이동(soft delete)합니다.<br>Base Path: <span class="sg-base">/api/pets</span></p>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method post">POST</span>
+      <span class="api-path">/api/pets</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">새 반려동물을 등록합니다. 기본 정보와 사진(정면/전신)을 입력합니다.</p>
+      <div class="json-label">Request Body</div>
+      <div class="json-block">{
+  <span class="k">"name"</span>: <span class="s">"보리"</span>,
+  <span class="k">"species"</span>: <span class="s">"dog"</span>,
+  <span class="k">"breed"</span>: <span class="s">"골든 리트리버"</span>,
+  <span class="k">"birthDate"</span>: <span class="s">"2018-03-15"</span>,
+  <span class="k">"passedDate"</span>: <span class="s">"2025-12-01"</span>,
+  <span class="k">"frontPhoto"</span>: <span class="s">"https://storage.../front.jpg"</span>,
+  <span class="k">"sidePhoto"</span>: <span class="s">"https://storage.../side.jpg"</span>,
+  <span class="k">"favoriteSnack"</span>: <span class="s">"닭가슴살"</span>,
+  <span class="k">"walkingPlace"</span>: <span class="s">"한강공원"</span>
+}</div>
+      <div class="json-label">Response 201</div>
+      <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"pet_a1b2c3"</span>,
+  <span class="k">"name"</span>: <span class="s">"보리"</span>,
+  <span class="k">"species"</span>: <span class="s">"dog"</span>,
+  <span class="k">"breed"</span>: <span class="s">"골든 리트리버"</span>,
+  <span class="k">"birthDate"</span>: <span class="s">"2018-03-15"</span>,
+  <span class="k">"passedDate"</span>: <span class="s">"2025-12-01"</span>,
+  <span class="k">"frontPhoto"</span>: <span class="s">"https://storage.../front.jpg"</span>,
+  <span class="k">"sidePhoto"</span>: <span class="s">"https://storage.../side.jpg"</span>,
+  <span class="k">"favoriteSnack"</span>: <span class="s">"닭가슴살"</span>,
+  <span class="k">"walkingPlace"</span>: <span class="s">"한강공원"</span>,
+  <span class="k">"profileCount"</span>: <span class="n">0</span>,
+  <span class="k">"ownerId"</span>: <span class="s">"usr_abc123"</span>,
+  <span class="k">"createdAt"</span>: <span class="s">"2026-03-05T10:00:00Z"</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method get">GET</span>
+      <span class="api-path">/api/pets</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">현재 사용자의 모든 반려동물 목록을 조회합니다. 프로필 수 요약을 포함합니다.</p>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"pets"</span>: [
+    { <span class="k">"id"</span>: <span class="s">"pet_a1b2c3"</span>, <span class="k">"name"</span>: <span class="s">"보리"</span>, <span class="k">"species"</span>: <span class="s">"dog"</span>, <span class="k">"frontPhoto"</span>: <span class="s">"https://..."</span>, <span class="k">"profileCount"</span>: <span class="n">2</span> },
+    { <span class="k">"id"</span>: <span class="s">"pet_d4e5f6"</span>, <span class="k">"name"</span>: <span class="s">"나비"</span>, <span class="k">"species"</span>: <span class="s">"cat"</span>, <span class="k">"frontPhoto"</span>: <span class="s">"https://..."</span>, <span class="k">"profileCount"</span>: <span class="n">1</span> }
+  ],
+  <span class="k">"total"</span>: <span class="n">2</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method get">GET</span>
+      <span class="api-path">/api/pets/:petId</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">특정 반려동물의 상세 정보를 조회합니다. 프로필 목록과 함께 반환됩니다.</p>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"pet_a1b2c3"</span>,
+  <span class="k">"name"</span>: <span class="s">"보리"</span>,
+  <span class="k">"species"</span>: <span class="s">"dog"</span>,
+  <span class="k">"breed"</span>: <span class="s">"골든 리트리버"</span>,
+  <span class="k">"birthDate"</span>: <span class="s">"2018-03-15"</span>,
+  <span class="k">"passedDate"</span>: <span class="s">"2025-12-01"</span>,
+  <span class="k">"frontPhoto"</span>: <span class="s">"https://storage.../front.jpg"</span>,
+  <span class="k">"sidePhoto"</span>: <span class="s">"https://storage.../side.jpg"</span>,
+  <span class="k">"favoriteSnack"</span>: <span class="s">"닭가슴살"</span>,
+  <span class="k">"walkingPlace"</span>: <span class="s">"한강공원"</span>,
+  <span class="k">"profiles"</span>: [
+    { <span class="k">"id"</span>: <span class="s">"prf_001"</span>, <span class="k">"name"</span>: <span class="s">"보리 프로필 1"</span>, <span class="k">"status"</span>: <span class="s">"active"</span> }
+  ],
+  <span class="k">"ownerId"</span>: <span class="s">"usr_abc123"</span>,
+  <span class="k">"createdAt"</span>: <span class="s">"2026-03-05T10:00:00Z"</span>,
+  <span class="k">"updatedAt"</span>: <span class="s">"2026-03-05T12:00:00Z"</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method put">PUT</span>
+      <span class="api-path">/api/pets/:petId</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">반려동물 정보를 수정합니다. 부분 수정 지원 (전송된 필드만 업데이트).</p>
+      <div class="json-label">Request Body</div>
+      <div class="json-block">{
+  <span class="k">"name"</span>: <span class="s">"보리 (수정)"</span>,
+  <span class="k">"personality"</span>: <span class="s">"활발하고 산책을 좋아함"</span>
+}</div>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"pet_a1b2c3"</span>,
+  <span class="k">"name"</span>: <span class="s">"보리 (수정)"</span>,
+  <span class="k">"personality"</span>: <span class="s">"활발하고 산책을 좋아함"</span>,
+  <span class="k">"updatedAt"</span>: <span class="s">"2026-03-05T15:00:00Z"</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method delete">DELETE</span>
+      <span class="api-path">/api/pets/:petId</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">반려동물을 휴지통으로 이동합니다 (soft delete). 관련 프로필, 영상, 모션도 함께 이동됩니다. 30일 후 자동 영구 삭제.</p>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"message"</span>: <span class="s">"휴지통으로 이동되었습니다."</span>,
+  <span class="k">"trashedAt"</span>: <span class="s">"2026-03-05T15:00:00Z"</span>,
+  <span class="k">"permanentDeleteAt"</span>: <span class="s">"2026-04-04T15:00:00Z"</span>
+}</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 3. PROFILES -->
+<!-- ════════════════════════════════════════ -->
+<div class="section-group" id="profiles">
+  <h2><span class="num" style="background:rgba(240,147,251,0.2);color:var(--accent-pink);">3</span> Profiles - 프로필 관리</h2>
+  <p class="sg-desc">반려동물별 홀로그램 프로필. 각 프로필에는 베이스 영상(3슬롯)과 모션(12슬롯)이 포함됩니다.<br>Base Path: <span class="sg-base">/api/profiles</span></p>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method post">POST</span>
+      <span class="api-path">/api/profiles</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">새 홀로그램 프로필을 생성합니다. 반드시 petId를 지정해야 합니다.</p>
+      <div class="json-label">Request Body</div>
+      <div class="json-block">{
+  <span class="k">"petId"</span>: <span class="s">"pet_a1b2c3"</span>,
+  <span class="k">"name"</span>: <span class="s">"보리 봄 프로필"</span>,
+  <span class="k">"description"</span>: <span class="s">"봄 테마 홀로그램"</span>
+}</div>
+      <div class="json-label">Response 201</div>
+      <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"prf_001"</span>,
+  <span class="k">"petId"</span>: <span class="s">"pet_a1b2c3"</span>,
+  <span class="k">"name"</span>: <span class="s">"보리 봄 프로필"</span>,
+  <span class="k">"description"</span>: <span class="s">"봄 테마 홀로그램"</span>,
+  <span class="k">"baseVideoSlots"</span>: { <span class="k">"max"</span>: <span class="n">3</span>, <span class="k">"used"</span>: <span class="n">0</span> },
+  <span class="k">"motionSlots"</span>: { <span class="k">"max"</span>: <span class="n">12</span>, <span class="k">"used"</span>: <span class="n">0</span> },
+  <span class="k">"status"</span>: <span class="s">"active"</span>,
+  <span class="k">"createdAt"</span>: <span class="s">"2026-03-05T10:00:00Z"</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method get">GET</span>
+      <span class="api-path">/api/profiles?petId=pet_a1b2c3</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">특정 반려동물의 프로필 목록을 조회합니다. petId 쿼리 파라미터 필수.</p>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"profiles"</span>: [
+    {
+      <span class="k">"id"</span>: <span class="s">"prf_001"</span>, <span class="k">"name"</span>: <span class="s">"보리 봄 프로필"</span>,
+      <span class="k">"baseVideoSlots"</span>: { <span class="k">"max"</span>: <span class="n">3</span>, <span class="k">"used"</span>: <span class="n">2</span> },
+      <span class="k">"motionSlots"</span>: { <span class="k">"max"</span>: <span class="n">12</span>, <span class="k">"used"</span>: <span class="n">5</span> },
+      <span class="k">"status"</span>: <span class="s">"active"</span>
+    }
+  ],
+  <span class="k">"total"</span>: <span class="n">1</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method get">GET</span>
+      <span class="api-path">/api/profiles/:profileId</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">프로필 상세 조회. 베이스 영상과 모션 슬롯 현황을 포함합니다.</p>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"prf_001"</span>,
+  <span class="k">"petId"</span>: <span class="s">"pet_a1b2c3"</span>,
+  <span class="k">"name"</span>: <span class="s">"보리 봄 프로필"</span>,
+  <span class="k">"description"</span>: <span class="s">"봄 테마 홀로그램"</span>,
+  <span class="k">"gifUrl"</span>: <span class="s">"https://storage.../gifs/base-videos/bv001.gif"</span>,  <span class="c">// 활성 베이스 영상의 gifUrl 파생</span>
+  <span class="k">"baseVideos"</span>: [
+    { <span class="k">"slotIndex"</span>: <span class="n">0</span>, <span class="k">"id"</span>: <span class="s">"bv_001"</span>, <span class="k">"status"</span>: <span class="s">"active"</span>, <span class="k">"thumbnailUrl"</span>: <span class="s">"..."</span>, <span class="k">"gifUrl"</span>: <span class="s">"..."</span> },
+    { <span class="k">"slotIndex"</span>: <span class="n">1</span>, <span class="k">"id"</span>: <span class="s">"bv_002"</span>, <span class="k">"status"</span>: <span class="s">"generating"</span>, <span class="k">"thumbnailUrl"</span>: <span class="b">null</span>, <span class="k">"gifUrl"</span>: <span class="b">null</span> },
+    { <span class="k">"slotIndex"</span>: <span class="n">2</span>, <span class="k">"id"</span>: <span class="b">null</span>, <span class="k">"status"</span>: <span class="s">"empty"</span> }
+  ],
+  <span class="k">"motions"</span>: [
+    { <span class="k">"slotIndex"</span>: <span class="n">0</span>, <span class="k">"id"</span>: <span class="s">"mot_001"</span>, <span class="k">"label"</span>: <span class="s">"앉기"</span>, <span class="k">"status"</span>: <span class="s">"active"</span>, <span class="k">"gifUrl"</span>: <span class="b">null</span> }
+  ],
+  <span class="k">"status"</span>: <span class="s">"active"</span>,
+  <span class="k">"createdAt"</span>: <span class="s">"2026-03-05T10:00:00Z"</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method put">PUT</span>
+      <span class="api-path">/api/profiles/:profileId</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">프로필 이름/설명을 수정합니다.</p>
+      <div class="json-label">Request Body</div>
+      <div class="json-block">{
+  <span class="k">"name"</span>: <span class="s">"보리 여름 프로필"</span>,
+  <span class="k">"description"</span>: <span class="s">"여름 테마로 변경"</span>
+}</div>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"prf_001"</span>,
+  <span class="k">"name"</span>: <span class="s">"보리 여름 프로필"</span>,
+  <span class="k">"description"</span>: <span class="s">"여름 테마로 변경"</span>,
+  <span class="k">"updatedAt"</span>: <span class="s">"2026-03-05T16:00:00Z"</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method delete">DELETE</span>
+      <span class="api-path">/api/profiles/:profileId</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">프로필을 휴지통으로 이동합니다. 관련 베이스 영상과 모션도 함께 이동됩니다.</p>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"message"</span>: <span class="s">"프로필이 휴지통으로 이동되었습니다."</span>,
+  <span class="k">"trashedAt"</span>: <span class="s">"2026-03-05T16:00:00Z"</span>,
+  <span class="k">"permanentDeleteAt"</span>: <span class="s">"2026-04-04T16:00:00Z"</span>
+}</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 4. BASE VIDEOS -->
+<!-- ════════════════════════════════════════ -->
+<div class="section-group" id="base-videos">
+  <h2><span class="num" style="background:rgba(56,239,125,0.2);color:var(--accent-green);">4</span> Base Videos - 베이스 영상</h2>
+  <p class="sg-desc">홀로그램의 기본 영상(정면 정지 포즈). 프로필당 최대 3슬롯. 생성 시 40크레딧 소모, 삭제 시 20크레딧 환불.<br>Base Path: <span class="sg-base">/api/base-videos</span></p>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method post">POST</span>
+      <span class="api-path">/api/base-videos</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span> <span class="credit-badge">-40C</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">새 베이스 영상 생성을 요청합니다. AI 파이프라인(NanoBanana 이미지 생성 -> Kling 비디오 생성)이 시작됩니다. 40크레딧이 즉시 차감됩니다.</p>
+      <div class="json-label">Request Body</div>
+      <div class="json-block">{
+  <span class="k">"profileId"</span>: <span class="s">"prf_001"</span>,
+  <span class="k">"slotIndex"</span>: <span class="n">0</span>,
+  <span class="k">"sourcePhotoUrl"</span>: <span class="s">"https://storage.../pet_photo.jpg"</span>,
+  <span class="k">"style"</span>: <span class="s">"realistic"</span>,
+  <span class="k">"pose"</span>: <span class="s">"standing_front"</span>
+}</div>
+      <div class="json-label">Response 201</div>
+      <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"bv_003"</span>,
+  <span class="k">"profileId"</span>: <span class="s">"prf_001"</span>,
+  <span class="k">"slotIndex"</span>: <span class="n">0</span>,
+  <span class="k">"status"</span>: <span class="s">"generating_image"</span>,
+  <span class="k">"aiJobId"</span>: <span class="s">"job_img_abc123"</span>,
+  <span class="k">"creditsCharged"</span>: <span class="n">40</span>,
+  <span class="k">"remainingCredits"</span>: <span class="n">160</span>,
+  <span class="k">"estimatedMinutes"</span>: <span class="n">8</span>,
+  <span class="k">"createdAt"</span>: <span class="s">"2026-03-05T10:00:00Z"</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method get">GET</span>
+      <span class="api-path">/api/base-videos?profileId=prf_001</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">프로필에 속한 베이스 영상 목록을 조회합니다. 슬롯 인덱스 순으로 정렬됩니다.</p>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"baseVideos"</span>: [
+    {
+      <span class="k">"id"</span>: <span class="s">"bv_001"</span>, <span class="k">"slotIndex"</span>: <span class="n">0</span>,
+      <span class="k">"status"</span>: <span class="s">"active"</span>,
+      <span class="k">"thumbnailUrl"</span>: <span class="s">"https://storage.../thumb_bv001.jpg"</span>,
+      <span class="k">"videoUrl"</span>: <span class="s">"https://storage.../bv001.mp4"</span>,
+      <span class="k">"gifUrl"</span>: <span class="s">"https://storage.../gifs/base-videos/bv001.gif"</span>,
+      <span class="k">"isActive"</span>: <span class="b">true</span>
+    },
+    {
+      <span class="k">"id"</span>: <span class="s">"bv_002"</span>, <span class="k">"slotIndex"</span>: <span class="n">1</span>,
+      <span class="k">"status"</span>: <span class="s">"generating_video"</span>,
+      <span class="k">"progress"</span>: <span class="n">65</span>,
+      <span class="k">"gifUrl"</span>: <span class="b">null</span>,
+      <span class="k">"isActive"</span>: <span class="b">false</span>
+    }
+  ],
+  <span class="k">"total"</span>: <span class="n">2</span>,
+  <span class="k">"maxSlots"</span>: <span class="n">3</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method get">GET</span>
+      <span class="api-path">/api/base-videos/:baseVideoId</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">베이스 영상의 상세 정보 및 생성 진행 상태를 조회합니다.</p>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"bv_001"</span>,
+  <span class="k">"profileId"</span>: <span class="s">"prf_001"</span>,
+  <span class="k">"slotIndex"</span>: <span class="n">0</span>,
+  <span class="k">"status"</span>: <span class="s">"active"</span>,
+  <span class="k">"thumbnailUrl"</span>: <span class="s">"https://storage.../thumb.jpg"</span>,
+  <span class="k">"videoUrl"</span>: <span class="s">"https://storage.../video.mp4"</span>,
+  <span class="k">"gifUrl"</span>: <span class="s">"https://storage.../gifs/base-videos/bv001.gif"</span>,
+  <span class="k">"sourcePhotoUrl"</span>: <span class="s">"https://storage.../photo.jpg"</span>,
+  <span class="k">"aiGeneratedImageUrl"</span>: <span class="s">"https://storage.../ai_img.png"</span>,
+  <span class="k">"isActive"</span>: <span class="b">true</span>,
+  <span class="k">"duration"</span>: <span class="n">5.0</span>,
+  <span class="k">"resolution"</span>: <span class="s">"1024x1024"</span>,
+  <span class="k">"createdAt"</span>: <span class="s">"2026-03-05T10:00:00Z"</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method patch">PATCH</span>
+      <span class="api-path">/api/base-videos/:baseVideoId/activate</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">해당 슬롯의 베이스 영상을 활성화합니다. 같은 슬롯의 다른 영상은 비활성화됩니다.</p>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"bv_001"</span>,
+  <span class="k">"isActive"</span>: <span class="b">true</span>,
+  <span class="k">"message"</span>: <span class="s">"베이스 영상이 활성화되었습니다."</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method delete">DELETE</span>
+      <span class="api-path">/api/base-videos/:baseVideoId</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span> <span class="credit-badge">+20C 환불</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">베이스 영상을 삭제합니다. 20크레딧이 환불됩니다. 휴지통으로 이동(soft delete).</p>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"message"</span>: <span class="s">"베이스 영상이 삭제되었습니다."</span>,
+  <span class="k">"refundedCredits"</span>: <span class="n">20</span>,
+  <span class="k">"remainingCredits"</span>: <span class="n">180</span>,
+  <span class="k">"trashedAt"</span>: <span class="s">"2026-03-05T15:00:00Z"</span>
+}</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 5. MOTIONS -->
+<!-- ════════════════════════════════════════ -->
+<div class="section-group" id="motions">
+  <h2><span class="num" style="background:rgba(255,167,38,0.2);color:var(--accent-orange);">5</span> Motions - 모션</h2>
+  <p class="sg-desc">홀로그램 모션 애니메이션. 프로필당 최대 12슬롯. 생성 시 40크레딧, 삭제 시 20크레딧 환불. 위치(position) 조정 가능.<br>Base Path: <span class="sg-base">/api/motions</span></p>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method post">POST</span>
+      <span class="api-path">/api/motions</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span> <span class="credit-badge">-40C</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">새 모션을 생성합니다. AI가 반려동물 이미지를 기반으로 동작 영상을 생성합니다. 40크레딧 즉시 차감.</p>
+      <div class="json-label">Request Body</div>
+      <div class="json-block">{
+  <span class="k">"profileId"</span>: <span class="s">"prf_001"</span>,
+  <span class="k">"slotIndex"</span>: <span class="n">0</span>,
+  <span class="k">"motionType"</span>: <span class="s">"sit"</span>,
+  <span class="k">"label"</span>: <span class="s">"앉기"</span>,
+  <span class="k">"sourceImageUrl"</span>: <span class="s">"https://storage.../ai_pet.png"</span>,
+  <span class="k">"prompt"</span>: <span class="s">"golden retriever sitting down gently"</span>
+}</div>
+      <div class="json-label">Response 201</div>
+      <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"mot_001"</span>,
+  <span class="k">"profileId"</span>: <span class="s">"prf_001"</span>,
+  <span class="k">"slotIndex"</span>: <span class="n">0</span>,
+  <span class="k">"label"</span>: <span class="s">"앉기"</span>,
+  <span class="k">"motionType"</span>: <span class="s">"sit"</span>,
+  <span class="k">"status"</span>: <span class="s">"generating"</span>,
+  <span class="k">"aiJobId"</span>: <span class="s">"job_vid_def456"</span>,
+  <span class="k">"creditsCharged"</span>: <span class="n">40</span>,
+  <span class="k">"remainingCredits"</span>: <span class="n">120</span>,
+  <span class="k">"estimatedMinutes"</span>: <span class="n">5</span>,
+  <span class="k">"createdAt"</span>: <span class="s">"2026-03-05T10:00:00Z"</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method get">GET</span>
+      <span class="api-path">/api/motions?profileId=prf_001</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">프로필의 모션 목록을 조회합니다. 슬롯 인덱스 순으로 정렬됩니다.</p>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"motions"</span>: [
+    {
+      <span class="k">"id"</span>: <span class="s">"mot_001"</span>, <span class="k">"slotIndex"</span>: <span class="n">0</span>,
+      <span class="k">"label"</span>: <span class="s">"앉기"</span>, <span class="k">"motionType"</span>: <span class="s">"sit"</span>,
+      <span class="k">"status"</span>: <span class="s">"active"</span>,
+      <span class="k">"thumbnailUrl"</span>: <span class="s">"https://storage.../thumb_mot001.jpg"</span>,
+      <span class="k">"position"</span>: { <span class="k">"x"</span>: <span class="n">0</span>, <span class="k">"y"</span>: <span class="n">0</span>, <span class="k">"scale"</span>: <span class="n">1.0</span> }
+    }
+  ],
+  <span class="k">"total"</span>: <span class="n">1</span>,
+  <span class="k">"maxSlots"</span>: <span class="n">12</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method get">GET</span>
+      <span class="api-path">/api/motions/:motionId</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">모션 상세 정보를 조회합니다. 영상 URL, 위치 정보, 생성 상태 등을 포함.</p>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"mot_001"</span>,
+  <span class="k">"profileId"</span>: <span class="s">"prf_001"</span>,
+  <span class="k">"slotIndex"</span>: <span class="n">0</span>,
+  <span class="k">"label"</span>: <span class="s">"앉기"</span>,
+  <span class="k">"motionType"</span>: <span class="s">"sit"</span>,
+  <span class="k">"status"</span>: <span class="s">"active"</span>,
+  <span class="k">"videoUrl"</span>: <span class="s">"https://storage.../mot001.mp4"</span>,
+  <span class="k">"thumbnailUrl"</span>: <span class="s">"https://storage.../thumb.jpg"</span>,
+  <span class="k">"duration"</span>: <span class="n">3.0</span>,
+  <span class="k">"position"</span>: { <span class="k">"x"</span>: <span class="n">0</span>, <span class="k">"y"</span>: <span class="n">0</span>, <span class="k">"scale"</span>: <span class="n">1.0</span> },
+  <span class="k">"createdAt"</span>: <span class="s">"2026-03-05T10:00:00Z"</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method patch">PATCH</span>
+      <span class="api-path">/api/motions/:motionId/position</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">모션의 홀로그램 프리즘 내 위치(x, y)와 크기(scale)를 조정합니다.</p>
+      <div class="json-label">Request Body</div>
+      <div class="json-block">{
+  <span class="k">"x"</span>: <span class="n">10</span>,
+  <span class="k">"y"</span>: <span class="n">-5</span>,
+  <span class="k">"scale"</span>: <span class="n">1.2</span>
+}</div>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"mot_001"</span>,
+  <span class="k">"position"</span>: { <span class="k">"x"</span>: <span class="n">10</span>, <span class="k">"y"</span>: <span class="n">-5</span>, <span class="k">"scale"</span>: <span class="n">1.2</span> },
+  <span class="k">"message"</span>: <span class="s">"위치가 업데이트되었습니다."</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method delete">DELETE</span>
+      <span class="api-path">/api/motions/:motionId</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span> <span class="credit-badge">+20C 환불</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">모션을 삭제합니다. 20크레딧 환불. 휴지통으로 이동(soft delete).</p>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"message"</span>: <span class="s">"모션이 삭제되었습니다."</span>,
+  <span class="k">"refundedCredits"</span>: <span class="n">20</span>,
+  <span class="k">"remainingCredits"</span>: <span class="n">140</span>,
+  <span class="k">"trashedAt"</span>: <span class="s">"2026-03-05T15:00:00Z"</span>
+}</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 6. AI -->
+<!-- ════════════════════════════════════════ -->
+<div class="section-group" id="ai">
+  <h2><span class="num" style="background:rgba(240,147,251,0.2);color:var(--accent-pink);">6</span> AI - 생성 파이프라인</h2>
+  <p class="sg-desc">Gemini(스타트 프레임 이미지 생성) + Kling(비디오 생성) + ffmpeg(GIF 변환) AI 파이프라인을 관리합니다. 이미지 선택 제한시간: 30분.<br>
+    이미지 입력: URL(펫 등록 사진)과 base64(의상 사진) 혼합 지원 — 백엔드에서 URL→base64 자동 변환.<br>Base Path: <span class="sg-base">/api/ai</span></p>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method post">POST</span>
+      <span class="api-path">/api/ai/generate-image</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">NanoBanana AI를 통해 반려동물 사진 기반 이미지를 생성합니다. 4장의 후보 이미지가 생성됩니다. 베이스 영상/모션 생성 플로우의 첫 단계.</p>
+      <div class="json-label">Request Body</div>
+      <div class="json-block">{
+  <span class="k">"sourcePhotoUrl"</span>: <span class="s">"https://storage.../pet_photo.jpg"</span>,
+  <span class="k">"style"</span>: <span class="s">"realistic"</span>,
+  <span class="k">"pose"</span>: <span class="s">"standing_front"</span>,
+  <span class="k">"petId"</span>: <span class="s">"pet_a1b2c3"</span>,
+  <span class="k">"targetType"</span>: <span class="s">"base_video"</span>
+}</div>
+      <div class="json-label">Response 202</div>
+      <div class="json-block">{
+  <span class="k">"jobId"</span>: <span class="s">"job_img_abc123"</span>,
+  <span class="k">"status"</span>: <span class="s">"processing"</span>,
+  <span class="k">"estimatedSeconds"</span>: <span class="n">30</span>,
+  <span class="k">"message"</span>: <span class="s">"이미지 생성이 시작되었습니다."</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method post">POST</span>
+      <span class="api-path">/api/ai/select-image</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">생성된 4장의 후보 이미지 중 하나를 선택합니다. 선택 제한시간 30분 (초과 시 job 만료). 선택 후 비디오 생성이 자동으로 시작됩니다.</p>
+      <div class="json-label">Request Body</div>
+      <div class="json-block">{
+  <span class="k">"jobId"</span>: <span class="s">"job_img_abc123"</span>,
+  <span class="k">"selectedIndex"</span>: <span class="n">2</span>  <span class="c">// 0-3 중 선택</span>
+}</div>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"jobId"</span>: <span class="s">"job_img_abc123"</span>,
+  <span class="k">"selectedImageUrl"</span>: <span class="s">"https://storage.../selected.png"</span>,
+  <span class="k">"videoJobId"</span>: <span class="s">"job_vid_def456"</span>,
+  <span class="k">"status"</span>: <span class="s">"video_generating"</span>,
+  <span class="k">"message"</span>: <span class="s">"이미지 선택 완료. 비디오 생성이 시작됩니다."</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method post">POST</span>
+      <span class="api-path">/api/ai/regenerate</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span> <span class="credit-badge">-10C</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">현재 이미지 후보가 마음에 들지 않을 때 새로 생성합니다. 10크레딧 추가 차감. 기존 job의 이미지를 교체합니다.</p>
+      <div class="json-label">Request Body</div>
+      <div class="json-block">{
+  <span class="k">"jobId"</span>: <span class="s">"job_img_abc123"</span>,
+  <span class="k">"reason"</span>: <span class="s">"포즈가 다릅니다"</span>  <span class="c">// 선택사항</span>
+}</div>
+      <div class="json-label">Response 202</div>
+      <div class="json-block">{
+  <span class="k">"jobId"</span>: <span class="s">"job_img_abc123"</span>,
+  <span class="k">"status"</span>: <span class="s">"regenerating"</span>,
+  <span class="k">"creditsCharged"</span>: <span class="n">10</span>,
+  <span class="k">"remainingCredits"</span>: <span class="n">110</span>,
+  <span class="k">"regenerateCount"</span>: <span class="n">1</span>,
+  <span class="k">"message"</span>: <span class="s">"이미지를 다시 생성합니다."</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method get">GET</span>
+      <span class="api-path">/api/ai/jobs/:jobId</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">AI 작업의 현재 상태를 폴링합니다. 프론트엔드에서 주기적으로 호출하여 진행률을 확인합니다.</p>
+      <div class="json-label">Response 200 - 이미지 생성 완료</div>
+      <div class="json-block">{
+  <span class="k">"jobId"</span>: <span class="s">"job_img_abc123"</span>,
+  <span class="k">"type"</span>: <span class="s">"image_generation"</span>,
+  <span class="k">"status"</span>: <span class="s">"completed"</span>,
+  <span class="k">"progress"</span>: <span class="n">100</span>,
+  <span class="k">"candidates"</span>: [
+    { <span class="k">"index"</span>: <span class="n">0</span>, <span class="k">"url"</span>: <span class="s">"https://storage.../cand_0.png"</span> },
+    { <span class="k">"index"</span>: <span class="n">1</span>, <span class="k">"url"</span>: <span class="s">"https://storage.../cand_1.png"</span> },
+    { <span class="k">"index"</span>: <span class="n">2</span>, <span class="k">"url"</span>: <span class="s">"https://storage.../cand_2.png"</span> },
+    { <span class="k">"index"</span>: <span class="n">3</span>, <span class="k">"url"</span>: <span class="s">"https://storage.../cand_3.png"</span> }
+  ],
+  <span class="k">"expiresAt"</span>: <span class="s">"2026-03-05T10:30:00Z"</span>,
+  <span class="k">"createdAt"</span>: <span class="s">"2026-03-05T10:00:00Z"</span>
+}</div>
+      <div class="json-label">Response 200 - 비디오 생성 진행 중</div>
+      <div class="json-block">{
+  <span class="k">"jobId"</span>: <span class="s">"job_vid_def456"</span>,
+  <span class="k">"type"</span>: <span class="s">"video_generation"</span>,
+  <span class="k">"status"</span>: <span class="s">"processing"</span>,
+  <span class="k">"progress"</span>: <span class="n">65</span>,
+  <span class="k">"estimatedRemainingSeconds"</span>: <span class="n">120</span>,
+  <span class="k">"createdAt"</span>: <span class="s">"2026-03-05T10:01:00Z"</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method post">POST</span>
+      <span class="api-path">/api/ai/generate-video</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Kling AI를 통해 선택된 이미지를 비디오로 변환합니다. 일반적으로 select-image에서 자동 호출되지만 수동 트리거도 가능합니다.<br>
+        <span style="color:var(--accent-green); font-size:11px;">영상 생성 완료 시 자동으로 GIF 미리보기 생성 (ffmpeg 2-pass palette 최적화) → S3 업로드 → gifUrl 필드 업데이트. GIF 생성 실패 시 영상은 정상 저장, gifUrl만 null.</span></p>
+      <div class="json-label">Request Body</div>
+      <div class="json-block">{
+  <span class="k">"imageUrl"</span>: <span class="s">"https://storage.../selected.png"</span>,
+  <span class="k">"targetType"</span>: <span class="s">"base_video"</span>,
+  <span class="k">"targetId"</span>: <span class="s">"bv_003"</span>,
+  <span class="k">"prompt"</span>: <span class="s">"gentle breathing idle animation, front facing"</span>,
+  <span class="k">"duration"</span>: <span class="n">5</span>
+}</div>
+      <div class="json-label">Response 202</div>
+      <div class="json-block">{
+  <span class="k">"jobId"</span>: <span class="s">"job_vid_ghi789"</span>,
+  <span class="k">"status"</span>: <span class="s">"processing"</span>,
+  <span class="k">"estimatedMinutes"</span>: <span class="n">5</span>,
+  <span class="k">"message"</span>: <span class="s">"비디오 생성이 시작되었습니다."</span>
+}</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 7. MESSENGER -->
+<!-- ════════════════════════════════════════ -->
+<div class="section-group" id="messenger">
+  <h2><span class="num" style="background:rgba(100,200,255,0.2);color:var(--accent-blue);">7</span> Messenger - AI 메신저</h2>
+  <p class="sg-desc">반려동물 AI 메신저. 이모지 전용 응답, 5-30분 랜덤 딜레이로 답장. FCM 푸시 알림 지원.<br>Base Path: <span class="sg-base">/api/messenger</span></p>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method post">POST</span>
+      <span class="api-path">/api/messenger/send</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">반려동물에게 메시지를 보냅니다. AI가 5-30분 사이 랜덤 딜레이 후 이모지로 응답합니다. FCM 푸시 알림이 발송됩니다.</p>
+      <div class="json-label">Request Body</div>
+      <div class="json-block">{
+  <span class="k">"petId"</span>: <span class="s">"pet_a1b2c3"</span>,
+  <span class="k">"message"</span>: <span class="s">"보리야 보고 싶어 💕"</span>,
+  <span class="k">"type"</span>: <span class="s">"text"</span>
+}</div>
+      <div class="json-label">Response 201</div>
+      <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"msg_001"</span>,
+  <span class="k">"petId"</span>: <span class="s">"pet_a1b2c3"</span>,
+  <span class="k">"direction"</span>: <span class="s">"sent"</span>,
+  <span class="k">"message"</span>: <span class="s">"보리야 보고 싶어 💕"</span>,
+  <span class="k">"replyScheduledAt"</span>: <span class="s">"2026-03-05T10:17:00Z"</span>,
+  <span class="k">"createdAt"</span>: <span class="s">"2026-03-05T10:00:00Z"</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method get">GET</span>
+      <span class="api-path">/api/messenger/messages?petId=pet_a1b2c3</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">특정 반려동물과의 메시지 이력을 조회합니다. cursor 기반 페이지네이션. 최신 메시지 먼저.</p>
+      <div class="json-label">Query Parameters</div>
+      <div class="json-block"><span class="k">petId</span>: <span class="s">string</span> (필수)
+<span class="k">cursor</span>: <span class="s">string</span> (선택, 페이지네이션)
+<span class="k">limit</span>: <span class="n">number</span> (선택, 기본 20, 최대 50)</div>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"messages"</span>: [
+    {
+      <span class="k">"id"</span>: <span class="s">"msg_002"</span>,
+      <span class="k">"direction"</span>: <span class="s">"received"</span>,
+      <span class="k">"message"</span>: <span class="s">"🐾💖🌈✨"</span>,
+      <span class="k">"createdAt"</span>: <span class="s">"2026-03-05T10:17:00Z"</span>
+    },
+    {
+      <span class="k">"id"</span>: <span class="s">"msg_001"</span>,
+      <span class="k">"direction"</span>: <span class="s">"sent"</span>,
+      <span class="k">"message"</span>: <span class="s">"보리야 보고 싶어 💕"</span>,
+      <span class="k">"createdAt"</span>: <span class="s">"2026-03-05T10:00:00Z"</span>
+    }
+  ],
+  <span class="k">"nextCursor"</span>: <span class="s">"cursor_abc123"</span>,
+  <span class="k">"hasMore"</span>: <span class="b">true</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method get">GET</span>
+      <span class="api-path">/api/messenger/unread</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">읽지 않은 메시지 수를 반려동물별로 조회합니다. 홈 화면 배지 표시용.</p>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"unreadCounts"</span>: [
+    { <span class="k">"petId"</span>: <span class="s">"pet_a1b2c3"</span>, <span class="k">"petName"</span>: <span class="s">"보리"</span>, <span class="k">"count"</span>: <span class="n">3</span> },
+    { <span class="k">"petId"</span>: <span class="s">"pet_d4e5f6"</span>, <span class="k">"petName"</span>: <span class="s">"나비"</span>, <span class="k">"count"</span>: <span class="n">0</span> }
+  ],
+  <span class="k">"totalUnread"</span>: <span class="n">3</span>
+}</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 8. CREDITS -->
+<!-- ════════════════════════════════════════ -->
+<div class="section-group" id="credits">
+  <h2><span class="num" style="background:rgba(255,215,0,0.2);color:var(--accent-yellow);">8</span> Credits - 크레딧</h2>
+  <p class="sg-desc">크레딧 잔액 및 거래 내역 조회. 크레딧 충전은 Cafe24 웹훅을 통해 자동 처리됩니다 (수동 코드 등록 없음).<br>Base Path: <span class="sg-base">/api/credits</span></p>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method get">GET</span>
+      <span class="api-path">/api/credits/balance</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">현재 사용자의 크레딧 잔액과 등급 정보를 조회합니다.</p>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"balance"</span>: <span class="n">200</span>,
+  <span class="k">"tier"</span>: <span class="s">"silver"</span>,
+  <span class="k">"totalEarned"</span>: <span class="n">500</span>,
+  <span class="k">"totalSpent"</span>: <span class="n">300</span>,
+  <span class="k">"lastChargedAt"</span>: <span class="s">"2026-03-01T12:00:00Z"</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method get">GET</span>
+      <span class="api-path">/api/credits/transactions</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">크레딧 거래 내역을 조회합니다. 충전(Cafe24 주문), 소비(생성), 환불(삭제) 등 모든 유형을 포함합니다.</p>
+      <div class="json-label">Query Parameters</div>
+      <div class="json-block"><span class="k">type</span>: <span class="s">"charge" | "spend" | "refund" | "all"</span> (선택, 기본 "all")
+<span class="k">cursor</span>: <span class="s">string</span> (선택)
+<span class="k">limit</span>: <span class="n">number</span> (선택, 기본 20)</div>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"transactions"</span>: [
+    {
+      <span class="k">"id"</span>: <span class="s">"txn_001"</span>,
+      <span class="k">"type"</span>: <span class="s">"charge"</span>,
+      <span class="k">"amount"</span>: <span class="n">200</span>,
+      <span class="k">"description"</span>: <span class="s">"Cafe24 주문 충전 (주문번호: ORD-2026-001)"</span>,
+      <span class="k">"balanceAfter"</span>: <span class="n">200</span>,
+      <span class="k">"createdAt"</span>: <span class="s">"2026-03-01T12:00:00Z"</span>
+    },
+    {
+      <span class="k">"id"</span>: <span class="s">"txn_002"</span>,
+      <span class="k">"type"</span>: <span class="s">"spend"</span>,
+      <span class="k">"amount"</span>: <span class="n">-40</span>,
+      <span class="k">"description"</span>: <span class="s">"베이스 영상 생성 (보리 봄 프로필)"</span>,
+      <span class="k">"relatedId"</span>: <span class="s">"bv_003"</span>,
+      <span class="k">"balanceAfter"</span>: <span class="n">160</span>,
+      <span class="k">"createdAt"</span>: <span class="s">"2026-03-02T09:00:00Z"</span>
+    },
+    {
+      <span class="k">"id"</span>: <span class="s">"txn_003"</span>,
+      <span class="k">"type"</span>: <span class="s">"refund"</span>,
+      <span class="k">"amount"</span>: <span class="n">20</span>,
+      <span class="k">"description"</span>: <span class="s">"모션 삭제 환불 (앉기)"</span>,
+      <span class="k">"relatedId"</span>: <span class="s">"mot_002"</span>,
+      <span class="k">"balanceAfter"</span>: <span class="n">180</span>,
+      <span class="k">"createdAt"</span>: <span class="s">"2026-03-03T11:00:00Z"</span>
+    }
+  ],
+  <span class="k">"nextCursor"</span>: <span class="s">"cursor_xyz"</span>,
+  <span class="k">"hasMore"</span>: <span class="b">true</span>
+}</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 9. TRASH -->
+<!-- ════════════════════════════════════════ -->
+<div class="section-group" id="trash">
+  <h2><span class="num" style="background:rgba(255,107,107,0.2);color:var(--accent-red);">9</span> Trash - 휴지통</h2>
+  <p class="sg-desc">삭제된 항목 관리. 30일 보관 후 자동 영구 삭제. 복원 시 재결제 필요할 수 있음.<br>Base Path: <span class="sg-base">/api/trash</span></p>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method get">GET</span>
+      <span class="api-path">/api/trash</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">휴지통에 있는 항목 목록을 조회합니다. 유형별 필터링 가능. D-day 카운트다운 포함.</p>
+      <div class="json-label">Query Parameters</div>
+      <div class="json-block"><span class="k">type</span>: <span class="s">"pet" | "profile" | "base_video" | "motion" | "all"</span> (선택, 기본 "all")
+<span class="k">cursor</span>: <span class="s">string</span> (선택)
+<span class="k">limit</span>: <span class="n">number</span> (선택, 기본 20)</div>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"items"</span>: [
+    {
+      <span class="k">"id"</span>: <span class="s">"trash_001"</span>,
+      <span class="k">"type"</span>: <span class="s">"base_video"</span>,
+      <span class="k">"originalId"</span>: <span class="s">"bv_002"</span>,
+      <span class="k">"name"</span>: <span class="s">"보리 베이스 영상 2"</span>,
+      <span class="k">"thumbnailUrl"</span>: <span class="s">"https://storage.../thumb.jpg"</span>,
+      <span class="k">"trashedAt"</span>: <span class="s">"2026-03-01T12:00:00Z"</span>,
+      <span class="k">"permanentDeleteAt"</span>: <span class="s">"2026-03-31T12:00:00Z"</span>,
+      <span class="k">"daysRemaining"</span>: <span class="n">26</span>,
+      <span class="k">"recoveryCredits"</span>: <span class="n">20</span>
+    }
+  ],
+  <span class="k">"total"</span>: <span class="n">1</span>,
+  <span class="k">"nextCursor"</span>: <span class="b">null</span>,
+  <span class="k">"hasMore"</span>: <span class="b">false</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method post">POST</span>
+      <span class="api-path">/api/trash/recover</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span> <span class="credit-badge">크레딧 필요</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">휴지통에서 항목을 복원합니다. 베이스 영상/모션 복원 시 20크레딧이 필요합니다 (삭제 시 환불받은 금액).</p>
+      <div class="json-label">Request Body</div>
+      <div class="json-block">{
+  <span class="k">"trashId"</span>: <span class="s">"trash_001"</span>
+}</div>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"message"</span>: <span class="s">"항목이 복원되었습니다."</span>,
+  <span class="k">"restoredId"</span>: <span class="s">"bv_002"</span>,
+  <span class="k">"restoredType"</span>: <span class="s">"base_video"</span>,
+  <span class="k">"creditsCharged"</span>: <span class="n">20</span>,
+  <span class="k">"remainingCredits"</span>: <span class="n">160</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method delete">DELETE</span>
+      <span class="api-path">/api/trash/:trashId</span>
+      <div class="ep-meta"><span class="auth-badge">AUTH</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">항목을 영구 삭제합니다. 이 작업은 되돌릴 수 없습니다. Storage 파일도 함께 삭제됩니다.</p>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"message"</span>: <span class="s">"영구 삭제되었습니다."</span>,
+  <span class="k">"deletedId"</span>: <span class="s">"trash_001"</span>
+}</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 10. WEBHOOKS -->
+<!-- ════════════════════════════════════════ -->
+<div class="section-group" id="webhooks">
+  <h2><span class="num" style="background:rgba(56,239,125,0.2);color:var(--accent-green);">10</span> Webhooks - Cafe24 연동</h2>
+  <p class="sg-desc">Cafe24 쇼핑몰 주문 웹훅. HMAC-SHA256 서명 검증 필수. 주문 완료 시 크레딧 자동 충전 (코드 생성 없음).<br>Base Path: <span class="sg-base">/api/webhooks</span></p>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method post">POST</span>
+      <span class="api-path">/api/webhooks/cafe24/order</span>
+      <div class="ep-meta"><span class="webhook-badge">HMAC 검증</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">Cafe24 주문 완료 웹훅. HMAC-SHA256 서명으로 요청 진위를 검증합니다. 검증 성공 시 해당 회원의 크레딧을 자동으로 충전합니다. 코드 생성이나 수동 등록 과정이 없습니다.</p>
+      <div class="json-label">Headers (Cafe24 전송)</div>
+      <div class="json-block"><span class="k">X-Cafe24-Hmac-SHA256</span>: <span class="s">"base64_encoded_hmac_signature"</span>
+<span class="k">X-Cafe24-Topic</span>: <span class="s">"orders/create"</span>
+<span class="k">Content-Type</span>: <span class="s">"application/json"</span></div>
+      <div class="json-label">Request Body (Cafe24 전송)</div>
+      <div class="json-block">{
+  <span class="k">"event_no"</span>: <span class="n">12345</span>,
+  <span class="k">"resource"</span>: {
+    <span class="k">"mall_id"</span>: <span class="s">"petholo-shop"</span>,
+    <span class="k">"event_shop_no"</span>: <span class="n">1</span>,
+    <span class="k">"order_id"</span>: <span class="s">"ORD-2026-001"</span>,
+    <span class="k">"member_id"</span>: <span class="s">"member_xyz"</span>,
+    <span class="k">"buyer_email"</span>: <span class="s">"user@example.com"</span>,
+    <span class="k">"payment_amount"</span>: <span class="s">"29000"</span>,
+    <span class="k">"currency"</span>: <span class="s">"KRW"</span>,
+    <span class="k">"items"</span>: [
+      {
+        <span class="k">"product_no"</span>: <span class="n">101</span>,
+        <span class="k">"product_name"</span>: <span class="s">"PetHolo 크레딧 200"</span>,
+        <span class="k">"quantity"</span>: <span class="n">1</span>,
+        <span class="k">"product_price"</span>: <span class="s">"29000"</span>
+      }
+    ],
+    <span class="k">"paid_date"</span>: <span class="s">"2026-03-05T10:00:00+09:00"</span>,
+    <span class="k">"order_status"</span>: <span class="s">"paid"</span>
+  }
+}</div>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"success"</span>: <span class="b">true</span>,
+  <span class="k">"orderId"</span>: <span class="s">"ORD-2026-001"</span>,
+  <span class="k">"creditsCharged"</span>: <span class="n">200</span>,
+  <span class="k">"memberId"</span>: <span class="s">"member_xyz"</span>
+}</div>
+      <div class="json-label">HMAC 검증 로직 (서버 측)</div>
+      <div class="json-block"><span class="c">// Express.js middleware</span>
+<span class="k">const</span> crypto = require(<span class="s">'crypto'</span>);
+
+<span class="k">function</span> verifyHmac(req, res, next) {
+  <span class="k">const</span> signature = req.headers[<span class="s">'x-cafe24-hmac-sha256'</span>];
+  <span class="k">const</span> body = JSON.stringify(req.body);
+  <span class="k">const</span> computed = crypto
+    .createHmac(<span class="s">'sha256'</span>, process.env.CAFE24_WEBHOOK_SECRET)
+    .update(body)
+    .digest(<span class="s">'base64'</span>);
+
+  <span class="k">if</span> (signature !== computed) {
+    <span class="k">return</span> res.status(<span class="n">401</span>).json({ error: <span class="s">'Invalid HMAC'</span> });
+  }
+  next();
+}</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 11. ADMIN -->
+<!-- ════════════════════════════════════════ -->
+<div class="section-group" id="admin">
+  <h2><span class="num" style="background:rgba(255,107,107,0.2);color:var(--accent-red);">11</span> Admin - 관리자</h2>
+  <p class="sg-desc">관리자 전용 API. role="admin" 사용자만 접근 가능. 대시보드 통계, 사용자 관리, 감사 로그 조회.<br>Base Path: <span class="sg-base">/api/admin</span></p>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method get">GET</span>
+      <span class="api-path">/api/admin/dashboard</span>
+      <div class="ep-meta"><span class="admin-badge">ADMIN</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">관리자 대시보드 통계 데이터. 전체 사용자 수, 펫 수, 크레딧 소비량, AI 작업 현황 등.</p>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"stats"</span>: {
+    <span class="k">"totalUsers"</span>: <span class="n">1250</span>,
+    <span class="k">"activeUsers30d"</span>: <span class="n">342</span>,
+    <span class="k">"totalPets"</span>: <span class="n">1890</span>,
+    <span class="k">"totalProfiles"</span>: <span class="n">3200</span>,
+    <span class="k">"totalBaseVideos"</span>: <span class="n">5400</span>,
+    <span class="k">"totalMotions"</span>: <span class="n">12000</span>,
+    <span class="k">"creditsIssuedToday"</span>: <span class="n">4800</span>,
+    <span class="k">"creditsConsumedToday"</span>: <span class="n">2400</span>,
+    <span class="k">"activeAiJobs"</span>: <span class="n">15</span>,
+    <span class="k">"failedAiJobs24h"</span>: <span class="n">2</span>
+  },
+  <span class="k">"recentOrders"</span>: <span class="n">48</span>,
+  <span class="k">"generatedAt"</span>: <span class="s">"2026-03-05T10:00:00Z"</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method get">GET</span>
+      <span class="api-path">/api/admin/users</span>
+      <div class="ep-meta"><span class="admin-badge">ADMIN</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">사용자 목록을 조회합니다. 검색, 등급 필터, 정렬 지원.</p>
+      <div class="json-label">Query Parameters</div>
+      <div class="json-block"><span class="k">search</span>: <span class="s">string</span> (선택, 이름/이메일 검색)
+<span class="k">tier</span>: <span class="s">"silver" | "bronze" | "all"</span> (선택)
+<span class="k">sortBy</span>: <span class="s">"createdAt" | "credits" | "lastLoginAt"</span> (선택)
+<span class="k">cursor</span>: <span class="s">string</span> (선택)
+<span class="k">limit</span>: <span class="n">number</span> (선택, 기본 20)</div>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"users"</span>: [
+    {
+      <span class="k">"uid"</span>: <span class="s">"usr_abc123"</span>,
+      <span class="k">"email"</span>: <span class="s">"user@example.com"</span>,
+      <span class="k">"displayName"</span>: <span class="s">"홍길동"</span>,
+      <span class="k">"tier"</span>: <span class="s">"silver"</span>,
+      <span class="k">"credits"</span>: <span class="n">200</span>,
+      <span class="k">"petCount"</span>: <span class="n">2</span>,
+      <span class="k">"lastLoginAt"</span>: <span class="s">"2026-03-05T14:30:00Z"</span>,
+      <span class="k">"createdAt"</span>: <span class="s">"2026-01-15T09:00:00Z"</span>
+    }
+  ],
+  <span class="k">"total"</span>: <span class="n">1250</span>,
+  <span class="k">"nextCursor"</span>: <span class="s">"cursor_xyz"</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method patch">PATCH</span>
+      <span class="api-path">/api/admin/users/:uid</span>
+      <div class="ep-meta"><span class="admin-badge">ADMIN</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">사용자 정보를 수정합니다 (등급 변경, 크레딧 조정, 계정 상태 변경).</p>
+      <div class="json-label">Request Body</div>
+      <div class="json-block">{
+  <span class="k">"tier"</span>: <span class="s">"silver"</span>,
+  <span class="k">"creditAdjustment"</span>: <span class="n">100</span>,
+  <span class="k">"adjustmentReason"</span>: <span class="s">"CS 보상 크레딧 지급"</span>,
+  <span class="k">"status"</span>: <span class="s">"active"</span>
+}</div>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"uid"</span>: <span class="s">"usr_abc123"</span>,
+  <span class="k">"tier"</span>: <span class="s">"silver"</span>,
+  <span class="k">"credits"</span>: <span class="n">300</span>,
+  <span class="k">"status"</span>: <span class="s">"active"</span>,
+  <span class="k">"message"</span>: <span class="s">"사용자 정보가 업데이트되었습니다."</span>
+}</div>
+    </div>
+  </div>
+
+  <div class="ep">
+    <div class="ep-header">
+      <span class="api-method get">GET</span>
+      <span class="api-path">/api/admin/audit-log</span>
+      <div class="ep-meta"><span class="admin-badge">ADMIN</span></div>
+    </div>
+    <div class="ep-body">
+      <p class="ep-desc">시스템 감사 로그를 조회합니다. 관리자 작업, 크레딧 변동, 중요 이벤트 등을 기록합니다.</p>
+      <div class="json-label">Query Parameters</div>
+      <div class="json-block"><span class="k">action</span>: <span class="s">"credit_adjust" | "tier_change" | "user_suspend" | "all"</span> (선택)
+<span class="k">actorId</span>: <span class="s">string</span> (선택, 작업 수행자 UID)
+<span class="k">targetId</span>: <span class="s">string</span> (선택, 대상 UID)
+<span class="k">from</span>: <span class="s">string</span> (선택, ISO 8601 날짜)
+<span class="k">to</span>: <span class="s">string</span> (선택, ISO 8601 날짜)
+<span class="k">cursor</span>: <span class="s">string</span> (선택)
+<span class="k">limit</span>: <span class="n">number</span> (선택, 기본 50)</div>
+      <div class="json-label">Response 200</div>
+      <div class="json-block">{
+  <span class="k">"logs"</span>: [
+    {
+      <span class="k">"id"</span>: <span class="s">"log_001"</span>,
+      <span class="k">"action"</span>: <span class="s">"credit_adjust"</span>,
+      <span class="k">"actor"</span>: { <span class="k">"uid"</span>: <span class="s">"admin_001"</span>, <span class="k">"name"</span>: <span class="s">"관리자1"</span> },
+      <span class="k">"target"</span>: { <span class="k">"uid"</span>: <span class="s">"usr_abc123"</span>, <span class="k">"name"</span>: <span class="s">"홍길동"</span> },
+      <span class="k">"details"</span>: { <span class="k">"amount"</span>: <span class="n">100</span>, <span class="k">"reason"</span>: <span class="s">"CS 보상"</span> },
+      <span class="k">"ip"</span>: <span class="s">"203.xxx.xxx.xxx"</span>,
+      <span class="k">"createdAt"</span>: <span class="s">"2026-03-05T10:00:00Z"</span>
+    }
+  ],
+  <span class="k">"total"</span>: <span class="n">156</span>,
+  <span class="k">"nextCursor"</span>: <span class="s">"cursor_log"</span>
+}</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- AUTH FLOW DIAGRAM -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="section-group" id="auth-flow">
+  <h2 style="color:var(--accent-cyan);">Auth Flow Diagram</h2>
+  <p class="sg-desc">Cafe24 SSO -> Token Exchange -> JWT 발급 인증 플로우</p>
+
+  <div class="flow-box">
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;font-weight:600;">1. 사용자 로그인 (Cafe24 SSO)</p>
+    <div class="flow-row">
+      <span class="fs cafe24">Cafe24 Shop</span>
+      <span class="fa">-></span>
+      <span class="fs frontend">사용자 로그인 클릭</span>
+      <span class="fa">-></span>
+      <span class="fs cafe24">Cafe24 OAuth 페이지</span>
+      <span class="fa">-></span>
+      <span class="fs cafe24">Authorization Code 발급</span>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);margin:14px 0;font-weight:600;">2. 토큰 교환</p>
+    <div class="flow-row">
+      <span class="fs frontend">Frontend Callback</span>
+      <span class="fa">-></span>
+      <span class="fs backend">POST /api/auth/cafe24</span>
+      <span class="fa">-></span>
+      <span class="fs cafe24">Cafe24 Token API</span>
+      <span class="fa">-></span>
+      <span class="fs backend">회원 정보 조회</span>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);margin:14px 0;font-weight:600;">3. JWT 발급 & 세션 생성</p>
+    <div class="flow-row">
+      <span class="fs backend">사용자 조회/생성</span>
+      <span class="fa">-></span>
+      <span class="fs db">Firestore users</span>
+      <span class="fa">-></span>
+      <span class="fs backend">JWT 생성 (Access+Refresh)</span>
+      <span class="fa">-></span>
+      <span class="fs frontend">토큰 저장 (httpOnly cookie)</span>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);margin:14px 0;font-weight:600;">4. API 요청 인증</p>
+    <div class="flow-row">
+      <span class="fs frontend">API 요청 + Bearer Token</span>
+      <span class="fa">-></span>
+      <span class="fs backend">JWT 검증 미들웨어</span>
+      <span class="fa">-></span>
+      <span class="fs backend">req.user 설정</span>
+      <span class="fa">-></span>
+      <span class="fs backend">라우터 핸들러 실행</span>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);margin:14px 0;font-weight:600;">5. 크레딧 자동 충전 (웹훅)</p>
+    <div class="flow-row">
+      <span class="fs cafe24">Cafe24 주문 완료</span>
+      <span class="fa">-></span>
+      <span class="fs cafe24">Webhook POST</span>
+      <span class="fa">-></span>
+      <span class="fs backend">HMAC 검증</span>
+      <span class="fa">-></span>
+      <span class="fs db">크레딧 자동 충전</span>
+      <span class="fa">-></span>
+      <span class="fs ext">FCM 알림</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- ERROR FORMAT -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="section-group" id="errors">
+  <h2 style="color:var(--accent-red);">Error Response Format</h2>
+  <p class="sg-desc">모든 에러는 통일된 JSON 형식으로 반환됩니다.</p>
+
+  <div class="json-label">Error Response Structure</div>
+  <div class="json-block">{
+  <span class="k">"error"</span>: {
+    <span class="k">"code"</span>: <span class="s">"INSUFFICIENT_CREDITS"</span>,
+    <span class="k">"message"</span>: <span class="s">"크레딧이 부족합니다. (필요: 40, 보유: 20)"</span>,
+    <span class="k">"details"</span>: {
+      <span class="k">"required"</span>: <span class="n">40</span>,
+      <span class="k">"available"</span>: <span class="n">20</span>
+    },
+    <span class="k">"statusCode"</span>: <span class="n">402</span>,
+    <span class="k">"timestamp"</span>: <span class="s">"2026-03-05T10:00:00Z"</span>,
+    <span class="k">"requestId"</span>: <span class="s">"req_xyz789"</span>
+  }
+}</div>
+
+  <table class="mw-table" style="margin-top:16px;">
+    <thead><tr><th>Status</th><th>Code</th><th>Description (Korean)</th></tr></thead>
+    <tbody>
+      <tr><td><code>400</code></td><td><code>VALIDATION_ERROR</code></td><td>요청 데이터 유효성 검사 실패</td></tr>
+      <tr><td><code>401</code></td><td><code>UNAUTHORIZED</code></td><td>인증 토큰 없음 또는 만료</td></tr>
+      <tr><td><code>401</code></td><td><code>TOKEN_EXPIRED</code></td><td>Access Token 만료 (refresh 필요)</td></tr>
+      <tr><td><code>401</code></td><td><code>INVALID_HMAC</code></td><td>웹훅 HMAC 서명 검증 실패</td></tr>
+      <tr><td><code>402</code></td><td><code>INSUFFICIENT_CREDITS</code></td><td>크레딧 부족</td></tr>
+      <tr><td><code>403</code></td><td><code>FORBIDDEN</code></td><td>접근 권한 없음 (admin 전용 등)</td></tr>
+      <tr><td><code>404</code></td><td><code>NOT_FOUND</code></td><td>리소스를 찾을 수 없음</td></tr>
+      <tr><td><code>409</code></td><td><code>SLOT_OCCUPIED</code></td><td>슬롯이 이미 사용 중</td></tr>
+      <tr><td><code>409</code></td><td><code>DUPLICATE_ENTRY</code></td><td>중복된 항목</td></tr>
+      <tr><td><code>410</code></td><td><code>JOB_EXPIRED</code></td><td>AI 작업 만료 (이미지 선택 30분 초과)</td></tr>
+      <tr><td><code>422</code></td><td><code>MAX_PETS_REACHED</code></td><td>최대 반려동물 수 초과 (5마리)</td></tr>
+      <tr><td><code>422</code></td><td><code>MAX_SLOTS_REACHED</code></td><td>슬롯 수 초과 (베이스 3/모션 12)</td></tr>
+      <tr><td><code>429</code></td><td><code>RATE_LIMITED</code></td><td>요청 제한 초과</td></tr>
+      <tr><td><code>500</code></td><td><code>INTERNAL_ERROR</code></td><td>서버 내부 오류</td></tr>
+      <tr><td><code>503</code></td><td><code>AI_SERVICE_UNAVAILABLE</code></td><td>AI 서비스 일시 중단</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- RATE LIMITING -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="section-group" id="rate-limit">
+  <h2 style="color:var(--accent-orange);">Rate Limiting</h2>
+  <p class="sg-desc">API 남용 방지를 위한 요청 제한 정책. IP + User 기반 복합 제한.</p>
+
+  <table class="mw-table">
+    <thead><tr><th>Endpoint Group</th><th>Window</th><th>Max Requests</th><th>Description (Korean)</th></tr></thead>
+    <tbody>
+      <tr><td>General API</td><td>1분</td><td>60</td><td>일반 API 호출 제한</td></tr>
+      <tr><td><code>/api/auth/*</code></td><td>15분</td><td>10</td><td>인증 관련 (로그인 시도 제한)</td></tr>
+      <tr><td><code>/api/ai/*</code></td><td>1시간</td><td>20</td><td>AI 생성 요청 제한</td></tr>
+      <tr><td><code>/api/messenger/send</code></td><td>1분</td><td>5</td><td>메시지 전송 제한</td></tr>
+      <tr><td><code>/api/webhooks/*</code></td><td>1분</td><td>100</td><td>웹훅 수신 제한 (Cafe24 IP)</td></tr>
+      <tr><td><code>/api/admin/*</code></td><td>1분</td><td>30</td><td>관리자 API 제한</td></tr>
+    </tbody>
+  </table>
+
+  <div class="json-label">Rate Limit Response Headers</div>
+  <div class="json-block"><span class="k">X-RateLimit-Limit</span>: <span class="n">60</span>
+<span class="k">X-RateLimit-Remaining</span>: <span class="n">45</span>
+<span class="k">X-RateLimit-Reset</span>: <span class="n">1741176060</span>  <span class="c">// Unix timestamp</span>
+<span class="k">Retry-After</span>: <span class="n">30</span>           <span class="c">// 429 응답 시 포함 (초)</span></div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- FIRESTORE SCHEMA -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="section-group" id="firestore">
+  <h2 style="color:var(--accent-orange);">Firestore Collections Schema</h2>
+  <p class="sg-desc">Firebase Firestore 데이터 모델. 각 컬렉션과 서브컬렉션 구조를 정의합니다.</p>
+
+  <div class="schema-block">
+    <h4>users</h4>
+    <div class="path">Collection: /users/{uid}</div>
+    <div class="json-block">{
+  <span class="k">"uid"</span>: <span class="s">"string"</span>,
+  <span class="k">"cafe24MemberId"</span>: <span class="s">"string"</span>,
+  <span class="k">"email"</span>: <span class="s">"string"</span>,
+  <span class="k">"displayName"</span>: <span class="s">"string"</span>,
+  <span class="k">"tier"</span>: <span class="s">"silver | bronze"</span>,
+  <span class="k">"credits"</span>: <span class="s">"number"</span>,
+  <span class="k">"role"</span>: <span class="s">"user | admin"</span>,
+  <span class="k">"fcmToken"</span>: <span class="s">"string | null"</span>,
+  <span class="k">"refreshTokenHash"</span>: <span class="s">"string"</span>,
+  <span class="k">"lastLoginAt"</span>: <span class="s">"Timestamp"</span>,
+  <span class="k">"createdAt"</span>: <span class="s">"Timestamp"</span>,
+  <span class="k">"updatedAt"</span>: <span class="s">"Timestamp"</span>
+}</div>
+  </div>
+
+  <div class="schema-block">
+    <h4>pets</h4>
+    <div class="path">Collection: /pets/{petId}</div>
+    <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"string"</span>,
+  <span class="k">"ownerId"</span>: <span class="s">"string (ref: users)"</span>,
+  <span class="k">"name"</span>: <span class="s">"string"</span>,
+  <span class="k">"species"</span>: <span class="s">"dog | cat | bird | etc"</span>,
+  <span class="k">"breed"</span>: <span class="s">"string"</span>,
+  <span class="k">"frontPhoto"</span>: <span class="s">"string (Storage URL)"</span>,
+  <span class="k">"sidePhoto"</span>: <span class="s">"string (Storage URL)"</span>,
+  <span class="k">"birthDate"</span>: <span class="s">"string (YYYY-MM-DD)"</span>,
+  <span class="k">"passedDate"</span>: <span class="s">"string (YYYY-MM-DD)"</span>,
+  <span class="k">"photos"</span>: <span class="s">"string[] (Storage URLs)"</span>,
+  <span class="k">"personality"</span>: <span class="s">"string"</span>,
+  <span class="k">"profileCount"</span>: <span class="s">"number"</span>,
+  <span class="k">"isDeleted"</span>: <span class="s">"boolean"</span>,
+  <span class="k">"trashedAt"</span>: <span class="s">"Timestamp | null"</span>,
+  <span class="k">"createdAt"</span>: <span class="s">"Timestamp"</span>,
+  <span class="k">"updatedAt"</span>: <span class="s">"Timestamp"</span>
+}</div>
+  </div>
+
+  <div class="schema-block">
+    <h4>profiles</h4>
+    <div class="path">Collection: /profiles/{profileId}</div>
+    <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"string"</span>,
+  <span class="k">"petId"</span>: <span class="s">"string (ref: pets)"</span>,
+  <span class="k">"ownerId"</span>: <span class="s">"string (ref: users)"</span>,
+  <span class="k">"name"</span>: <span class="s">"string"</span>,
+  <span class="k">"description"</span>: <span class="s">"string"</span>,
+  <span class="k">"status"</span>: <span class="s">"active | trashed"</span>,
+  <span class="k">"isDeleted"</span>: <span class="s">"boolean"</span>,
+  <span class="k">"trashedAt"</span>: <span class="s">"Timestamp | null"</span>,
+  <span class="k">"createdAt"</span>: <span class="s">"Timestamp"</span>,
+  <span class="k">"updatedAt"</span>: <span class="s">"Timestamp"</span>
+}</div>
+  </div>
+
+  <div class="schema-block">
+    <h4>baseVideos</h4>
+    <div class="path">Collection: /baseVideos/{baseVideoId}</div>
+    <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"string"</span>,
+  <span class="k">"profileId"</span>: <span class="s">"string (ref: profiles)"</span>,
+  <span class="k">"ownerId"</span>: <span class="s">"string (ref: users)"</span>,
+  <span class="k">"slotIndex"</span>: <span class="s">"number (0-2)"</span>,
+  <span class="k">"status"</span>: <span class="s">"generating_image | selecting | generating_video | active | failed | trashed"</span>,
+  <span class="k">"isActive"</span>: <span class="s">"boolean"</span>,
+  <span class="k">"sourcePhotoUrl"</span>: <span class="s">"string"</span>,
+  <span class="k">"aiGeneratedImageUrl"</span>: <span class="s">"string | null"</span>,
+  <span class="k">"videoUrl"</span>: <span class="s">"string | null"</span>,
+  <span class="k">"gifUrl"</span>: <span class="s">"string | null"</span>,  <span class="c">// GIF 미리보기 URL (ffmpeg 2-pass palette, 160×216px 3s 10fps)</span>
+  <span class="k">"thumbnailUrl"</span>: <span class="s">"string | null"</span>,
+  <span class="k">"aiJobId"</span>: <span class="s">"string | null"</span>,
+  <span class="k">"duration"</span>: <span class="s">"number"</span>,
+  <span class="k">"resolution"</span>: <span class="s">"string"</span>,
+  <span class="k">"isDeleted"</span>: <span class="s">"boolean"</span>,
+  <span class="k">"trashedAt"</span>: <span class="s">"Timestamp | null"</span>,
+  <span class="k">"createdAt"</span>: <span class="s">"Timestamp"</span>
+}</div>
+  </div>
+
+  <div class="schema-block">
+    <h4>motions</h4>
+    <div class="path">Collection: /motions/{motionId}</div>
+    <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"string"</span>,
+  <span class="k">"profileId"</span>: <span class="s">"string (ref: profiles)"</span>,
+  <span class="k">"ownerId"</span>: <span class="s">"string (ref: users)"</span>,
+  <span class="k">"slotIndex"</span>: <span class="s">"number (0-11)"</span>,
+  <span class="k">"label"</span>: <span class="s">"string"</span>,
+  <span class="k">"motionType"</span>: <span class="s">"sit | walk | run | shake | bark | sleep | etc"</span>,
+  <span class="k">"status"</span>: <span class="s">"generating | active | failed | trashed"</span>,
+  <span class="k">"videoUrl"</span>: <span class="s">"string | null"</span>,
+  <span class="k">"gifUrl"</span>: <span class="s">"string | null"</span>,  <span class="c">// GIF 미리보기 URL (ffmpeg 2-pass palette, 120×120px 2s 10fps)</span>
+  <span class="k">"thumbnailUrl"</span>: <span class="s">"string | null"</span>,
+  <span class="k">"position"</span>: <span class="s">"{ x: number, y: number, scale: number }"</span>,
+  <span class="k">"aiJobId"</span>: <span class="s">"string | null"</span>,
+  <span class="k">"duration"</span>: <span class="s">"number"</span>,
+  <span class="k">"isDeleted"</span>: <span class="s">"boolean"</span>,
+  <span class="k">"trashedAt"</span>: <span class="s">"Timestamp | null"</span>,
+  <span class="k">"createdAt"</span>: <span class="s">"Timestamp"</span>
+}</div>
+  </div>
+
+  <div class="schema-block">
+    <h4>creditTransactions</h4>
+    <div class="path">Collection: /creditTransactions/{txnId}</div>
+    <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"string"</span>,
+  <span class="k">"userId"</span>: <span class="s">"string (ref: users)"</span>,
+  <span class="k">"type"</span>: <span class="s">"charge | spend | refund | admin_adjust"</span>,
+  <span class="k">"amount"</span>: <span class="s">"number (positive: add, negative: deduct)"</span>,
+  <span class="k">"balanceAfter"</span>: <span class="s">"number"</span>,
+  <span class="k">"description"</span>: <span class="s">"string"</span>,
+  <span class="k">"relatedId"</span>: <span class="s">"string | null"</span>,
+  <span class="k">"cafe24OrderId"</span>: <span class="s">"string | null"</span>,
+  <span class="k">"createdAt"</span>: <span class="s">"Timestamp"</span>
+}</div>
+  </div>
+
+  <div class="schema-block">
+    <h4>messages</h4>
+    <div class="path">Collection: /messages/{messageId}</div>
+    <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"string"</span>,
+  <span class="k">"petId"</span>: <span class="s">"string (ref: pets)"</span>,
+  <span class="k">"userId"</span>: <span class="s">"string (ref: users)"</span>,
+  <span class="k">"direction"</span>: <span class="s">"sent | received"</span>,
+  <span class="k">"message"</span>: <span class="s">"string"</span>,
+  <span class="k">"type"</span>: <span class="s">"text | emoji"</span>,
+  <span class="k">"isRead"</span>: <span class="s">"boolean"</span>,
+  <span class="k">"replyScheduledAt"</span>: <span class="s">"Timestamp | null"</span>,
+  <span class="k">"createdAt"</span>: <span class="s">"Timestamp"</span>
+}</div>
+  </div>
+
+  <div class="schema-block">
+    <h4>aiJobs</h4>
+    <div class="path">Collection: /aiJobs/{jobId}</div>
+    <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"string"</span>,
+  <span class="k">"userId"</span>: <span class="s">"string (ref: users)"</span>,
+  <span class="k">"type"</span>: <span class="s">"image_generation | video_generation"</span>,
+  <span class="k">"status"</span>: <span class="s">"processing | completed | failed | expired"</span>,
+  <span class="k">"progress"</span>: <span class="s">"number (0-100)"</span>,
+  <span class="k">"targetType"</span>: <span class="s">"base_video | motion"</span>,
+  <span class="k">"targetId"</span>: <span class="s">"string"</span>,
+  <span class="k">"candidates"</span>: <span class="s">"{ index: number, url: string }[]"</span>,
+  <span class="k">"selectedIndex"</span>: <span class="s">"number | null"</span>,
+  <span class="k">"expiresAt"</span>: <span class="s">"Timestamp"</span>,
+  <span class="k">"externalJobId"</span>: <span class="s">"string (NanoBanana/Kling job ID)"</span>,
+  <span class="k">"errorMessage"</span>: <span class="s">"string | null"</span>,
+  <span class="k">"createdAt"</span>: <span class="s">"Timestamp"</span>,
+  <span class="k">"completedAt"</span>: <span class="s">"Timestamp | null"</span>
+}</div>
+  </div>
+
+  <div class="schema-block">
+    <h4>auditLogs</h4>
+    <div class="path">Collection: /auditLogs/{logId}</div>
+    <div class="json-block">{
+  <span class="k">"id"</span>: <span class="s">"string"</span>,
+  <span class="k">"action"</span>: <span class="s">"string"</span>,
+  <span class="k">"actorId"</span>: <span class="s">"string (ref: users)"</span>,
+  <span class="k">"targetId"</span>: <span class="s">"string | null"</span>,
+  <span class="k">"details"</span>: <span class="s">"object"</span>,
+  <span class="k">"ip"</span>: <span class="s">"string"</span>,
+  <span class="k">"userAgent"</span>: <span class="s">"string"</span>,
+  <span class="k">"createdAt"</span>: <span class="s">"Timestamp"</span>
+}</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- MIDDLEWARE PIPELINE -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="section-group" id="middleware">
+  <h2 style="color:var(--accent-purple);">Middleware Pipeline</h2>
+  <p class="sg-desc">Express.js 요청 처리 파이프라인. 모든 요청은 아래 순서대로 미들웨어를 통과합니다.</p>
+
+  <div class="flow-box">
+    <div class="flow-row">
+      <span class="fs backend">Request In</span>
+      <span class="fa">-></span>
+      <span class="fs" style="background:rgba(255,107,107,0.12);color:var(--accent-red);border-color:rgba(255,107,107,0.25);">Helmet (Security Headers)</span>
+      <span class="fa">-></span>
+      <span class="fs" style="background:rgba(255,215,0,0.12);color:var(--accent-yellow);border-color:rgba(255,215,0,0.25);">CORS</span>
+      <span class="fa">-></span>
+      <span class="fs" style="background:rgba(255,167,38,0.12);color:var(--accent-orange);border-color:rgba(255,167,38,0.25);">Rate Limiter</span>
+    </div>
+    <div class="flow-row">
+      <span class="fa">-></span>
+      <span class="fs" style="background:rgba(100,200,255,0.12);color:var(--accent-blue);border-color:rgba(100,200,255,0.25);">Body Parser (JSON)</span>
+      <span class="fa">-></span>
+      <span class="fs" style="background:rgba(102,126,234,0.12);color:var(--accent-purple);border-color:rgba(102,126,234,0.25);">Request Logger (Morgan)</span>
+      <span class="fa">-></span>
+      <span class="fs" style="background:rgba(240,147,251,0.12);color:var(--accent-pink);border-color:rgba(240,147,251,0.25);">Request ID (uuid)</span>
+    </div>
+    <div class="flow-row">
+      <span class="fa">-></span>
+      <span class="fs cafe24">Auth Middleware (JWT)</span>
+      <span class="fa">-></span>
+      <span class="fs" style="background:rgba(255,107,107,0.12);color:var(--accent-red);border-color:rgba(255,107,107,0.25);">Role Check (Admin)</span>
+      <span class="fa">-></span>
+      <span class="fs" style="background:rgba(100,200,255,0.12);color:var(--accent-blue);border-color:rgba(100,200,255,0.25);">Zod Validation</span>
+    </div>
+    <div class="flow-row">
+      <span class="fa">-></span>
+      <span class="fs backend">Route Handler</span>
+      <span class="fa">-></span>
+      <span class="fs" style="background:rgba(255,167,38,0.12);color:var(--accent-orange);border-color:rgba(255,167,38,0.25);">Error Handler</span>
+      <span class="fa">-></span>
+      <span class="fs backend">Response Out</span>
+    </div>
+  </div>
+
+  <table class="mw-table">
+    <thead><tr><th>Middleware</th><th>Package</th><th>Description (Korean)</th></tr></thead>
+    <tbody>
+      <tr><td><code>helmet()</code></td><td>helmet</td><td>보안 HTTP 헤더 설정 (XSS, MIME sniffing 방지)</td></tr>
+      <tr><td><code>cors()</code></td><td>cors</td><td>Cross-Origin 요청 허용 (허용 도메인 제한)</td></tr>
+      <tr><td><code>rateLimit()</code></td><td>express-rate-limit</td><td>IP/사용자 기반 요청 속도 제한</td></tr>
+      <tr><td><code>express.json()</code></td><td>express</td><td>JSON 요청 본문 파싱 (10mb 제한)</td></tr>
+      <tr><td><code>morgan()</code></td><td>morgan</td><td>HTTP 요청 로깅 (combined format)</td></tr>
+      <tr><td><code>requestId()</code></td><td>uuid</td><td>요청별 고유 ID 생성 (추적 용도)</td></tr>
+      <tr><td><code>authenticate()</code></td><td>custom</td><td>JWT 검증 및 req.user 설정</td></tr>
+      <tr><td><code>requireAdmin()</code></td><td>custom</td><td>role="admin" 확인 (관리자 전용)</td></tr>
+      <tr><td><code>validate(schema)</code></td><td>zod</td><td>Zod 스키마 기반 요청 유효성 검사</td></tr>
+      <tr><td><code>verifyHmac()</code></td><td>custom</td><td>Cafe24 웹훅 HMAC-SHA256 서명 검증</td></tr>
+      <tr><td><code>errorHandler()</code></td><td>custom</td><td>통합 에러 핸들러 (에러 포맷 변환 & 로깅)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="json-label">Middleware Registration (app.ts)</div>
+  <div class="json-block"><span class="c">// Express.js 5 middleware pipeline</span>
+<span class="k">import</span> express <span class="k">from</span> <span class="s">'express'</span>;
+<span class="k">import</span> helmet <span class="k">from</span> <span class="s">'helmet'</span>;
+<span class="k">import</span> cors <span class="k">from</span> <span class="s">'cors'</span>;
+<span class="k">import</span> { rateLimit } <span class="k">from</span> <span class="s">'express-rate-limit'</span>;
+<span class="k">import</span> morgan <span class="k">from</span> <span class="s">'morgan'</span>;
+
+<span class="k">const</span> app = express();
+
+<span class="c">// 1. Security</span>
+app.use(helmet());
+app.use(cors({ origin: process.env.ALLOWED_ORIGINS.split(<span class="s">','</span>) }));
+
+<span class="c">// 2. Rate Limiting</span>
+app.use(rateLimit({ windowMs: <span class="n">60_000</span>, max: <span class="n">60</span> }));
+
+<span class="c">// 3. Body Parsing</span>
+app.use(express.json({ limit: <span class="s">'10mb'</span> }));
+
+<span class="c">// 4. Logging</span>
+app.use(morgan(<span class="s">'combined'</span>));
+app.use(requestIdMiddleware());
+
+<span class="c">// 5. Routes</span>
+app.use(<span class="s">'/api/auth'</span>, authRouter);
+app.use(<span class="s">'/api/pets'</span>, authenticate, petsRouter);
+app.use(<span class="s">'/api/profiles'</span>, authenticate, profilesRouter);
+app.use(<span class="s">'/api/base-videos'</span>, authenticate, baseVideosRouter);
+app.use(<span class="s">'/api/motions'</span>, authenticate, motionsRouter);
+app.use(<span class="s">'/api/ai'</span>, authenticate, aiRouter);
+app.use(<span class="s">'/api/messenger'</span>, authenticate, messengerRouter);
+app.use(<span class="s">'/api/credits'</span>, authenticate, creditsRouter);
+app.use(<span class="s">'/api/trash'</span>, authenticate, trashRouter);
+app.use(<span class="s">'/api/webhooks'</span>, webhooksRouter);  <span class="c">// HMAC 검증 자체 미들웨어</span>
+app.use(<span class="s">'/api/admin'</span>, authenticate, requireAdmin, adminRouter);
+
+<span class="c">// 6. Error Handler</span>
+app.use(errorHandler);</div>
+</div>
+
+<!-- Footer -->
+<div style="text-align:center;padding:40px 0;border-top:1px solid rgba(255,255,255,0.04);margin-top:40px;">
+  <p style="font-size:12px;color:var(--text-muted);line-height:1.8;">
+    PetHolo Backend API Specification v1.0<br>
+    Express.js 5 + Firebase Firestore | Cafe24 SSO Authentication<br>
+    Total Endpoints: 35+ | Last Updated: 2026-03-05
+  </p>
+</div>
+
+</div><!-- /mockup-page -->
+</body>
+</html>

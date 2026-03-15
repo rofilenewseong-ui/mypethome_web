@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PetHolo - Mockup & Documentation Hub</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    body {
+      background: var(--bg-primary);
+      min-height: 100vh;
+    }
+
+    .hub {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 60px 24px;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .hero-logo {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-size: 36px;
+      font-weight: 800;
+      background: var(--gradient-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .hero .tagline {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+
+    .hero-badges {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .hero-badge {
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* Section Headers */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .section-header .icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .section-header h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .section-header .count {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+
+    /* Card Grid */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    .nav-card {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-card:hover {
+      border-color: rgba(100,200,255,0.3);
+      box-shadow: 0 8px 30px rgba(100,200,255,0.1);
+      transform: translateY(-2px);
+    }
+
+    .nav-card .card-num {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      font-size: 48px;
+      font-weight: 900;
+      color: rgba(255,255,255,0.03);
+      line-height: 1;
+    }
+
+    .nav-card .card-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .nav-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .nav-card p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .nav-card .tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .nav-card .tag {
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      background: rgba(255,255,255,0.05);
+      color: var(--text-muted);
+    }
+
+    .nav-card .tag.mobile { background: rgba(100,200,255,0.1); color: var(--accent-blue); }
+    .nav-card .tag.desktop { background: rgba(102,126,234,0.1); color: var(--accent-purple); }
+    .nav-card .tag.api { background: rgba(56,239,125,0.1); color: var(--accent-green); }
+    .nav-card .tag.deploy { background: rgba(255,167,38,0.1); color: var(--accent-orange); }
+    .nav-card .tag.ai { background: rgba(240,147,251,0.1); color: var(--accent-pink); }
+
+    /* Full-width card */
+    .card-grid-full {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    /* Tech Stack */
+    .tech-stack {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 48px;
+    }
+
+    .tech-item {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      text-align: center;
+    }
+
+    .tech-item .tech-icon { font-size: 28px; margin-bottom: 8px; }
+    .tech-item .tech-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .tech-item .tech-role { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+    /* Architecture Diagram */
+    .arch-diagram {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      margin-bottom: 48px;
+      text-align: center;
+    }
+
+    .arch-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .arch-box {
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.1);
+      min-width: 140px;
+    }
+
+    .arch-box.client { background: rgba(100,200,255,0.1); color: var(--accent-blue); border-color: rgba(100,200,255,0.2); }
+    .arch-box.frontend { background: rgba(56,239,125,0.1); color: var(--accent-green); border-color: rgba(56,239,125,0.2); }
+    .arch-box.backend { background: rgba(102,126,234,0.1); color: var(--accent-purple); border-color: rgba(102,126,234,0.2); }
+    .arch-box.db { background: rgba(255,167,38,0.1); color: var(--accent-orange); border-color: rgba(255,167,38,0.2); }
+    .arch-box.external { background: rgba(240,147,251,0.1); color: var(--accent-pink); border-color: rgba(240,147,251,0.2); }
+
+    .arch-arrow {
+      color: var(--text-muted);
+      font-size: 20px;
+    }
+
+    /* Quick Start */
+    .quick-start {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      margin-bottom: 48px;
+    }
+
+    .quick-start h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--accent-blue);
+    }
+
+    .quick-start pre {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .quick-start .cmd { color: var(--accent-green); }
+    .quick-start .comment { color: var(--text-muted); }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 40px 0;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      margin-top: 40px;
+    }
+
+    .footer p {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+
+    @media (max-width: 768px) {
+      .card-grid { grid-template-columns: 1fr; }
+      .card-grid-full { grid-template-columns: 1fr; }
+      .tech-stack { grid-template-columns: repeat(2, 1fr); }
+      .hero h1 { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="hub">
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-logo">🐾</div>
+      <h1>PetHolo</h1>
+      <p class="tagline">반려동물 추모 홀로그램 서비스 - Mockup & Documentation Hub</p>
+      <div class="hero-badges">
+        <span class="hero-badge badge-blue">Next.js 16</span>
+        <span class="hero-badge badge-purple">Express.js 5</span>
+        <span class="hero-badge badge-orange">Firebase</span>
+        <span class="hero-badge badge-green">Monorepo</span>
+        <span class="hero-badge badge-red">AI Pipeline</span>
+      </div>
+    </div>
+
+    <!-- Architecture -->
+    <div class="arch-diagram">
+      <h3 style="margin-bottom:20px; color:var(--text-secondary); font-size:14px;">System Architecture</h3>
+      <div class="arch-row">
+        <div class="arch-box client">📱 Mobile Browser<br><small>Chrome / Safari</small></div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-box frontend">🌐 Vercel<br><small>Next.js Frontend</small></div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-box backend">⚙️ Railway / Cloud Run<br><small>Express.js API</small></div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-box db">🔥 Firebase<br><small>Firestore + Storage</small></div>
+      </div>
+      <div class="arch-row" style="margin-top:8px;">
+        <div class="arch-box external">🎨 NanoBanana AI<br><small>Image Generation</small></div>
+        <div class="arch-box external">🎬 Kling AI<br><small>Video Generation</small></div>
+        <div class="arch-box external">🛒 Cafe24<br><small>E-commerce Webhook</small></div>
+      </div>
+    </div>
+
+    <!-- ═══════════ Frontend Mockups ═══════════ -->
+    <div class="section-header">
+      <div class="icon" style="background:rgba(100,200,255,0.1);">📱</div>
+      <h2>Frontend UI Mockups</h2>
+      <span class="count">10 pages</span>
+    </div>
+
+    <div class="card-grid">
+      <a href="01_login.html" class="nav-card">
+        <span class="card-num">01</span>
+        <div class="card-icon">🔐</div>
+        <h3>카페24 진입 & 온보딩</h3>
+        <p>카페24 SSO 자동 인증, 온보딩 캐러셀, Silver/Bronze 등급 자동 배정</p>
+        <div class="tags">
+          <span class="tag mobile">Mobile</span>
+          <span class="tag">Cafe24 SSO</span>
+          <span class="tag">JWT</span>
+        </div>
+      </a>
+
+      <a href="02_home.html" class="nav-card">
+        <span class="card-num">02</span>
+        <div class="card-icon">🏠</div>
+        <h3>메인 홈</h3>
+        <p>빈 상태, 펫 카드, 프로필 목록, 멀티펫 뷰. 크레딧 표시 및 퀵 액션</p>
+        <div class="tags">
+          <span class="tag mobile">Mobile</span>
+          <span class="tag">BottomNav</span>
+          <span class="tag">Zustand</span>
+        </div>
+      </a>
+
+      <a href="03_pet_register.html" class="nav-card">
+        <span class="card-num">03</span>
+        <div class="card-icon">🐕</div>
+        <h3>펫 등록</h3>
+        <p>이모지 선택, 정보 입력, 사진 업로드, 프로필 생성, AI 생성 대기</p>
+        <div class="tags">
+          <span class="tag mobile">Mobile</span>
+          <span class="tag ai">AI Pipeline</span>
+          <span class="tag">Upload</span>
+        </div>
+      </a>
+
+      <a href="04_messenger.html" class="nav-card">
+        <span class="card-num">04</span>
+        <div class="card-icon">💬</div>
+        <h3>AI 메신저</h3>
+        <p>이모지 전용 응답, 5-30분 랜덤 딜레이, 대기 상태, 펫 선택, 푸시알림</p>
+        <div class="tags">
+          <span class="tag mobile">Mobile</span>
+          <span class="tag ai">AI</span>
+          <span class="tag">FCM</span>
+        </div>
+      </a>
+
+      <a href="05_hologram_player.html" class="nav-card">
+        <span class="card-num">05</span>
+        <div class="card-icon">🔮</div>
+        <h3>홀로그램 플레이어</h3>
+        <p>3분할 재생(LEFT/CENTER/RIGHT), 가로 모드, 프리즘 매핑, 모션 배치</p>
+        <div class="tags">
+          <span class="tag mobile">Mobile</span>
+          <span class="tag">Landscape</span>
+          <span class="tag">Prism</span>
+        </div>
+      </a>
+
+      <a href="06_credits_settings.html" class="nav-card">
+        <span class="card-num">06</span>
+        <div class="card-icon">💰</div>
+        <h3>크레딧 & 설정</h3>
+        <p>크레딧 대시보드, 구매, 거래 내역, 계정 설정, 등급 정보</p>
+        <div class="tags">
+          <span class="tag mobile">Mobile</span>
+          <span class="tag">Credit</span>
+          <span class="tag">Tier</span>
+        </div>
+      </a>
+
+      <a href="07_trash.html" class="nav-card">
+        <span class="card-num">07</span>
+        <div class="card-icon">🗑️</div>
+        <h3>휴지통</h3>
+        <p>30일 보관, D-day 카운트다운, 복원(재결제), 영구삭제, 자동정리</p>
+        <div class="tags">
+          <span class="tag mobile">Mobile</span>
+          <span class="tag">Cron</span>
+          <span class="tag">Refund</span>
+        </div>
+      </a>
+
+      <a href="08_admin.html" class="nav-card">
+        <span class="card-num">08</span>
+        <div class="card-icon">👨‍💼</div>
+        <h3>관리자 대시보드</h3>
+        <p>통계, 사용자 관리, 크레딧 관리, 감사 로그, AI 서비스 모니터링</p>
+        <div class="tags">
+          <span class="tag desktop">Desktop</span>
+          <span class="tag">2FA</span>
+          <span class="tag">Audit</span>
+        </div>
+      </a>
+
+      <a href="09_store_cafe24.html" class="nav-card">
+        <span class="card-num">09</span>
+        <div class="card-icon">🛒</div>
+        <h3>자사몰 & Cafe24 연동</h3>
+        <p>상품 안내, 자동 크레딧 충전, 충전 내역, 웹훅 플로우, HMAC 검증</p>
+        <div class="tags">
+          <span class="tag mobile">Mobile</span>
+          <span class="tag">Webhook</span>
+          <span class="tag">HMAC</span>
+        </div>
+      </a>
+
+      <a href="10_integrated_settings.html" class="nav-card">
+        <span class="card-num">10</span>
+        <div class="card-icon">⚙️</div>
+        <h3>통합설정 (프로필 관리)</h3>
+        <p>베이스 영상 3슬롯, 모션 12슬롯, AI 파이프라인, 이미지 선택(30분)</p>
+        <div class="tags">
+          <span class="tag mobile">Mobile</span>
+          <span class="tag ai">NanoBanana</span>
+          <span class="tag ai">Kling</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- ═══════════ Backend & Deploy ═══════════ -->
+    <div class="section-header">
+      <div class="icon" style="background:rgba(56,239,125,0.1);">⚙️</div>
+      <h2>Backend & Deployment</h2>
+      <span class="count">2 docs</span>
+    </div>
+
+    <div class="card-grid-full">
+      <a href="11_backend_api.html" class="nav-card">
+        <span class="card-num">11</span>
+        <div class="card-icon">📡</div>
+        <h3>Backend API 명세</h3>
+        <p>전체 REST API 엔드포인트 (Auth, Pet, Profile, BaseVideo, Motion, AI, Messenger, Credit, Trash, Webhook, Admin). JWT 인증 플로우, Firestore 스키마, 미들웨어 파이프라인, Rate Limiting</p>
+        <div class="tags">
+          <span class="tag api">REST API</span>
+          <span class="tag api">Express.js 5</span>
+          <span class="tag">Zod</span>
+          <span class="tag">Firestore</span>
+        </div>
+      </a>
+
+      <a href="12_deployment_guide.html" class="nav-card">
+        <span class="card-num">12</span>
+        <div class="card-icon">🚀</div>
+        <h3>배포 가이드</h3>
+        <p>아키텍처 개요, Firebase 설정, Vercel 프론트 배포, Railway/Cloud Run 백엔드 배포, CI/CD (GitHub Actions), 도메인/SSL, 모니터링, 체크리스트</p>
+        <div class="tags">
+          <span class="tag deploy">Vercel</span>
+          <span class="tag deploy">Railway</span>
+          <span class="tag deploy">Cloud Run</span>
+          <span class="tag deploy">CI/CD</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Tech Stack -->
+    <div class="section-header">
+      <div class="icon" style="background:rgba(255,167,38,0.1);">🛠</div>
+      <h2>Tech Stack</h2>
+    </div>
+
+    <div class="tech-stack">
+      <div class="tech-item">
+        <div class="tech-icon">⚛️</div>
+        <div class="tech-name">Next.js 16</div>
+        <div class="tech-role">Frontend Framework</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🟢</div>
+        <div class="tech-name">Express.js 5</div>
+        <div class="tech-role">Backend API</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🔥</div>
+        <div class="tech-name">Firebase</div>
+        <div class="tech-role">Firestore + Storage</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🐻</div>
+        <div class="tech-name">Zustand</div>
+        <div class="tech-role">State Management</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🎨</div>
+        <div class="tech-name">Tailwind CSS 4</div>
+        <div class="tech-role">Styling</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🔒</div>
+        <div class="tech-name">JWT + Cafe24 SSO</div>
+        <div class="tech-role">Authentication</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🎬</div>
+        <div class="tech-name">Kling AI</div>
+        <div class="tech-role">Video Generation</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🎨</div>
+        <div class="tech-name">NanoBanana</div>
+        <div class="tech-role">Image Generation</div>
+      </div>
+    </div>
+
+    <!-- Quick Start -->
+    <div class="quick-start">
+      <h3>Quick Start</h3>
+      <pre><code><span class="comment"># 1. Clone & Install</span>
+<span class="cmd">git clone</span> https://github.com/rofilenewseong-ui/petholo.git
+<span class="cmd">cd</span> petholo
+<span class="cmd">pnpm install</span>
+
+<span class="comment"># 2. Environment Setup</span>
+<span class="cmd">cp</span> .env.example .env
+<span class="comment"># Edit .env with your Firebase, JWT, AI API keys</span>
+
+<span class="comment"># 3. Development</span>
+<span class="cmd">pnpm dev</span>          <span class="comment"># Start all (web:3000 + api:4000)</span>
+<span class="cmd">pnpm dev:web</span>      <span class="comment"># Frontend only</span>
+<span class="cmd">pnpm dev:api</span>      <span class="comment"># Backend only</span>
+
+<span class="comment"># 4. Build</span>
+<span class="cmd">pnpm build</span>        <span class="comment"># Build all apps</span>
+
+<span class="comment"># 5. View Mockups</span>
+<span class="cmd">open</span> docs/mockup/index.html</code></pre>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>
+        PetHolo - 반려동물 추모 홀로그램 서비스<br>
+        Monorepo: apps/web (Next.js) + apps/api (Express.js) + packages/shared<br>
+        Generated: 2026-03-05
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>

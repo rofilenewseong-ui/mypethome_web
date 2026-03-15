@@ -1,0 +1,45 @@
+{
+  "name": "My Pet Home - PetHolo",
+  "short_name": "My Pet Home",
+  "description": "반려동물 추모 홀로그램 서비스",
+  "start_url": "/home",
+  "display": "standalone",
+  "background_color": "#F5F1EA",
+  "theme_color": "#F5F1EA",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "ko",
+  "categories": ["lifestyle"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
