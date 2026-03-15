@@ -64,3 +64,4 @@ Key*.zip
 !pnpm-lock.yaml
 .vercel
 apps/web/public/samples/
+.github/workflows/
