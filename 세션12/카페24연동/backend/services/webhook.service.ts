@@ -8,11 +8,17 @@ import { logger } from '../utils/logger';
 
 export class WebhookService {
   verifySignature(payload: string, signature: string): boolean {
-    if (!env.CAFE24_WEBHOOK_SECRET) return true; // dev mode
+    if (!env.CAFE24_WEBHOOK_SECRET) {
+      if (env.isProd) throw new AppError('CAFE24_WEBHOOK_SECRET이 설정되지 않았습니다.', 500);
+      logger.warn('Webhook 시크릿 미설정 — 개발 모드에서 서명 검증 스킵');
+      return true;
+    }
+    if (!signature) return false;
     const expected = crypto
       .createHmac('sha256', env.CAFE24_WEBHOOK_SECRET)
       .update(payload)
       .digest('hex');
+    if (signature.length !== expected.length) return false;
     return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
   }
 

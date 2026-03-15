@@ -14,8 +14,8 @@ export const env = {
   FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET || '',
   FIREBASE_SERVICE_ACCOUNT_PATH: process.env.FIREBASE_SERVICE_ACCOUNT_PATH || '',
 
-  JWT_SECRET: process.env.JWT_SECRET || 'fallback-dev-secret',
-  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || 'fallback-refresh-secret',
+  JWT_SECRET: process.env.JWT_SECRET || '',
+  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || '',
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '15m',
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
 
@@ -71,8 +71,8 @@ if (env.isProd) {
     ['FIREBASE_PROJECT_ID', env.FIREBASE_PROJECT_ID],
     ['FIREBASE_PRIVATE_KEY', env.FIREBASE_PRIVATE_KEY],
     ['FIREBASE_CLIENT_EMAIL', env.FIREBASE_CLIENT_EMAIL],
-    ['JWT_SECRET', env.JWT_SECRET === 'fallback-dev-secret' ? '' : env.JWT_SECRET],
-    ['JWT_REFRESH_SECRET', env.JWT_REFRESH_SECRET === 'fallback-refresh-secret' ? '' : env.JWT_REFRESH_SECRET],
+    ['JWT_SECRET', env.JWT_SECRET],
+    ['JWT_REFRESH_SECRET', env.JWT_REFRESH_SECRET],
     ['CAFE24_CLIENT_ID', env.CAFE24_CLIENT_ID],
     ['CAFE24_CLIENT_SECRET', env.CAFE24_CLIENT_SECRET],
     ['CAFE24_MALL_ID', env.CAFE24_MALL_ID],

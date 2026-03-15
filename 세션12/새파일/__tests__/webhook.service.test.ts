@@ -88,10 +88,14 @@ describe('WebhookService', () => {
       expect(service.verifySignature(payload, wrongSignature)).toBe(false);
     });
 
-    it('길이가 다른 서명은 에러 없이 false를 반환해야 한다', () => {
+    it('길이가 다른 서명은 false를 반환해야 한다', () => {
       const payload = '{"orderId":"123"}';
-      // timingSafeEqual은 길이가 다르면 에러를 throw → 서비스가 처리해야 함
-      expect(() => service.verifySignature(payload, 'short')).toThrow();
+      expect(service.verifySignature(payload, 'short')).toBe(false);
+    });
+
+    it('빈 서명은 false를 반환해야 한다', () => {
+      const payload = '{"orderId":"123"}';
+      expect(service.verifySignature(payload, '')).toBe(false);
     });
   });
 
