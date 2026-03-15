@@ -27,21 +27,18 @@ interface PromptsConfig {
       responseModalities: string[];
     };
     startFrame: {
-      bare: { STANDING: string; SITTING: string };   // ref 2장 (얼굴 + 전신) — 자세별 프롬프트
-      outfit: { STANDING: string; SITTING: string };  // ref 3장 (얼굴 + 전신 + 옷) — 자세별 프롬프트
+      bare: string;   // ref 2장 (얼굴 + 전신) 전용
+      outfit: string; // ref 3장 (얼굴 + 전신 + 옷) 전용
     };
     rules: Record<string, string>;
   };
   kling: {
     model: string;
     duration: string;
-    motionDuration: string;
     aspectRatio: string;
     mode: string;
-    negativePrompt: string;
     imageToVideo: {
-      baseVideoPrompt: string;     // 호환용 기본값
-      baseVideoPrompts: Record<string, string>;  // 종/자세별 프롬프트 (DOG_STANDING, CAT_SITTING 등)
+      baseVideoPrompt: string;
       motionPrompts: Record<string, string>;
     };
   };
@@ -54,25 +51,20 @@ function loadPrompts(): PromptsConfig {
 
   // Mock 모드: prompts.secret.json 없이 빈 프롬프트 사용
   if (env.USE_MOCK_AI) {
-    console.log('[MOCK MODE] prompts.secret.json 없이 빈 프롬프트 사용');
+    logger.info('[MOCK MODE] prompts.secret.json 없이 빈 프롬프트 사용');
     _promptsCache = {
       gemini: {
         model: { test: 'mock-model', production: 'mock-model' },
         imageConfig: { aspectRatio: '9:16', imageSize: '1024x1024', responseModalities: ['TEXT', 'IMAGE'] },
-        startFrame: {
-          bare: { STANDING: 'mock-prompt', SITTING: 'mock-prompt' },
-          outfit: { STANDING: 'mock-prompt', SITTING: 'mock-prompt' },
-        },
+        startFrame: { bare: 'mock-prompt', outfit: 'mock-prompt' },
         rules: {},
       },
       kling: {
         model: 'mock-kling',
         duration: '5',
-        motionDuration: '7',
         aspectRatio: '9:16',
         mode: 'pro',
-        negativePrompt: '',
-        imageToVideo: { baseVideoPrompt: 'mock video prompt', baseVideoPrompts: {}, motionPrompts: {} },
+        imageToVideo: { baseVideoPrompt: 'mock video prompt', motionPrompts: {} },
       },
     };
     return _promptsCache;
@@ -144,8 +136,7 @@ function generateKlingToken(): string {
 // ============================================
 async function generateStartFrame(
   refImages: Array<{ base64: string; mimeType: string }>,
-  useProductionModel: boolean = false,
-  profileType: 'STANDING' | 'SITTING' = 'STANDING'
+  useProductionModel: boolean = false
 ): Promise<{ base64: string; mimeType: string } | null> {
   // Mock 모드: Gemini API 호출 스킵, 업로드된 이미지를 순환 반환 (3장 구분)
   if (env.USE_MOCK_AI) {
@@ -153,23 +144,22 @@ async function generateStartFrame(
     const mockIndex = (generateStartFrame as any).__mockCounter || 0;
     (generateStartFrame as any).__mockCounter = mockIndex + 1;
     const selectedRef = refImages[mockIndex % refImages.length];
-    console.log(`[MOCK MODE] Gemini 스타트프레임 생성 스킵 → ref[${mockIndex % refImages.length}] 반환`);
+    logger.info(`[MOCK MODE] Gemini 스타트프레임 생성 스킵 → ref[${mockIndex % refImages.length}] 반환`);
     return { base64: selectedRef.base64, mimeType: selectedRef.mimeType };
   }
 
   const prompts = loadPrompts();
   const ai = getGeminiClient();
 
-  // ref 개수에 따라 BARE / OUTFIT 프롬프트 자동 선택, 자세별 프롬프트 분기
+  // ref 개수에 따라 BARE / OUTFIT 프롬프트 자동 선택
   const refCount = refImages.length;
   if (refCount < 2) {
     throw new AppError('최소 2장의 레퍼런스 이미지가 필요합니다 (얼굴 + 전신).', 400);
   }
 
-  const promptSet = refCount >= 3
+  const prompt = refCount >= 3
     ? prompts.gemini.startFrame.outfit
     : prompts.gemini.startFrame.bare;
-  const prompt = promptSet[profileType] || promptSet.STANDING;
 
   const promptType = refCount >= 3 ? 'OUTFIT' : 'BARE';
 
@@ -199,11 +189,10 @@ async function generateStartFrame(
     contents,
     config: {
       responseModalities: ['TEXT', 'IMAGE'] as any,
-      thinkingConfig: { thinkingBudget: 0 } as any,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       imageConfig: {
         aspectRatio: prompts.gemini.imageConfig.aspectRatio,
-        outputImageDimension: 2048,
+        imageSize: prompts.gemini.imageConfig.imageSize,
       } as any,
     },
   });
@@ -235,14 +224,12 @@ async function generateStartFrame(
 // ============================================
 async function callKlingImageToVideo(
   imageUrl: string,
-  prompt: string,
-  negativePrompt?: string,
-  duration?: string
+  prompt: string
 ): Promise<{ taskId: string; taskStatus: string }> {
   // Mock 모드: Kling API 호출 스킵, 가짜 taskId 반환
   if (env.USE_MOCK_AI) {
     const mockTaskId = `mock-kling-${Date.now()}`;
-    console.log(`[MOCK MODE] Kling 영상 생성 스킵 → taskId: ${mockTaskId}`);
+    logger.info(`[MOCK MODE] Kling 영상 생성 스킵 → taskId: ${mockTaskId}`);
     return { taskId: mockTaskId, taskStatus: 'submitted' };
   }
 
@@ -250,20 +237,15 @@ async function callKlingImageToVideo(
   const token = generateKlingToken();
   const prompts = loadPrompts();
 
-  const requestBody: Record<string, any> = {
+  const requestBody = {
     model_name: prompts.kling.model || 'kling-v3',
     image: imageUrl,
     prompt,
     mode: prompts.kling.mode || 'pro',
-    duration: duration || prompts.kling.duration || '5',
+    duration: prompts.kling.duration || '5',
     aspect_ratio: prompts.kling.aspectRatio || '9:16',
     callback_url: '',
   };
-
-  // 네거티브 프롬프트 추가 (있으면)
-  if (negativePrompt) {
-    requestBody.negative_prompt = negativePrompt;
-  }
 
   logger.info(`Kling API 호출: image2video`);
 
@@ -431,15 +413,6 @@ async function resolveImageToBase64(imageInput: string): Promise<string> {
 }
 
 // ============================================
-// 모션 프롬프트 키 매핑 (enum ↔ prompts.secret.json 키 불일치 해소)
-// ============================================
-const MOTION_PROMPT_KEY_MAP: Record<string, string> = {
-  'TURN_AROUND': 'LOOK_AROUND',
-  'SHAKE_BODY': 'SHAKE',
-  'SNIFF_GROUND': 'SNIFF',
-};
-
-// ============================================
 // AI Service
 // ============================================
 export class AiService {
@@ -470,9 +443,6 @@ export class AiService {
       throw new AppError('프로필을 찾을 수 없습니다.', 404);
     }
 
-    // 프로필 타입 (STANDING/SITTING) → 자세별 프롬프트 선택용
-    const profileType = (profileDoc.data()!.type as 'STANDING' | 'SITTING') || 'STANDING';
-
     // 30분 만료
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
 
@@ -485,7 +455,6 @@ export class AiService {
       userId,
       status: 'PROCESSING',
       promptType: refCount >= 3 ? 'OUTFIT' : 'BARE',
-      profileType,
       refCount,
       retryCount: 0, // ★ 재생성 횟수 (최초 1회 무료, 이후 10C)
       expiresAt: admin.firestore.Timestamp.fromDate(expiresAt),
@@ -495,10 +464,10 @@ export class AiService {
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    logger.info(`스타트프레임 생성 작업 시작: ${jobRef.id} (${refCount >= 3 ? 'OUTFIT' : 'BARE'}, ${profileType}, ${refCount}장 ref)`);
+    logger.info(`스타트프레임 생성 작업 시작: ${jobRef.id} (${refCount >= 3 ? 'OUTFIT' : 'BARE'}, ${refCount}장 ref)`);
 
     // 비동기로 Gemini API 호출 (바로 jobId 반환)
-    this._processStartFrameGeneration(jobRef.id, userId, imageData, profileType).catch((error) => {
+    this._processStartFrameGeneration(jobRef.id, userId, imageData).catch((error) => {
       logger.error(`스타트프레임 생성 실패 (job: ${jobRef.id}):`, error);
     });
 
@@ -517,8 +486,7 @@ export class AiService {
       bodyImage: string;
       outfitImage?: string;
       mimeType?: string;
-    },
-    profileType: 'STANDING' | 'SITTING' = 'STANDING'
+    }
   ) {
     try {
       const mimeType = imageData.mimeType || 'image/jpeg';
@@ -545,7 +513,7 @@ export class AiService {
         try {
           logger.info(`스타트프레임 ${i + 1}/${generateCount} 생성 중... (job: ${jobId})`);
 
-          const result = await generateStartFrame(refImages, false, profileType); // test 모델, 자세별 프롬프트
+          const result = await generateStartFrame(refImages, false); // test 모델 사용
 
           if (result) {
             const savedUrl = saveBase64Image(
@@ -565,44 +533,13 @@ export class AiService {
       }
 
       if (generatedImages.length === 0) {
-        // ★ 스타트프레임 전체 실패 → 프로필+베이스영상 정리 + 크레딧 환불
-        const jobDoc = await db.collection('startFrameJobs').doc(jobId).get();
-        const jobData = jobDoc.data();
-        const failedProfileId = jobData?.profileId;
-
+        // ★ 나노바나나2 실패 → 환불 없이 실패 상태만 기록 (프론트에서 자동 재시도)
         await db.collection('startFrameJobs').doc(jobId).update({
           status: 'FAILED',
-          error: '이미지 생성에 실패했습니다.',
+          error: '이미지 생성에 실패했습니다. 자동으로 다시 시도합니다.',
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
-
-        // 프로필 + 베이스영상 + 모션 정리 & 크레딧 환불
-        if (failedProfileId) {
-          try {
-            // 베이스영상 삭제
-            const baseVideos = await db.collection('baseVideos').where('profileId', '==', failedProfileId).get();
-            for (const doc of baseVideos.docs) {
-              await doc.ref.delete();
-            }
-            // 모션 삭제
-            const motions = await db.collection('motions').where('profileId', '==', failedProfileId).get();
-            const motionCount = motions.size;
-            for (const doc of motions.docs) {
-              await doc.ref.delete();
-            }
-            // 프로필 삭제
-            await db.collection('profiles').doc(failedProfileId).delete();
-
-            // 크레딧 환불 (베이스 40C + 모션 × 40C)
-            const refundAmount = CREDIT_COSTS.BASE_VIDEO_CREATE + motionCount * CREDIT_COSTS.MOTION_CREATE;
-            await creditService.refund(userId, refundAmount, 'AI 이미지 생성 실패 — 프로필 자동 정리', 'PROFILE', failedProfileId);
-            logger.info(`스타트프레임 실패 → 프로필 정리 완료: profile=${failedProfileId}, refund=${refundAmount}C`);
-          } catch (cleanupErr) {
-            logger.error(`프로필 정리 실패 (profile: ${failedProfileId}):`, cleanupErr);
-          }
-        }
-
-        logger.warn(`스타트프레임 전체 실패 (job: ${jobId})`);
+        logger.warn(`스타트프레임 전체 실패 (job: ${jobId}) — 프론트에서 자동 재시도 예정`);
         return;
       }
 
@@ -615,34 +552,13 @@ export class AiService {
 
       logger.info(`스타트프레임 생성 완료 (job: ${jobId}): ${generatedImages.length}장 성공`);
     } catch (error) {
-      // ★ 처리 오류 → 프로필 정리 + 크레딧 환불
+      // ★ 나노바나나2 처리 오류 → 환불 없이 실패 상태만 기록 (프론트에서 자동 재시도)
       logger.error(`스타트프레임 생성 처리 오류 (job: ${jobId}):`, error);
-
-      const jobDoc = await db.collection('startFrameJobs').doc(jobId).get();
-      const jobData = jobDoc.data();
-      const failedProfileId = jobData?.profileId;
-
       await db.collection('startFrameJobs').doc(jobId).update({
         status: 'FAILED',
         error: error instanceof Error ? error.message : '알 수 없는 오류',
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
-
-      if (failedProfileId) {
-        try {
-          const baseVideos = await db.collection('baseVideos').where('profileId', '==', failedProfileId).get();
-          for (const doc of baseVideos.docs) await doc.ref.delete();
-          const motions = await db.collection('motions').where('profileId', '==', failedProfileId).get();
-          const motionCount = motions.size;
-          for (const doc of motions.docs) await doc.ref.delete();
-          await db.collection('profiles').doc(failedProfileId).delete();
-          const refundAmount = CREDIT_COSTS.BASE_VIDEO_CREATE + motionCount * CREDIT_COSTS.MOTION_CREATE;
-          await creditService.refund(userId, refundAmount, 'AI 이미지 생성 오류 — 프로필 자동 정리', 'PROFILE', failedProfileId);
-          logger.info(`스타트프레임 오류 → 프로필 정리 완료: profile=${failedProfileId}, refund=${refundAmount}C`);
-        } catch (cleanupErr) {
-          logger.error(`프로필 정리 실패 (profile: ${failedProfileId}):`, cleanupErr);
-        }
-      }
     }
   }
 
@@ -689,19 +605,10 @@ export class AiService {
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // 프로필 타입 복원 (job 데이터에서 읽기, 없으면 프로필에서 조회)
-    let profileType: 'STANDING' | 'SITTING' = (jobData.profileType as 'STANDING' | 'SITTING') || 'STANDING';
-    if (!jobData.profileType && jobData.profileId) {
-      const profileDoc = await db.collection('profiles').doc(jobData.profileId).get();
-      if (profileDoc.exists) {
-        profileType = (profileDoc.data()!.type as 'STANDING' | 'SITTING') || 'STANDING';
-      }
-    }
-
     logger.info(`스타트프레임 재생성 시작: job=${jobId}, retry=#${currentRetryCount + 1}, paid=${currentRetryCount >= 1}`);
 
     // 비동기로 Gemini 재생성
-    this._processStartFrameGeneration(jobId, userId, imageData, profileType).catch((error) => {
+    this._processStartFrameGeneration(jobId, userId, imageData).catch((error) => {
       logger.error(`스타트프레임 재생성 실패 (job: ${jobId}):`, error);
     });
 
@@ -739,14 +646,8 @@ export class AiService {
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    // 프로필에 선택된 스타트프레임 URL 저장 (모션 생성 시 사용)
+    // 프로필의 PENDING 베이스 영상을 찾아서 baseVideoId 반환
     const profileId = jobData.profileId;
-    if (profileId) {
-      await db.collection('profiles').doc(profileId).update({
-        selectedStartFrameUrl: selectedUrl,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-    }
     let baseVideoId: string | null = null;
     if (profileId) {
       const baseVideoSnap = await db.collection('baseVideos')
@@ -784,8 +685,11 @@ export class AiService {
     // ★ imageUrl → base64 변환 (Kling은 로컬 URL 접근 불가)
     let klingImage: string;
     try {
-      klingImage = await resolveImageToBase64(imageUrl);  // Kling은 순수 base64만 (data: prefix 없이)
-      logger.info(`Kling용 이미지 base64 변환 완료: ${klingImage.length} chars`);
+      const rawBase64 = await resolveImageToBase64(imageUrl);
+      const ext = imageUrl.toLowerCase();
+      const mimeType = ext.includes('.png') ? 'image/png' : ext.includes('.webp') ? 'image/webp' : 'image/jpeg';
+      klingImage = `data:${mimeType};base64,${rawBase64}`;
+      logger.info(`Kling용 이미지 base64 변환 완료: ${imageUrl.substring(0, 60)}...`);
     } catch (convError) {
       logger.error(`이미지 base64 변환 실패 (baseVideo: ${baseVideoId}):`, convError);
       await db.collection('baseVideos').doc(baseVideoId).update({
@@ -795,40 +699,21 @@ export class AiService {
       });
       // ★ 크레딧 환불
       try {
-        await creditService.refund(userId, CREDIT_COSTS.BASE_VIDEO_CREATE, 'AI 영상 생성 실패 환불 (이미지 변환 오류)', 'BASE_VIDEO', baseVideoId);
-        logger.info(`크레딧 환불 완료: user=${userId}, amount=${CREDIT_COSTS.BASE_VIDEO_CREATE}C`);
+        await creditService.refund(userId, CREDIT_COSTS.PROFILE_CREATE, 'AI 영상 생성 실패 환불 (이미지 변환 오류)', 'BASE_VIDEO', baseVideoId);
+        logger.info(`크레딧 환불 완료: user=${userId}, amount=${CREDIT_COSTS.PROFILE_CREATE}C`);
       } catch (refundErr) {
         logger.error('크레딧 환불 실패:', refundErr);
       }
       throw new AppError('이미지를 변환할 수 없습니다.', 400);
     }
 
-    // Kling API에 영상 생성 요청 (종/자세별 프롬프트 선택)
+    // Kling API에 영상 생성 요청 (프롬프트는 prompts.secret.json에서 로드)
     const secretPrompts = loadPrompts();
-    const profileData = profileDoc.data()!;
-    const profileType = (profileData.type as string) || 'STANDING';
-
-    // 펫 종 조회 → DOG_STANDING / CAT_SITTING 등 키 생성
-    let species = 'DOG';
-    if (profileData.petId) {
-      const petDoc = await db.collection('pets').doc(profileData.petId).get();
-      if (petDoc.exists) {
-        const rawSpecies = (petDoc.data()!.species as string) || 'DOG';
-        // 한국어 → 영어 매핑 (프론트에서 '강아지'/'고양이' 저장)
-        const speciesMap: Record<string, string> = { '강아지': 'DOG', '고양이': 'CAT', 'DOG': 'DOG', 'CAT': 'CAT' };
-        species = speciesMap[rawSpecies] || 'DOG';
-      }
-    }
-    const promptKey = `${species}_${profileType}`;  // e.g. DOG_STANDING, CAT_SITTING
-    const prompt = secretPrompts.kling.imageToVideo.baseVideoPrompts?.[promptKey]
-      || secretPrompts.kling.imageToVideo.baseVideoPrompt;
-    const negativePrompt = secretPrompts.kling.negativePrompt || undefined;
-
-    logger.info(`Kling 프롬프트 선택: key=${promptKey}, negPrompt=${negativePrompt ? 'YES' : 'NO'}`);
+    const prompt = secretPrompts.kling.imageToVideo.baseVideoPrompt;
 
     let klingResult;
     try {
-      klingResult = await callKlingImageToVideo(klingImage, prompt, negativePrompt);
+      klingResult = await callKlingImageToVideo(klingImage, prompt);
     } catch (error) {
       logger.error(`Kling API 호출 실패 (baseVideo: ${baseVideoId}):`, error);
       await db.collection('baseVideos').doc(baseVideoId).update({
@@ -838,7 +723,7 @@ export class AiService {
       });
       // ★ 크레딧 환불
       try {
-        await creditService.refund(userId, CREDIT_COSTS.BASE_VIDEO_CREATE, 'AI 영상 생성 실패 환불 (Kling API 오류)', 'BASE_VIDEO', baseVideoId);
+        await creditService.refund(userId, CREDIT_COSTS.PROFILE_CREATE, 'AI 영상 생성 실패 환불 (Kling API 오류)', 'BASE_VIDEO', baseVideoId);
         logger.info(`크레딧 환불 완료: user=${userId}, amount=${CREDIT_COSTS.PROFILE_CREATE}C`);
       } catch (refundErr) {
         logger.error('크레딧 환불 실패:', refundErr);
@@ -871,7 +756,7 @@ export class AiService {
   private async _pollKlingVideoStatus(baseVideoId: string, klingTaskId: string, userId?: string) {
     // Mock 모드: 4초 대기 후 즉시 COMPLETED 처리
     if (env.USE_MOCK_AI) {
-      console.log(`[MOCK MODE] Kling 폴링 스킵 → 4초 후 COMPLETED 처리 (baseVideo: ${baseVideoId})`);
+      logger.info(`[MOCK MODE] Kling 폴링 스킵 → 4초 후 COMPLETED 처리 (baseVideo: ${baseVideoId})`);
       await new Promise((resolve) => setTimeout(resolve, 4000));
       await db.collection('baseVideos').doc(baseVideoId).update({
         status: 'COMPLETED',
@@ -881,12 +766,12 @@ export class AiService {
         duration: '5',
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
-      console.log(`[MOCK MODE] 영상 COMPLETED 처리 완료: ${baseVideoId}`);
+      logger.info(`[MOCK MODE] 영상 COMPLETED 처리 완료: ${baseVideoId}`);
       return;
     }
 
-    const maxAttempts = 180; // 10초 × 180 = 30분
-    const pollInterval = 10000; // 10초
+    const maxAttempts = 60; // 30초 × 60 = 30분
+    const pollInterval = 30000; // 30초
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       await new Promise((resolve) => setTimeout(resolve, pollInterval));
@@ -944,34 +829,6 @@ export class AiService {
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           });
           logger.info(`Kling 영상 생성 완료: baseVideo=${baseVideoId}, local=${localVideoUrl.startsWith('/uploads/')}, gifUrl=${gifUrl ? 'YES' : 'NULL'}`);
-
-          // ★ 베이스 영상 완료 → 같은 프로필의 PENDING 모션들 자동 생성 시작
-          try {
-            const videoData = (await db.collection('baseVideos').doc(baseVideoId).get()).data();
-            const bvProfileId = videoData?.profileId;
-            if (bvProfileId) {
-              const pendingMotions = await db.collection('motions')
-                .where('profileId', '==', bvProfileId)
-                .where('status', '==', 'PENDING')
-                .where('deletedAt', '==', null)
-                .get();
-              if (!pendingMotions.empty) {
-                const profileData = (await db.collection('profiles').doc(bvProfileId).get()).data();
-                const motionUserId = profileData?.userId;
-                if (motionUserId) {
-                  for (const motionDoc of pendingMotions.docs) {
-                    this.generateMotionVideo(motionUserId, bvProfileId, motionDoc.id).catch((err) => {
-                      logger.error(`대기 모션 자동 생성 실패 (motion: ${motionDoc.id}):`, err);
-                    });
-                  }
-                  logger.info(`베이스 영상 완료 → ${pendingMotions.size}개 대기 모션 자동 생성 시작`);
-                }
-              }
-            }
-          } catch (motionTriggerErr) {
-            logger.error('대기 모션 트리거 실패:', motionTriggerErr);
-          }
-
           return;
         }
 
@@ -985,7 +842,7 @@ export class AiService {
           // ★ 크레딧 환불 (Kling 영상 생성 실패)
           if (userId) {
             try {
-              await creditService.refund(userId, CREDIT_COSTS.BASE_VIDEO_CREATE, 'AI 영상 생성 실패 환불 (Kling 실패)', 'BASE_VIDEO', baseVideoId);
+              await creditService.refund(userId, CREDIT_COSTS.PROFILE_CREATE, 'AI 영상 생성 실패 환불 (Kling 실패)', 'BASE_VIDEO', baseVideoId);
               logger.info(`크레딧 환불 완료: user=${userId}, amount=${CREDIT_COSTS.PROFILE_CREATE}C (Kling 실패)`);
             } catch (refundErr) {
               logger.error('크레딧 환불 실패:', refundErr);
@@ -1014,228 +871,13 @@ export class AiService {
     // ★ 크레딧 환불 (타임아웃)
     if (userId) {
       try {
-        await creditService.refund(userId, CREDIT_COSTS.BASE_VIDEO_CREATE, 'AI 영상 생성 실패 환불 (타임아웃)', 'BASE_VIDEO', baseVideoId);
+        await creditService.refund(userId, CREDIT_COSTS.PROFILE_CREATE, 'AI 영상 생성 실패 환불 (타임아웃)', 'BASE_VIDEO', baseVideoId);
         logger.info(`크레딧 환불 완료: user=${userId}, amount=${CREDIT_COSTS.PROFILE_CREATE}C (타임아웃)`);
       } catch (refundErr) {
         logger.error('크레딧 환불 실패:', refundErr);
       }
     }
     logger.error(`Kling 영상 생성 타임아웃: baseVideo=${baseVideoId}`);
-  }
-
-  /**
-   * 모션 영상 생성 (Kling Image to Video)
-   * 선택된 스타트프레임 이미지 + 모션별 프롬프트로 Kling 호출
-   */
-  async generateMotionVideo(userId: string, profileId: string, motionId: string) {
-    const profileDoc = await db.collection('profiles').doc(profileId).get();
-    if (!profileDoc.exists) throw new AppError('프로필을 찾을 수 없습니다.', 404);
-
-    const motionDoc = await db.collection('motions').doc(motionId).get();
-    if (!motionDoc.exists) throw new AppError('모션을 찾을 수 없습니다.', 404);
-
-    const profileData = profileDoc.data()!;
-    const motionData = motionDoc.data()!;
-
-    // selectedStartFrameUrl 확인
-    const selectedStartFrameUrl = profileData.selectedStartFrameUrl;
-    if (!selectedStartFrameUrl) {
-      logger.info(`모션 생성 대기: selectedStartFrameUrl 없음 (profile=${profileId}, motion=${motionId})`);
-      return { motionId, status: 'PENDING' };
-    }
-
-    // 이미지 base64 변환
-    let klingImage: string;
-    try {
-      klingImage = await resolveImageToBase64(selectedStartFrameUrl);
-      logger.info(`모션 Kling용 이미지 base64 변환 완료: ${klingImage.length} chars`);
-    } catch (convError) {
-      logger.error(`모션 이미지 base64 변환 실패 (motion: ${motionId}):`, convError);
-      await db.collection('motions').doc(motionId).update({
-        status: 'FAILED',
-        error: '이미지를 변환할 수 없습니다.',
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-      try {
-        await creditService.refund(userId, CREDIT_COSTS.MOTION_CREATE, '모션 영상 생성 실패 환불 (이미지 변환 오류)', 'MOTION', motionId);
-      } catch (refundErr) {
-        logger.error('모션 크레딧 환불 실패:', refundErr);
-      }
-      throw new AppError('이미지를 변환할 수 없습니다.', 400);
-    }
-
-    // 프롬프트 선택 (매핑 + fallback)
-    const prompts = loadPrompts();
-    const motionType = motionData.motionType as string;
-    const mappedKey = MOTION_PROMPT_KEY_MAP[motionType] || motionType;
-    const prompt = prompts.kling.imageToVideo.motionPrompts[mappedKey]
-      || prompts.kling.imageToVideo.motionPrompts[motionType]
-      || prompts.kling.imageToVideo.baseVideoPrompt;
-    const negativePrompt = prompts.kling.negativePrompt || undefined;
-    const motionDuration = prompts.kling.motionDuration || '7';
-
-    logger.info(`모션 Kling 프롬프트: type=${motionType}, mappedKey=${mappedKey}, duration=${motionDuration}`);
-
-    // Kling API 호출
-    let klingResult;
-    try {
-      klingResult = await callKlingImageToVideo(klingImage, prompt, negativePrompt, motionDuration);
-    } catch (error) {
-      logger.error(`모션 Kling API 호출 실패 (motion: ${motionId}):`, error);
-      await db.collection('motions').doc(motionId).update({
-        status: 'FAILED',
-        error: error instanceof Error ? error.message : 'Kling API 호출 실패',
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-      try {
-        await creditService.refund(userId, CREDIT_COSTS.MOTION_CREATE, '모션 영상 생성 실패 환불 (Kling API 오류)', 'MOTION', motionId);
-      } catch (refundErr) {
-        logger.error('모션 크레딧 환불 실패:', refundErr);
-      }
-      throw error;
-    }
-
-    // Firestore 업데이트
-    await db.collection('motions').doc(motionId).update({
-      status: 'PROCESSING',
-      klingJobId: klingResult.taskId,
-      klingTaskStatus: klingResult.taskStatus,
-      sourceImageUrl: selectedStartFrameUrl,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
-
-    logger.info(`모션 Kling 영상 생성 시작: taskId=${klingResult.taskId}, motion=${motionId}`);
-
-    // 비동기 폴링 시작
-    this._pollKlingMotionStatus(motionId, klingResult.taskId, userId).catch((error) => {
-      logger.error(`모션 Kling 폴링 실패 (motion: ${motionId}):`, error);
-    });
-
-    return { motionId, klingTaskId: klingResult.taskId, status: 'PROCESSING' };
-  }
-
-  /**
-   * 모션 Kling 영상 생성 상태 폴링
-   * 10초 간격으로 최대 30분간 체크
-   */
-  private async _pollKlingMotionStatus(motionId: string, klingTaskId: string, userId?: string) {
-    // Mock 모드: 4초 대기 후 즉시 COMPLETED 처리
-    if (env.USE_MOCK_AI) {
-      console.log(`[MOCK MODE] 모션 Kling 폴링 스킵 → 4초 후 COMPLETED 처리 (motion: ${motionId})`);
-      await new Promise((resolve) => setTimeout(resolve, 4000));
-      await db.collection('motions').doc(motionId).update({
-        status: 'COMPLETED',
-        videoUrl: '/uploads/mock/sample-motion.mp4',
-        gifUrl: null,
-        klingTaskStatus: 'succeed',
-        duration: '7',
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      });
-      console.log(`[MOCK MODE] 모션 COMPLETED 처리 완료: ${motionId}`);
-      return;
-    }
-
-    const maxAttempts = 180; // 10초 × 180 = 30분
-    const pollInterval = 10000;
-
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      await new Promise((resolve) => setTimeout(resolve, pollInterval));
-
-      try {
-        const result = await queryKlingVideoTask(klingTaskId);
-        logger.info(`모션 Kling 폴링 #${attempt + 1}: taskId=${klingTaskId}, status=${result.status}`);
-
-        if (result.status === 'succeed') {
-          // 영상 다운로드
-          let localVideoUrl = result.videoUrl || '';
-          if (result.videoUrl) {
-            try {
-              const videoDir = path.join(process.cwd(), 'uploads', 'videos');
-              if (!fs.existsSync(videoDir)) fs.mkdirSync(videoDir, { recursive: true });
-              const videoFilename = `motion_${motionId}.mp4`;
-              const videoPath = path.join(videoDir, videoFilename);
-              const videoResponse = await axios.get(result.videoUrl, {
-                responseType: 'arraybuffer',
-                timeout: 120000,
-              });
-              fs.writeFileSync(videoPath, Buffer.from(videoResponse.data));
-              localVideoUrl = `/uploads/videos/${videoFilename}`;
-              logger.info(`모션 영상 로컬 다운로드 완료: ${localVideoUrl}`);
-            } catch (dlError) {
-              logger.warn(`모션 영상 다운로드 실패, CDN URL 유지:`, dlError);
-              localVideoUrl = result.videoUrl;
-            }
-          }
-
-          // GIF 생성
-          let gifUrl: string | null = null;
-          if (localVideoUrl) {
-            try {
-              const gifSource = localVideoUrl.startsWith('/uploads/')
-                ? path.join(process.cwd(), localVideoUrl.substring(1))
-                : localVideoUrl;
-              gifUrl = await gifService.generateFromVideo(gifSource, 'gifs/motions', GIF_PRESETS.BASE_VIDEO);
-            } catch (gifError) {
-              logger.warn(`모션 GIF 생성 실패 (motion: ${motionId}):`, gifError);
-            }
-          }
-
-          await db.collection('motions').doc(motionId).update({
-            status: 'COMPLETED',
-            videoUrl: localVideoUrl,
-            gifUrl,
-            klingTaskStatus: result.status,
-            duration: result.duration,
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-          });
-          logger.info(`모션 영상 생성 완료: motion=${motionId}`);
-          return;
-        }
-
-        if (result.status === 'failed') {
-          await db.collection('motions').doc(motionId).update({
-            status: 'FAILED',
-            klingTaskStatus: result.status,
-            error: result.statusMsg || '모션 영상 생성에 실패했습니다.',
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-          });
-          if (userId) {
-            try {
-              await creditService.refund(userId, CREDIT_COSTS.MOTION_CREATE, '모션 영상 생성 실패 환불', 'MOTION', motionId);
-              logger.info(`모션 크레딧 환불 완료: user=${userId}, amount=${CREDIT_COSTS.MOTION_CREATE}C`);
-            } catch (refundErr) {
-              logger.error('모션 크레딧 환불 실패:', refundErr);
-            }
-          }
-          logger.error(`모션 영상 생성 실패: motion=${motionId}, msg=${result.statusMsg}`);
-          return;
-        }
-
-        // submitted / processing — 계속 폴링
-        await db.collection('motions').doc(motionId).update({
-          klingTaskStatus: result.status,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
-      } catch (error) {
-        logger.warn(`모션 Kling 폴링 오류 (attempt ${attempt + 1}):`, error);
-      }
-    }
-
-    // 타임아웃
-    await db.collection('motions').doc(motionId).update({
-      status: 'FAILED',
-      error: '모션 영상 생성 시간이 초과되었습니다. (30분)',
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
-    if (userId) {
-      try {
-        await creditService.refund(userId, CREDIT_COSTS.MOTION_CREATE, '모션 영상 생성 실패 환불 (타임아웃)', 'MOTION', motionId);
-        logger.info(`모션 크레딧 환불 완료: user=${userId}, amount=${CREDIT_COSTS.MOTION_CREATE}C (타임아웃)`);
-      } catch (refundErr) {
-        logger.error('모션 크레딧 환불 실패:', refundErr);
-      }
-    }
-    logger.error(`모션 영상 생성 타임아웃: motion=${motionId}`);
   }
 
   /**
@@ -1266,22 +908,20 @@ export class AiService {
     if (!videoSnap.empty) {
       const videoData = videoSnap.docs[0].data();
 
-      // PROCESSING이면 Kling API 실시간 확인 (실패만 즉시 반영)
-      // ★ succeed는 DB 업데이트 대기 (백엔드 폴링이 영상 다운로드 후 DB를 COMPLETED로 변경)
+      // PROCESSING이면 Kling API 실시간 확인 (Mock 모드에서는 Firestore 데이터만 사용)
       if (videoData.status === 'PROCESSING' && !env.USE_MOCK_AI) {
         try {
           const liveStatus = await queryKlingVideoTask(jobId);
-          if (liveStatus.status === 'failed') {
-            return {
-              type: 'kling_video',
-              status: 'FAILED',
-              klingStatus: liveStatus.status,
-              videoUrl: null,
-              duration: null,
-              error: liveStatus.statusMsg,
-            };
-          }
-          // succeed/processing → DB가 COMPLETED될 때까지 PROCESSING 유지
+          return {
+            type: 'kling_video',
+            status: liveStatus.status === 'succeed' ? 'COMPLETED'
+                   : liveStatus.status === 'failed' ? 'FAILED'
+                   : 'PROCESSING',
+            klingStatus: liveStatus.status,
+            videoUrl: liveStatus.videoUrl,
+            duration: liveStatus.duration,
+            error: liveStatus.statusMsg,
+          };
         } catch {
           // API 조회 실패 시 DB 데이터 반환
         }
@@ -1297,26 +937,7 @@ export class AiService {
       };
     }
 
-    // 3. 모션 Kling 영상 생성 작업 확인
-    const motionSnap = await db.collection('motions')
-      .where('klingJobId', '==', jobId)
-      .limit(1)
-      .get();
-
-    if (!motionSnap.empty) {
-      const motionData = motionSnap.docs[0].data();
-      return {
-        type: 'kling_motion',
-        status: motionData.status,
-        klingStatus: motionData.klingTaskStatus,
-        videoUrl: motionData.videoUrl,
-        gifUrl: motionData.gifUrl,
-        duration: motionData.duration,
-        error: motionData.error,
-      };
-    }
-
-    // 4. 레거시: nanoBananaJobs 호환 (이전 버전)
+    // 3. 레거시: nanoBananaJobs 호환 (이전 버전)
     const nbJobDoc = await db.collection('nanoBananaJobs').doc(jobId).get();
     if (nbJobDoc.exists) {
       const data = nbJobDoc.data()!;
