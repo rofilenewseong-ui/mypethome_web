@@ -11,7 +11,7 @@ const sidebarLinks = [
   { label: '프로필', path: '/profiles', icon: '🎬' },
   { label: '메신저', path: '/messenger', icon: '💬' },
   { label: '크레딧', path: '/settings', icon: '💰' },
-  { label: '자사몰', path: '/store', icon: '🛒' },
+  { label: '자사몰', path: 'https://coreflow5103.cafe24.com/category/My-Pet-Home/59/', icon: '🛒', external: true },
   { label: '휴지통', path: '/trash', icon: '🗑️' },
 ];
 
@@ -52,77 +52,12 @@ export default function MobileLayout({
       />
 
       <main
-        className="overflow-y-auto"
         style={{
           paddingTop: 'var(--topbar-height)',
-          paddingBottom: showBackFloat ? '60px' : '0',
         }}
       >
         {children}
       </main>
-
-      {/* 좌하단 고정 뒤로가기 */}
-      {showBackFloat && (
-        <button
-          onClick={() => router.back()}
-          className="fixed z-30"
-          style={{
-            left: 'max(12px, calc((100vw - 430px) / 2 + 12px))',
-            bottom: 'calc(var(--safe-area-bottom) + 14px)',
-          }}
-          aria-label="뒤로가기"
-        >
-          <div
-            className="flex h-11 w-11 items-center justify-center rounded-full border"
-            style={{
-              background: 'rgba(255, 250, 245, 0.82)',
-              borderColor: 'rgba(77, 55, 43, 0.08)',
-              backdropFilter: 'blur(18px)',
-              WebkitBackdropFilter: 'blur(18px)',
-              boxShadow: 'var(--shadow-card)',
-              color: 'var(--text-secondary)',
-            }}
-          >
-            <span className="text-lg">←</span>
-          </div>
-        </button>
-      )}
-
-      {/* 우하단 고정 메신저 */}
-      {showMessage && (
-        <button
-          onClick={() => router.push('/messenger')}
-          className="fixed z-30"
-          style={{
-            right: 'max(12px, calc((100vw - 430px) / 2 + 12px))',
-            bottom: 'calc(var(--safe-area-bottom) + 14px)',
-          }}
-          aria-label="메신저"
-        >
-          <div
-            className="relative flex h-11 w-11 items-center justify-center rounded-full border"
-            style={{
-              background: 'rgba(255, 250, 245, 0.82)',
-              borderColor: 'rgba(77, 55, 43, 0.08)',
-              backdropFilter: 'blur(18px)',
-              WebkitBackdropFilter: 'blur(18px)',
-              boxShadow: 'var(--shadow-card)',
-              color: 'var(--text-secondary)',
-            }}
-          >
-            <span className="text-base">💬</span>
-            {hasNewMessage && (
-              <span
-                className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2"
-                style={{
-                  background: 'var(--accent-red)',
-                  borderColor: 'rgba(255, 250, 245, 0.82)',
-                }}
-              />
-            )}
-          </div>
-        </button>
-      )}
 
       {/* ============ 사이드 메뉴 ============ */}
       {showSidebar && (
@@ -166,7 +101,11 @@ export default function MobileLayout({
                       key={item.path}
                       onClick={() => {
                         setShowSidebar(false);
-                        router.push(item.path);
+                        if ((item as { external?: boolean }).external) {
+                          window.open(item.path, '_blank');
+                        } else {
+                          router.push(item.path);
+                        }
                       }}
                       className="flex w-full items-center gap-3 rounded-[var(--radius-sm)] px-3 py-3 text-left transition-colors"
                       style={{

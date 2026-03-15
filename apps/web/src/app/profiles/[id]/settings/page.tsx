@@ -53,6 +53,7 @@ export default function ProfileSettingsPage() {
     emoji: string;
     position?: string;
   } | null>(null);
+  const [bulkDeleteModal, setBulkDeleteModal] = useState(false);
   const [purchaseModal, setPurchaseModal] = useState<{
     motionType: MotionType;
     label: string;
@@ -60,9 +61,44 @@ export default function ProfileSettingsPage() {
   const [showSaveToast, setShowSaveToast] = useState(false);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  // API에서 데이터 로드
+  const isSample = profileId.startsWith('sample-');
+
+  // 샘플 데이터 (보리 영상)
+  const SAMPLE_DOG_DATA = {
+    petName: '보리',
+    baseVideos: [
+      { id: 'sb-1', name: '기본', emoji: '🎬', gifUrl: null, videoUrl: '/samples/bori/base.mp4', thumbnailUrl: null, isActive: true },
+    ] as BaseVideo[],
+    motions: [
+      { id: 'sm-1', name: '앉기', motionType: 'SIT' as MotionType, gifUrl: null, videoUrl: '/samples/bori/motion-1.mp4', thumbnailUrl: null, position: 'LEFT' as const, status: 'COMPLETED' },
+      { id: 'sm-2', name: '엎드리기', motionType: 'LIE_DOWN' as MotionType, gifUrl: null, videoUrl: '/samples/bori/motion-2.mp4', thumbnailUrl: null, position: 'RIGHT' as const, status: 'COMPLETED' },
+      { id: 'sm-3', name: '고개갸웃', motionType: 'HEAD_TILT' as MotionType, gifUrl: null, videoUrl: '/samples/bori/motion-3.mp4', thumbnailUrl: null, position: 'NONE' as const, status: 'COMPLETED' },
+      { id: 'sm-4', name: '꼬리흔들기', motionType: 'TAIL_WAG' as MotionType, gifUrl: null, videoUrl: '/samples/bori/motion-4.mp4', thumbnailUrl: null, position: 'NONE' as const, status: 'COMPLETED' },
+      { id: 'sm-5', name: '발들기', motionType: 'FRONT_PAWS_UP' as MotionType, gifUrl: null, videoUrl: '/samples/bori/motion-5.mp4', thumbnailUrl: null, position: 'NONE' as const, status: 'COMPLETED' },
+      { id: 'sm-6', name: '하나밀기', motionType: 'PUSH_NOSE' as MotionType, gifUrl: null, videoUrl: '/samples/bori/motion-6.mp4', thumbnailUrl: null, position: 'NONE' as const, status: 'COMPLETED' },
+      { id: 'sm-7', name: '돌아보기', motionType: 'LOOK_BACK' as MotionType, gifUrl: null, videoUrl: '/samples/bori/motion-7.mp4', thumbnailUrl: null, position: 'NONE' as const, status: 'COMPLETED' },
+      { id: 'sm-8', name: '몸털기', motionType: 'SHAKE_BODY' as MotionType, gifUrl: null, videoUrl: '/samples/bori/motion-8.mp4', thumbnailUrl: null, position: 'NONE' as const, status: 'COMPLETED' },
+      { id: 'sm-9', name: '바닥냄새맡기', motionType: 'SNIFF_GROUND' as MotionType, gifUrl: null, videoUrl: '/samples/bori/motion-9.mp4', thumbnailUrl: null, position: 'NONE' as const, status: 'COMPLETED' },
+      { id: 'sm-10', name: '놀이보기', motionType: 'PLAY_BOW' as MotionType, gifUrl: null, videoUrl: '/samples/bori/motion-10.mp4', thumbnailUrl: null, position: 'NONE' as const, status: 'COMPLETED' },
+    ] as Motion[],
+  };
+
+  // API에서 데이터 로드 (샘플이 아닌 경우만)
   useEffect(() => {
+    if (isSample) {
+      if (profileId === 'sample-dog') {
+        setPetName(SAMPLE_DOG_DATA.petName);
+        setBaseVideos(SAMPLE_DOG_DATA.baseVideos);
+        setMotions(SAMPLE_DOG_DATA.motions);
+      } else {
+        setPetName('냥이');
+      }
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const profileRes = await profilesApi.get(profileId);
@@ -110,7 +146,7 @@ export default function ProfileSettingsPage() {
       }
     };
     fetchData();
-  }, [profileId]);
+  }, [profileId, isSample]);
 
   /* ---- 자동 저장 토스트 ---- */
   const showAutoSave = useCallback(() => {
@@ -245,354 +281,257 @@ export default function ProfileSettingsPage() {
       showBack
     >
       <div className="space-y-4 animate-fade-in">
-        {/* ============ 1. 3분할 미니 프리뷰 ============ */}
+        {/* ============ 1. Sticky 영상 프리뷰 + 플레이어 버튼 ============ */}
         <div
-          className="mx-4 mt-4 rounded-[var(--radius-lg)] overflow-hidden flex"
+          className="sticky z-40 mx-4 mt-4"
+          style={{ top: 'var(--topbar-height)' }}
+        >
+        <div
+          className="rounded-[var(--radius-lg)] overflow-hidden"
           style={{
-            height: '56px',
-            background: 'rgba(0,0,0,0.6)',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: 'rgba(0,0,0,0.85)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
-          {/* LEFT 슬롯 */}
-          <div
-            className="flex-1 flex flex-col items-center justify-center gap-0.5 relative"
-            style={{
-              background: leftMotion ? 'rgba(102, 126, 234, 0.15)' : 'transparent',
-              borderBottom: leftMotion ? '2px solid #667eea' : '2px solid transparent',
-            }}
-          >
-            {leftMotion ? (
-              <>
-                {leftMotion.thumbnailUrl ? (
-                  <img src={leftMotion.thumbnailUrl} alt={leftMotion.name} className="w-7 h-7 rounded object-cover" />
-                ) : (
-                  <span className="text-sm">{MOTION_TYPE_EMOJIS[leftMotion.motionType]}</span>
-                )}
-                <span className="text-[7px] font-bold" style={{ color: '#667eea' }}>LEFT</span>
-              </>
-            ) : (
-              <>
-                <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>
-                <span className="text-[7px]" style={{ color: 'rgba(255,255,255,0.25)' }}>LEFT</span>
-              </>
-            )}
+          {/* 3분할 영상 재생 — 각 칸 1:1 */}
+          <div className="grid grid-cols-3 gap-[1px]" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            {/* LEFT 모션 */}
+            <button
+              className="relative flex items-center justify-center overflow-hidden"
+              style={{ background: '#0a0a0a', aspectRatio: '1' }}
+              onClick={() => { if (leftMotion?.videoUrl) setPlayingVideoId(playingVideoId === leftMotion.id ? null : leftMotion.id); }}
+            >
+              {leftMotion?.videoUrl ? (
+                <video
+                  key={`left-${leftMotion.id}`}
+                  src={leftMotion.videoUrl}
+                  autoPlay loop muted playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-lg" style={{ color: 'rgba(255,255,255,0.2)' }}>◀</span>
+                </div>
+              )}
+            </button>
+
+            {/* BASE 영상 */}
+            <div className="relative flex items-center justify-center overflow-hidden" style={{ background: '#0a0a0a', aspectRatio: '1' }}>
+              {activeBase?.videoUrl ? (
+                <video
+                  key={`base-${activeBase.id}`}
+                  src={activeBase.videoUrl}
+                  autoPlay loop muted playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : activeBase?.gifUrl ? (
+                <img src={activeBase.gifUrl} alt="베이스" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-2xl animate-pulse">{activeBase?.emoji || '🐾'}</span>
+              )}
+            </div>
+
+            {/* RIGHT 모션 */}
+            <button
+              className="relative flex items-center justify-center overflow-hidden"
+              style={{ background: '#0a0a0a', aspectRatio: '1' }}
+              onClick={() => { if (rightMotion?.videoUrl) setPlayingVideoId(playingVideoId === rightMotion.id ? null : rightMotion.id); }}
+            >
+              {rightMotion?.videoUrl ? (
+                <video
+                  key={`right-${rightMotion.id}`}
+                  src={rightMotion.videoUrl}
+                  autoPlay loop muted playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-lg" style={{ color: 'rgba(255,255,255,0.2)' }}>▶</span>
+                </div>
+              )}
+            </button>
           </div>
 
-          {/* CENTER/BASE 슬롯 */}
-          <div
-            className="flex-[1.3] flex flex-col items-center justify-center gap-0.5 relative"
-            style={{
-              borderLeft: '1px solid rgba(255,255,255,0.05)',
-              borderRight: '1px solid rgba(255,255,255,0.05)',
-              background: 'rgba(100,200,255,0.06)',
-            }}
-          >
-            {activeBase?.thumbnailUrl ? (
-              <img src={activeBase.thumbnailUrl} alt={activeBase.name} className="w-8 h-10 rounded object-cover" />
-            ) : (
-              <span className="text-sm">{activeBase?.emoji || '🎬'}</span>
-            )}
-            <span className="text-[7px] font-bold" style={{ color: 'var(--accent-holo)' }}>BASE</span>
-            <div
-              className="absolute bottom-0 left-0 right-0 h-[2px]"
-              style={{
-                background: 'linear-gradient(90deg, transparent, var(--accent-holo), transparent)',
-                animation: 'scan-bar 2s linear infinite',
-              }}
-            />
+          {/* 하단 LEFT / 기본 / RIGHT 라벨 */}
+          <div className="flex" style={{ height: '28px', flexShrink: 0 }}>
+            <div className="flex-1 flex items-center justify-center"
+              style={{ background: leftMotion ? 'rgba(102,126,234,0.15)' : 'transparent',
+                borderTop: leftMotion ? '2px solid #667eea' : '2px solid transparent' }}>
+              <span className="text-[8px] font-bold" style={{ color: leftMotion ? '#667eea' : 'rgba(255,255,255,0.25)' }}>
+                {leftMotion ? `◀ ${leftMotion.name}` : '◀ LEFT'}
+              </span>
+            </div>
+            <div className="flex-1 flex items-center justify-center"
+              style={{ borderLeft: '1px solid rgba(255,255,255,0.05)', borderRight: '1px solid rgba(255,255,255,0.05)',
+                background: 'rgba(100,200,255,0.06)' }}>
+              <span className="text-[8px] font-bold" style={{ color: 'var(--accent-holo)' }}>
+                {activeBase?.name || '기본'}
+              </span>
+            </div>
+            <div className="flex-1 flex items-center justify-center"
+              style={{ background: rightMotion ? 'rgba(240,147,251,0.15)' : 'transparent',
+                borderTop: rightMotion ? '2px solid #f093fb' : '2px solid transparent' }}>
+              <span className="text-[8px] font-bold" style={{ color: rightMotion ? '#f093fb' : 'rgba(255,255,255,0.25)' }}>
+                {rightMotion ? `${rightMotion.name} ▶` : 'RIGHT ▶'}
+              </span>
+            </div>
           </div>
+        </div>
+        <div className="mt-2">
+          <Button fullWidth onClick={() => router.push(`/player/${profileId}`)}>
+            ▶ 플레이어에서 확인하기
+          </Button>
+        </div>
+        </div>
 
-          {/* RIGHT 슬롯 */}
-          <div
-            className="flex-1 flex flex-col items-center justify-center gap-0.5 relative"
+        {/* ============ 선택 삭제 바 ============ */}
+        <div className="px-4 flex items-center justify-between">
+          <button
+            onClick={() => { setSelectMode(!selectMode); setSelectedIds(new Set()); }}
+            className="px-3 py-1.5 rounded-[var(--radius-sm)] text-[10px] font-bold transition-all"
             style={{
-              background: rightMotion ? 'rgba(240, 147, 251, 0.15)' : 'transparent',
-              borderBottom: rightMotion ? '2px solid #f093fb' : '2px solid transparent',
+              background: selectMode ? 'rgba(196,92,74,0.1)' : 'var(--bg-card)',
+              color: selectMode ? 'var(--accent-red)' : 'var(--text-secondary)',
+              border: `1px solid ${selectMode ? 'rgba(196,92,74,0.3)' : 'var(--border-card)'}`,
             }}
           >
-            {rightMotion ? (
-              <>
-                {rightMotion.thumbnailUrl ? (
-                  <img src={rightMotion.thumbnailUrl} alt={rightMotion.name} className="w-7 h-7 rounded object-cover" />
-                ) : (
-                  <span className="text-sm">{MOTION_TYPE_EMOJIS[rightMotion.motionType]}</span>
-                )}
-                <span className="text-[7px] font-bold" style={{ color: '#f093fb' }}>RIGHT</span>
-              </>
-            ) : (
-              <>
-                <span className="text-[10px]" style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>
-                <span className="text-[7px]" style={{ color: 'rgba(255,255,255,0.25)' }}>RIGHT</span>
-              </>
-            )}
-          </div>
+            {selectMode ? '취소' : '선택 삭제'}
+          </button>
+          {selectMode && selectedIds.size > 0 && (
+            <button
+              onClick={() => setBulkDeleteModal(true)}
+              className="px-3 py-1.5 rounded-[var(--radius-sm)] text-[10px] font-bold"
+              style={{ background: 'var(--accent-red)', color: '#fff' }}
+            >
+              🗑 {selectedIds.size}개 삭제
+            </button>
+          )}
         </div>
 
         {/* ============ 2. 베이스 영상 섹션 ============ */}
         <section className="px-4 space-y-2">
           <div className="flex items-center justify-between">
-            <h3 className="text-[13px] font-bold" style={{ color: 'var(--text-primary)' }}>
-              베이스 영상
-            </h3>
-            <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
-              최대 3개 · 추가 {CREDIT_COSTS.BASE_VIDEO_CREATE}C
-            </span>
+            <h3 className="text-[13px] font-bold" style={{ color: 'var(--text-primary)' }}>베이스 영상</h3>
+            <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>최대 3개 · 추가 {CREDIT_COSTS.BASE_VIDEO_CREATE}C</span>
           </div>
-
-          <div className="flex gap-2.5 overflow-x-auto pb-2 -mx-1 px-1">
-            {baseVideos.map((video) => (
-              <div
-                key={video.id}
-                className="flex-shrink-0 relative rounded-[var(--radius-md)] overflow-hidden cursor-pointer transition-all"
-                style={{
-                  width: '80px',
-                  height: '108px',
-                  background: video.isActive ? 'rgba(100,200,255,0.08)' : 'var(--bg-card)',
-                  border: `2px solid ${video.isActive ? 'var(--accent-holo)' : 'var(--border-card)'}`,
-                  boxShadow: video.isActive ? '0 0 12px rgba(100,200,255,0.15)' : 'none',
-                }}
-                onClick={() => activateVideo(video.id)}
-              >
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  {video.thumbnailUrl ? (
-                    <>
-                      <img src={video.thumbnailUrl} alt={video.name} className="w-full h-full object-cover rounded-[var(--radius-md)]" />
-                      {video.isActive && (
-                        <span
-                          className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[7px] px-1.5 py-0.5 rounded-full font-bold"
-                          style={{ background: 'rgba(0,0,0,0.6)', color: 'var(--accent-holo)' }}
-                        >
-                          활성
-                        </span>
-                      )}
-                    </>
+          <div className="grid grid-cols-3 gap-2">
+            {baseVideos.map((video) => {
+              const isPlaying = playingVideoId === `base-${video.id}`;
+              const isSelected = selectedIds.has(video.id);
+              return (
+                <div key={video.id}
+                  className="rounded-[var(--radius-md)] overflow-hidden cursor-pointer transition-all relative"
+                  style={{ aspectRatio: '1', background: '#0a0a0a', border: `2px solid ${video.isActive ? 'var(--accent-holo)' : isSelected ? 'var(--accent-red)' : 'var(--border-card)'}` }}
+                  onClick={() => {
+                    if (selectMode) {
+                      // 베이스 영상 1개만 남으면 선택 불가
+                      if (baseVideos.length <= 1) return;
+                      setSelectedIds((prev) => { const n = new Set(prev); n.has(video.id) ? n.delete(video.id) : n.add(video.id); return n; });
+                    } else {
+                      if (video.videoUrl) setPlayingVideoId(isPlaying ? null : `base-${video.id}`);
+                      activateVideo(video.id);
+                    }
+                  }}
+                >
+                  {isPlaying && video.videoUrl ? (
+                    <video src={video.videoUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+                  ) : video.videoUrl ? (
+                    <video src={`${video.videoUrl}#t=0.1`} muted playsInline preload="auto" className="w-full h-full object-cover" style={{ pointerEvents: 'none' }} />
                   ) : (
-                    <>
-                      <span className="text-xl mb-0.5">{video.emoji}</span>
-                      <span className="text-[9px] font-semibold px-1 text-center leading-tight" style={{ color: 'var(--text-secondary)' }}>
-                        {video.name}
-                      </span>
-                      {video.isActive && (
-                        <span className="text-[7px] mt-1 px-1.5 py-0.5 rounded-full font-bold" style={{ background: 'rgba(100,200,255,0.2)', color: 'var(--accent-holo)' }}>
-                          활성
-                        </span>
-                      )}
-                    </>
+                    <div className="w-full h-full flex flex-col items-center justify-center">
+                      <span className="text-xl">{video.emoji}</span>
+                      <span className="text-[9px] mt-1" style={{ color: 'var(--text-muted)' }}>{video.name}</span>
+                    </div>
                   )}
+                  {video.isActive && <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[7px] px-1.5 py-0.5 rounded-full font-bold" style={{ background: 'rgba(0,0,0,0.6)', color: 'var(--accent-holo)' }}>활성</span>}
+                  {selectMode && <div className="absolute top-1 left-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ background: isSelected ? 'var(--accent-red)' : 'rgba(0,0,0,0.5)', color: '#fff', border: '1.5px solid rgba(255,255,255,0.3)' }}>{isSelected ? '✓' : ''}</div>}
                 </div>
-
-                {/* X 삭제 버튼 */}
-                {baseVideos.length > 1 && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setDeleteModal({ type: 'video', id: video.id, name: video.name, emoji: video.emoji });
-                    }}
-                    className="absolute top-1 right-1 w-4 h-4 rounded-full flex items-center justify-center text-[8px]"
-                    style={{ background: 'rgba(196,92,74,0.7)', color: '#fff' }}
-                  >
-                    ✕
-                  </button>
-                )}
-
-                {video.isActive && (
-                  <div
-                    className="absolute bottom-0 left-0 right-0 h-[2px]"
-                    style={{ background: 'linear-gradient(90deg, transparent, var(--accent-holo), transparent)', animation: 'scan-bar 2s linear infinite' }}
-                  />
-                )}
-              </div>
-            ))}
-
-            {/* + 추가 카드 */}
+              );
+            })}
             {baseVideos.length < 3 && (
-              <button
-                className="flex-shrink-0 rounded-[var(--radius-md)] flex flex-col items-center justify-center gap-1 transition-all active:scale-[0.95]"
-                style={{ width: '80px', height: '108px', border: '2px dashed var(--border-card)', background: 'transparent' }}
-                onClick={() => {
-                  if (petId) {
-                    router.push(`/pets/${petId}/profiles/new?profileId=${profileId}`);
-                  } else {
-                    router.push(`/pets/unknown/profiles/new?profileId=${profileId}`);
-                  }
-                }}
-              >
+              <button className="rounded-[var(--radius-md)] flex flex-col items-center justify-center gap-1 transition-all active:scale-[0.95]"
+                style={{ aspectRatio: '1', border: '2px dashed var(--border-card)', background: 'transparent' }}
+                onClick={() => { if (petId) router.push(`/pets/${petId}/profiles/new?profileId=${profileId}`); else router.push(`/pets/unknown/profiles/new?profileId=${profileId}`); }}>
                 <span className="text-lg" style={{ color: 'var(--text-muted)' }}>+</span>
-                <span className="text-[8px] font-bold" style={{ color: 'var(--text-muted)' }}>
-                  추가 ({CREDIT_COSTS.BASE_VIDEO_CREATE}C)
-                </span>
+                <span className="text-[8px] font-bold" style={{ color: 'var(--text-muted)' }}>추가 ({CREDIT_COSTS.BASE_VIDEO_CREATE}C)</span>
               </button>
             )}
           </div>
         </section>
 
-        {/* ============ 3. 모션 영상 — 12칸 고정 그리드 ============ */}
+        {/* ============ 3. 모션 영상 — 구매 먼저, 미구매 뒤로 ============ */}
         <section className="px-4 pb-4 space-y-2">
           <div className="flex items-center justify-between">
-            <h3 className="text-[13px] font-bold" style={{ color: 'var(--text-primary)' }}>
-              모션 영상
-            </h3>
-            <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
-              추가 {CREDIT_COSTS.MOTION_CREATE}C · 삭제 시 50% 환불
-            </span>
+            <h3 className="text-[13px] font-bold" style={{ color: 'var(--text-primary)' }}>모션 영상</h3>
+            <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>추가 {CREDIT_COSTS.MOTION_CREATE}C · 삭제 시 50% 환불</span>
           </div>
-
           <div className="grid grid-cols-3 gap-2">
-            {ALL_MOTION_TYPES.map((motionType) => {
-              const purchased = motions.find((m) => m.motionType === motionType);
-
-              if (purchased) {
-                // ===== 구매된 모션 카드 =====
-                const isPlaying = playingVideoId === purchased.id;
-                const posColor = purchased.position === 'LEFT' ? '#667eea' : purchased.position === 'RIGHT' ? '#f093fb' : undefined;
-
-                return (
-                  <div
-                    key={motionType}
-                    className="rounded-[var(--radius-md)] overflow-hidden relative transition-all"
-                    style={{
-                      background: posColor ? `${posColor}11` : 'var(--bg-card)',
-                      border: `1.5px solid ${posColor || 'var(--border-card)'}`,
-                    }}
-                  >
-                    {/* 썸네일 / 영상 영역 */}
-                    <div
-                      className="relative flex items-center justify-center cursor-pointer"
-                      style={{ aspectRatio: '1' }}
-                      onClick={() => {
-                        if (purchased.videoUrl) {
-                          setPlayingVideoId(isPlaying ? null : purchased.id);
-                        }
-                      }}
-                    >
-                      {isPlaying && purchased.videoUrl ? (
-                        <video
-                          src={purchased.videoUrl}
-                          autoPlay
-                          muted
-                          playsInline
-                          onEnded={() => setPlayingVideoId(null)}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (purchased.thumbnailUrl || purchased.gifUrl) ? (
-                        <>
-                          <img src={purchased.thumbnailUrl || purchased.gifUrl || ''} alt={purchased.name} className="w-full h-full object-cover" />
-                          {purchased.videoUrl && (
-                            <span className="absolute inset-0 flex items-center justify-center text-lg" style={{ background: 'rgba(0,0,0,0.2)' }}>
-                              ▶
-                            </span>
-                          )}
-                        </>
-                      ) : (
-                        <span className="text-xl">{MOTION_TYPE_EMOJIS[motionType]}</span>
-                      )}
-
-                      {/* 상태 배지 */}
-                      {purchased.status === 'PENDING' && (
-                        <span className="absolute top-1 left-1 px-1 rounded text-[6px] font-bold" style={{ background: 'rgba(196,137,77,0.4)', color: '#c4894d' }}>
-                          생성중
-                        </span>
-                      )}
-
-                      {/* 방향 배지 */}
-                      {purchased.position !== 'NONE' && (
-                        <span
-                          className="absolute top-1 right-1 px-1 py-0.5 rounded text-[6px] font-bold"
-                          style={{ background: `${posColor}33`, color: posColor }}
-                        >
-                          {purchased.position}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* 이름 + 인라인 버튼 */}
-                    <div className="px-1.5 py-1.5">
-                      <p className="text-[9px] font-semibold text-center truncate mb-1" style={{ color: 'var(--text-secondary)' }}>
-                        {purchased.name}
-                      </p>
-                      <div className="flex items-center justify-center gap-1">
-                        <button
-                          onClick={() => assignMotion(purchased.id, purchased.position === 'LEFT' ? 'NONE' : 'LEFT')}
-                          className="px-1.5 py-0.5 rounded text-[8px] font-bold transition-all"
-                          style={{
-                            background: purchased.position === 'LEFT' ? '#667eea' : 'rgba(102,126,234,0.1)',
-                            color: purchased.position === 'LEFT' ? '#fff' : '#667eea',
-                            border: '1px solid rgba(102,126,234,0.3)',
-                          }}
-                        >
-                          ◀
-                        </button>
-                        <button
-                          onClick={() => assignMotion(purchased.id, purchased.position === 'RIGHT' ? 'NONE' : 'RIGHT')}
-                          className="px-1.5 py-0.5 rounded text-[8px] font-bold transition-all"
-                          style={{
-                            background: purchased.position === 'RIGHT' ? '#f093fb' : 'rgba(240,147,251,0.1)',
-                            color: purchased.position === 'RIGHT' ? '#fff' : '#f093fb',
-                            border: '1px solid rgba(240,147,251,0.3)',
-                          }}
-                        >
-                          ▶
-                        </button>
-                        <button
-                          onClick={() =>
-                            setDeleteModal({
-                              type: 'motion',
-                              id: purchased.id,
-                              name: purchased.name,
-                              emoji: MOTION_TYPE_EMOJIS[motionType],
-                              position: purchased.position,
-                            })
-                          }
-                          className="px-1.5 py-0.5 rounded text-[8px] transition-all"
-                          style={{ background: 'rgba(196,92,74,0.1)', color: 'var(--accent-red)', border: '1px solid rgba(196,92,74,0.2)' }}
-                        >
-                          🗑
-                        </button>
-                      </div>
+            {/* 구매한 모션 먼저 */}
+            {ALL_MOTION_TYPES.filter((mt) => motions.find((m) => m.motionType === mt)).map((motionType) => {
+              const purchased = motions.find((m) => m.motionType === motionType)!;
+              const isPlaying = playingVideoId === purchased.id;
+              const posColor = purchased.position === 'LEFT' ? '#667eea' : purchased.position === 'RIGHT' ? '#f093fb' : undefined;
+              const isSelected = selectedIds.has(purchased.id);
+              return (
+                <div key={motionType} className="rounded-[var(--radius-md)] overflow-hidden relative transition-all"
+                  style={{ background: posColor ? `${posColor}11` : 'var(--bg-card)', border: `1.5px solid ${isSelected ? 'var(--accent-red)' : posColor || 'var(--border-card)'}` }}>
+                  <div className="relative flex items-center justify-center cursor-pointer" style={{ aspectRatio: '1' }}
+                    onClick={() => {
+                      if (selectMode) {
+                        setSelectedIds((prev) => { const n = new Set(prev); n.has(purchased.id) ? n.delete(purchased.id) : n.add(purchased.id); return n; });
+                      } else if (purchased.videoUrl) {
+                        setPlayingVideoId(isPlaying ? null : purchased.id);
+                      }
+                    }}>
+                    {isPlaying && purchased.videoUrl ? (
+                      <video src={purchased.videoUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+                    ) : purchased.videoUrl ? (
+                      <video src={`${purchased.videoUrl}#t=0.1`} muted playsInline preload="auto" className="w-full h-full object-cover" style={{ pointerEvents: 'none' }} />
+                    ) : (
+                      <span className="text-xl">{MOTION_TYPE_EMOJIS[motionType]}</span>
+                    )}
+                    {purchased.status === 'PENDING' && <span className="absolute top-1 left-1 px-1 rounded text-[6px] font-bold" style={{ background: 'rgba(196,137,77,0.4)', color: '#c4894d' }}>생성중</span>}
+                    {purchased.position !== 'NONE' && <span className="absolute top-1 right-1 px-1 py-0.5 rounded text-[6px] font-bold" style={{ background: `${posColor}33`, color: posColor }}>{purchased.position}</span>}
+                    {selectMode && <div className="absolute top-1 left-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ background: isSelected ? 'var(--accent-red)' : 'rgba(0,0,0,0.5)', color: '#fff', border: '1.5px solid rgba(255,255,255,0.3)' }}>{isSelected ? '✓' : ''}</div>}
+                  </div>
+                  <div className="px-1 py-1.5">
+                    <p className="text-[9px] font-semibold text-center truncate mb-1" style={{ color: 'var(--text-secondary)' }}>{purchased.name}</p>
+                    <div className="grid grid-cols-2 gap-1">
+                      <button onClick={() => assignMotion(purchased.id, purchased.position === 'LEFT' ? 'NONE' : 'LEFT')}
+                        className="py-1 rounded text-[9px] font-bold transition-all"
+                        style={{ background: purchased.position === 'LEFT' ? '#667eea' : 'rgba(102,126,234,0.1)', color: purchased.position === 'LEFT' ? '#fff' : '#667eea', border: '1px solid rgba(102,126,234,0.3)' }}>
+                        ◀ L
+                      </button>
+                      <button onClick={() => assignMotion(purchased.id, purchased.position === 'RIGHT' ? 'NONE' : 'RIGHT')}
+                        className="py-1 rounded text-[9px] font-bold transition-all"
+                        style={{ background: purchased.position === 'RIGHT' ? '#f093fb' : 'rgba(240,147,251,0.1)', color: purchased.position === 'RIGHT' ? '#fff' : '#f093fb', border: '1px solid rgba(240,147,251,0.3)' }}>
+                        R ▶
+                      </button>
                     </div>
                   </div>
-                );
-              }
-
-              // ===== 잠긴 슬롯 (미구매) =====
-              return (
-                <button
-                  key={motionType}
-                  onClick={() => {
-                    if (userCredits < CREDIT_COSTS.MOTION_CREATE) {
-                      setCreditUpsellModal({ needed: CREDIT_COSTS.MOTION_CREATE, action: MOTION_TYPE_LABELS[motionType] });
-                      return;
-                    }
-                    setPurchaseModal({ motionType, label: MOTION_TYPE_LABELS[motionType] });
-                  }}
-                  className="rounded-[var(--radius-md)] flex flex-col items-center justify-center gap-1.5 transition-all active:scale-[0.97]"
-                  style={{
-                    aspectRatio: '0.75',
-                    background: 'rgba(74,52,42,0.03)',
-                    border: '1.5px dashed var(--border-card)',
-                    opacity: 0.5,
-                  }}
-                >
-                  <span className="text-xl">🔒</span>
-                  <span className="text-[9px] font-semibold text-center leading-tight" style={{ color: 'var(--text-muted)' }}>
-                    {MOTION_TYPE_LABELS[motionType]}
-                  </span>
-                  <span className="text-[8px] font-bold" style={{ color: 'var(--accent-warm)' }}>
-                    {CREDIT_COSTS.MOTION_CREATE}C
-                  </span>
-                </button>
+                </div>
               );
             })}
+            {/* 미구매 모션 뒤에 */}
+            {ALL_MOTION_TYPES.filter((mt) => !motions.find((m) => m.motionType === mt)).map((motionType) => (
+              <button key={motionType}
+                onClick={() => {
+                  if (userCredits < CREDIT_COSTS.MOTION_CREATE) { setCreditUpsellModal({ needed: CREDIT_COSTS.MOTION_CREATE, action: MOTION_TYPE_LABELS[motionType] }); return; }
+                  setPurchaseModal({ motionType, label: MOTION_TYPE_LABELS[motionType] });
+                }}
+                className="rounded-[var(--radius-md)] flex flex-col items-center justify-center gap-1.5 transition-all active:scale-[0.97]"
+                style={{ aspectRatio: '1', background: 'rgba(74,52,42,0.03)', border: '1.5px dashed var(--border-card)', opacity: 0.5 }}>
+                <span className="text-xl">🔒</span>
+                <span className="text-[9px] font-semibold text-center leading-tight" style={{ color: 'var(--text-muted)' }}>{MOTION_TYPE_LABELS[motionType]}</span>
+                <span className="text-[8px] font-bold" style={{ color: 'var(--accent-warm)' }}>{CREDIT_COSTS.MOTION_CREATE}C</span>
+              </button>
+            ))}
           </div>
         </section>
 
-        {/* 플레이어로 이동 버튼 */}
-        <div className="px-4 pb-6">
-          <Button fullWidth onClick={() => router.push(`/player/${profileId}`)}>
-            ▶ 플레이어에서 확인하기
-          </Button>
-        </div>
       </div>
 
       {/* ============ 자동 저장 토스트 ============ */}
@@ -759,12 +698,78 @@ export default function ProfileSettingsPage() {
               <Button variant="secondary" fullWidth onClick={() => setCreditUpsellModal(null)}>
                 닫기
               </Button>
-              <Button fullWidth onClick={() => { setCreditUpsellModal(null); router.push('/store'); }}>
+              <Button fullWidth onClick={() => { setCreditUpsellModal(null); window.open('https://coreflow5103.cafe24.com/category/My-Pet-Home/59/', '_blank'); }}>
                 충전하러 가기
               </Button>
             </div>
           </>
         )}
+      </Modal>
+
+      {/* ============ 다중 삭제 확인 모달 ============ */}
+      <Modal
+        isOpen={bulkDeleteModal}
+        onClose={() => setBulkDeleteModal(false)}
+        title={`${selectedIds.size}개 항목 삭제`}
+      >
+        <div className="space-y-3 mb-4">
+          <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+            다음 항목이 삭제됩니다:
+          </p>
+          <div className="space-y-2 max-h-[200px] overflow-y-auto">
+            {Array.from(selectedIds).map((id) => {
+              const video = baseVideos.find((v) => v.id === id);
+              const motion = motions.find((m) => m.id === id);
+              const item = video || motion;
+              if (!item) return null;
+              const isVideo = !!video;
+              const posLabel = !isVideo && (item as Motion).position !== 'NONE' ? (item as Motion).position : null;
+              return (
+                <div key={id} className="flex items-center gap-3 p-2 rounded-[var(--radius-sm)]"
+                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border-card)' }}>
+                  <span className="text-lg">{isVideo ? '🎬' : '🎭'}</span>
+                  <div className="flex-1">
+                    <p className="text-[11px] font-semibold" style={{ color: 'var(--text-primary)' }}>{item.name}</p>
+                    <p className="text-[9px]" style={{ color: 'var(--text-muted)' }}>{isVideo ? '베이스 영상' : '모션 영상'}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="rounded-[var(--radius-sm)] p-3"
+            style={{ background: 'rgba(196,137,77,0.08)', border: '1px solid rgba(196,137,77,0.15)' }}>
+            <div className="flex items-center justify-between text-[10px] mb-1">
+              <span style={{ color: 'var(--text-muted)' }}>삭제 시 환불</span>
+              <span className="font-bold" style={{ color: 'var(--accent-green)' }}>+{selectedIds.size * 20}C (50%)</span>
+            </div>
+            <p className="text-[9px]" style={{ color: 'var(--text-muted)' }}>휴지통으로 이동 · 30일 보관</p>
+          </div>
+        </div>
+        <div className="flex gap-3">
+          <Button variant="secondary" fullWidth onClick={() => setBulkDeleteModal(false)}>취소</Button>
+          <Button variant="danger" fullWidth onClick={async () => {
+            for (const id of selectedIds) {
+              const isVideo = baseVideos.some((v) => v.id === id);
+              if (isVideo) {
+                await baseVideosApi.delete(profileId, id).catch(() => {});
+                setBaseVideos((prev) => {
+                  const filtered = prev.filter((v) => v.id !== id);
+                  if (!filtered.find((v) => v.isActive) && filtered.length > 0) filtered[0].isActive = true;
+                  return filtered;
+                });
+              } else {
+                await motionsApi.delete(profileId, id).catch(() => {});
+                setMotions((prev) => prev.filter((m) => m.id !== id));
+              }
+            }
+            setBulkDeleteModal(false);
+            setSelectMode(false);
+            setSelectedIds(new Set());
+            showAutoSave();
+          }}>
+            {selectedIds.size}개 삭제하기
+          </Button>
+        </div>
       </Modal>
     </MobileLayout>
   );

@@ -6,7 +6,6 @@ const navItems = [
   { path: '/home', label: '홈', mark: 'H' },
   { path: '/pets/manage', label: '펫', mark: 'P' },
   { path: '/messenger', label: '메시지', mark: 'M' },
-  { path: '/store', label: '스토어', mark: 'S' },
   { path: '/settings', label: '설정', mark: 'C' },
 ];
 
@@ -20,7 +19,7 @@ export default function BottomNav() {
       style={{ paddingBottom: 'calc(var(--safe-area-bottom) + 10px)' }}
     >
       <nav
-        className="mx-auto grid max-w-[454px] grid-cols-5 rounded-[28px] border p-2"
+        className="mx-auto grid max-w-[454px] grid-cols-4 rounded-[28px] border p-2"
         style={{
           background: 'rgba(255, 250, 245, 0.82)',
           borderColor: 'rgba(77, 55, 43, 0.08)',

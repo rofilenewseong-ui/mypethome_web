@@ -114,7 +114,7 @@ export default function TopBar({
                   style={{ background: 'var(--accent-red)' }}
                 />
               )}
-              <span>C</span>
+              <span>🐾</span>
               <span>{user.credits}</span>
             </button>
           ) : null}

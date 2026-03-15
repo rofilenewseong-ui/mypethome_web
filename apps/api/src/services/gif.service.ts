@@ -3,7 +3,7 @@ import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-import { v4 as uuidv4 } from 'uuid';
+import crypto from 'crypto';
 import { storageService } from './storage.service';
 import { logger } from '../utils/logger';
 
@@ -41,7 +41,7 @@ class GifService {
     options: GifOptions
   ): Promise<string> {
     const tmpDir = os.tmpdir();
-    const id = uuidv4();
+    const id = crypto.randomUUID();
     const palettePath = path.join(tmpDir, `${id}_palette.png`);
     const gifPath = path.join(tmpDir, `${id}.gif`);
 

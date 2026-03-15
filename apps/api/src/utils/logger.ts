@@ -9,16 +9,18 @@ const logFormat = winston.format.combine(
   })
 );
 
-export const logger = winston.createLogger({
-  level: env.isDev ? 'debug' : 'info',
-  format: logFormat,
-  transports: [
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        logFormat
-      ),
-    }),
+const transports: winston.transport[] = [
+  new winston.transports.Console({
+    format: winston.format.combine(
+      winston.format.colorize(),
+      logFormat
+    ),
+  }),
+];
+
+// 서버리스 환경(Vercel 등)이 아닌 경우에만 파일 로깅 추가
+if (!process.env.VERCEL) {
+  transports.push(
     new winston.transports.File({
       filename: 'logs/error.log',
       level: 'error',
@@ -30,5 +32,11 @@ export const logger = winston.createLogger({
       maxsize: 10 * 1024 * 1024,
       maxFiles: 5,
     }),
-  ],
+  );
+}
+
+export const logger = winston.createLogger({
+  level: env.isDev ? 'debug' : 'info',
+  format: logFormat,
+  transports,
 });

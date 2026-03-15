@@ -55,7 +55,7 @@ class Cafe24Service {
       response_type: 'code',
       client_id: this.clientId,
       redirect_uri: this.redirectUri,
-      scope: 'mall.read_personal,mall.read_order',
+      scope: 'mall.read_application,mall.write_application,mall.read_order,mall.read_product,mall.read_customer',
       state,
     });
     return `https://${this.mallId}.cafe24api.com/api/v2/oauth/authorize?${params.toString()}`;
@@ -86,8 +86,9 @@ class Cafe24Service {
       return data;
     } catch (error: unknown) {
       const err = error as { response?: { data?: unknown }; message?: string };
-      logger.error('Cafe24 token exchange failed:', err.response?.data || err.message);
-      throw new AppError('Cafe24 인증에 실패했습니다.', 401);
+      const detail = err.response?.data || err.message;
+      logger.error('Cafe24 token exchange failed:', JSON.stringify(detail));
+      throw new AppError(`Cafe24 인증에 실패했습니다: ${JSON.stringify(detail)}`, 401);
     }
   }
 
@@ -188,12 +189,26 @@ class Cafe24Service {
     }
 
     const tokenData = await this.exchangeCode(code);
+    logger.info(`Cafe24 token received: user_id=${tokenData.user_id}, mall_id=${tokenData.mall_id}, scopes=${tokenData.scopes?.join(',')}`);
 
-    const customer = await this.getCustomerInfo(
-      tokenData.access_token,
-      tokenData.user_id
-    );
+    // 고객 정보 조회 (실패해도 토큰 데이터에서 기본 정보 사용)
+    let customer = {
+      member_id: tokenData.user_id,
+      name: tokenData.user_id,
+      email: `${tokenData.user_id}@${tokenData.mall_id}.cafe24.com`,
+      phone: undefined as string | undefined,
+    };
 
+    try {
+      customer = await this.getCustomerInfo(
+        tokenData.access_token,
+        tokenData.user_id
+      );
+    } catch (err) {
+      logger.warn('고객 정보 조회 실패, 토큰 기본 데이터 사용:', (err as Error).message);
+    }
+
+    // 주문 내역 조회 (실패 시 빈 배열)
     const orders = await this.getOrderHistory(
       tokenData.access_token,
       tokenData.user_id

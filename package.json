@@ -2,6 +2,7 @@
   "name": "petholo",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.30.3",
   "description": "PetHolo - Pet Memorial Hologram Platform (Monorepo)",
   "scripts": {
     "dev": "pnpm -r --parallel run dev",

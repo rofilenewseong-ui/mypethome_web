@@ -24,28 +24,39 @@ export class PetController {
       const frontFile = files?.frontPhoto?.[0];
       const sideFile = files?.sidePhoto?.[0];
 
-      let frontPhotoUrl = '';
-      let sidePhotoUrl = '';
+      let frontPhotoUrl = 'placeholder';
+      let sidePhotoUrl = 'placeholder';
 
+      // 이미지 업로드 (실패해도 펫 등록은 진행)
       if (frontFile) {
-        const result = await storageService.upload(
-          frontFile.buffer, frontFile.originalname,
-          `pets/${req.user!.id}`, frontFile.mimetype
-        );
-        frontPhotoUrl = result.key;
+        try {
+          const result = await storageService.upload(
+            frontFile.buffer, frontFile.originalname,
+            `pets/${req.user!.id}`, frontFile.mimetype
+          );
+          frontPhotoUrl = result.url || result.key;
+        } catch (uploadErr) {
+          const { logger } = await import('../utils/logger');
+          logger.warn('Front photo upload failed, using placeholder:', (uploadErr as Error).message);
+        }
       }
       if (sideFile) {
-        const result = await storageService.upload(
-          sideFile.buffer, sideFile.originalname,
-          `pets/${req.user!.id}`, sideFile.mimetype
-        );
-        sidePhotoUrl = result.key;
+        try {
+          const result = await storageService.upload(
+            sideFile.buffer, sideFile.originalname,
+            `pets/${req.user!.id}`, sideFile.mimetype
+          );
+          sidePhotoUrl = result.url || result.key;
+        } catch (uploadErr) {
+          const { logger } = await import('../utils/logger');
+          logger.warn('Side photo upload failed, using placeholder:', (uploadErr as Error).message);
+        }
       }
 
       const pet = await petService.create(req.user!.id, {
         ...req.body,
-        frontPhoto: frontPhotoUrl || 'placeholder',
-        sidePhoto: sidePhotoUrl || 'placeholder',
+        frontPhoto: frontPhotoUrl,
+        sidePhoto: sidePhotoUrl,
       });
       res.status(201).json({ success: true, data: pet });
     } catch (error) { next(error); }

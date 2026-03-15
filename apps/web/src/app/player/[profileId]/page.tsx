@@ -46,6 +46,8 @@ export default function HologramPlayerPage() {
 
   const [showEntryOverlay, setShowEntryOverlay] = useState(true);
   const [forceLandscape, setForceLandscape] = useState(false);
+  const [videoScale, setVideoScale] = useState<100 | 66>(100);
+  const [tiltActive, setTiltActive] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [videoLoaded, setVideoLoaded] = useState(false);
@@ -189,6 +191,59 @@ export default function HologramPlayerPage() {
     setShowEntryOverlay(false);
     if (video) video.play().catch(() => {});
   }, []);
+
+  /* ============ 기울기 연속 감지: 뒤집으면 재생, 세우면 정지 ============ */
+  useEffect(() => {
+    let orientationHandler: ((e: DeviceOrientationEvent) => void) | null = null;
+    let permissionGranted = false;
+
+    const startTiltDetection = () => {
+      orientationHandler = (e: DeviceOrientationEvent) => {
+        const beta = e.beta ?? 0;
+        const isFlipped = beta < -30 || beta > 120;
+
+        if (isFlipped && !tiltActive) {
+          setTiltActive(true);
+          setShowEntryOverlay(false);
+          // 영상 재생
+          if (baseVideoRef.current) {
+            baseVideoRef.current.play().catch(() => {});
+          }
+        } else if (!isFlipped && tiltActive) {
+          setTiltActive(false);
+          setShowEntryOverlay(true);
+          // 영상 일시정지
+          if (baseVideoRef.current) {
+            baseVideoRef.current.pause();
+          }
+          if (motionVideoRef.current) {
+            motionVideoRef.current.pause();
+            motionVideoRef.current.style.display = 'none';
+          }
+        }
+      };
+      window.addEventListener('deviceorientation', orientationHandler);
+    };
+
+    // iOS 권한 처리
+    const tryStart = async () => {
+      if (typeof (DeviceOrientationEvent as unknown as { requestPermission?: () => Promise<string> }).requestPermission === 'function') {
+        // iOS: EntryOverlay에서 권한 요청 후 시작됨
+        // 이미 권한이 있는지 확인 위해 임시 리스너
+        const testHandler = () => { permissionGranted = true; startTiltDetection(); window.removeEventListener('deviceorientation', testHandler); };
+        window.addEventListener('deviceorientation', testHandler);
+        setTimeout(() => { if (!permissionGranted) window.removeEventListener('deviceorientation', testHandler); }, 500);
+      } else {
+        startTiltDetection();
+      }
+    };
+
+    tryStart();
+
+    return () => {
+      if (orientationHandler) window.removeEventListener('deviceorientation', orientationHandler);
+    };
+  }, [tiltActive]);
 
   // iOS: 사용자가 직접 가로로 돌리면 CSS 회전 해제
   useEffect(() => {
@@ -505,6 +560,23 @@ export default function HologramPlayerPage() {
         {petName}
       </div>
 
+      {/* 영상 크기 토글 */}
+      <button
+        className="absolute top-2 right-2 z-30 px-2 py-1 rounded-full text-[9px] font-bold transition-opacity duration-300"
+        style={{
+          background: 'rgba(255,255,255,0.08)',
+          color: 'rgba(255,255,255,0.5)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          opacity: showControls ? 1 : 0,
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          setVideoScale(videoScale === 100 ? 66 : 100);
+        }}
+      >
+        {videoScale === 100 ? '66%' : '100%'}
+      </button>
+
       {/* 잠금 배지 */}
       {isAnyLocked && (
         <div
@@ -599,7 +671,7 @@ export default function HologramPlayerPage() {
               muted
               playsInline
               autoPlay
-              className="absolute inset-0 w-full h-full object-contain transition-opacity duration-500"
+              className="absolute object-contain transition-opacity duration-500"
               onLoadedData={() => setVideoLoaded(true)}
               onError={() => {
                 setVideoError(true);
@@ -608,17 +680,25 @@ export default function HologramPlayerPage() {
               style={{
                 opacity: videoLoaded ? 1 : 0,
                 transform: 'scaleX(-1)',
+                aspectRatio: '1/1',
+                ...(videoScale === 100
+                  ? { inset: 0, width: '100%', height: '100%' }
+                  : { width: '66%', height: '66%', bottom: 0, left: '50%', marginLeft: '-33%', top: 'auto' }),
               }}
             />
             <video
               ref={motionVideoRef}
               muted
               playsInline
-              className="absolute inset-0 w-full h-full object-contain"
+              className="absolute object-contain"
               style={{
                 display: 'none',
                 zIndex: 1,
                 transform: 'scaleX(-1)',
+                aspectRatio: '1/1',
+                ...(videoScale === 100
+                  ? { inset: 0, width: '100%', height: '100%' }
+                  : { width: '66%', height: '66%', bottom: 0, left: '50%', marginLeft: '-33%', top: 'auto' }),
               }}
             />
             {!videoLoaded && !videoError && (
@@ -819,47 +899,15 @@ export default function HologramPlayerPage() {
         </button>
       )}
 
-      {/* 진입 오버레이 — 탭하여 전체화면 + 가로 모드 시작 */}
+      {/* 진입 오버레이 — 기울이면 재생 시작 */}
       {showEntryOverlay && (
-        <div
-          className="absolute inset-0 z-50 flex flex-col items-center justify-center"
-          style={{ background: 'rgba(0,0,0,0.92)' }}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleEnterPlayer();
-          }}
-        >
-          <div
-            className="text-5xl mb-6"
-            style={{
-              filter: 'drop-shadow(0 0 20px rgba(100,200,255,0.4))',
-            }}
-          >
-            {profileId === 'sample-dog'
-              ? '🐕'
-              : profileId === 'sample-cat'
-                ? '🐈'
-                : '🐾'}
-          </div>
-          <p className="text-sm font-bold text-white/80 mb-2">
-            {petName}의 홀로그램
-          </p>
-          <p className="text-[11px] text-white/40 mb-8">
-            가로 전체화면으로 감상합니다
-          </p>
-          <div
-            className="px-8 py-3 rounded-full text-sm font-bold"
-            style={{
-              background:
-                'linear-gradient(135deg, rgba(100,200,255,0.15), rgba(160,120,255,0.15))',
-              border: '1px solid rgba(100,200,255,0.25)',
-              color: 'rgba(255,255,255,0.85)',
-              animation: 'pulse 2s ease-in-out infinite',
-            }}
-          >
-            탭하여 시작
-          </div>
-        </div>
+        <EntryOverlay
+          petName={petName}
+          profileId={profileId}
+          videoScale={videoScale}
+          setVideoScale={setVideoScale}
+          onStart={handleEnterPlayer}
+        />
       )}
     </div>
   );
@@ -974,6 +1022,109 @@ function MotionZone({
           </svg>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ============ 진입 오버레이 (안내문) ============ */
+function EntryOverlay({
+  petName, profileId, videoScale, setVideoScale, onStart,
+}: {
+  petName: string;
+  profileId: string;
+  videoScale: 100 | 66;
+  setVideoScale: (v: 100 | 66) => void;
+  onStart: () => void;
+}) {
+  const [permissionNeeded, setPermissionNeeded] = useState(false);
+
+  useEffect(() => {
+    if (typeof (DeviceOrientationEvent as unknown as { requestPermission?: () => Promise<string> }).requestPermission === 'function') {
+      setPermissionNeeded(true);
+    }
+  }, []);
+
+  const requestPermission = async () => {
+    try {
+      const perm = await (DeviceOrientationEvent as unknown as { requestPermission: () => Promise<string> }).requestPermission();
+      if (perm === 'granted') {
+        setPermissionNeeded(false);
+      }
+    } catch { /* denied */ }
+  };
+
+  const emoji = profileId === 'sample-dog' ? '🐕' : profileId === 'sample-cat' ? '🐈' : '🐾';
+
+  return (
+    <div
+      className="absolute inset-0 z-50 flex flex-col items-center justify-center"
+      style={{ background: 'rgba(0,0,0,0.92)' }}
+    >
+      <div className="text-5xl mb-6" style={{ filter: 'drop-shadow(0 0 20px rgba(100,200,255,0.4))' }}>
+        {emoji}
+      </div>
+      <p className="text-sm font-bold text-white/80 mb-2">{petName}의 홀로그램</p>
+
+      <p className="text-[11px] text-white/40 mb-2">
+        📱 핸드폰을 아크릴 위에 뒤집으면 자동 재생됩니다
+      </p>
+      <p className="text-[9px] text-white/20 mb-6">
+        다시 세우면 재생이 멈추고 이 화면으로 돌아옵니다
+      </p>
+
+      {/* 크기 선택 */}
+      <div className="flex gap-3 mb-6">
+        <button
+          onClick={(e) => { e.stopPropagation(); setVideoScale(100); }}
+          className="px-4 py-2 rounded-full text-[11px] font-bold transition-all"
+          style={{
+            background: videoScale === 100 ? 'rgba(100,200,255,0.2)' : 'rgba(255,255,255,0.05)',
+            border: `1px solid ${videoScale === 100 ? 'rgba(100,200,255,0.4)' : 'rgba(255,255,255,0.1)'}`,
+            color: videoScale === 100 ? 'rgba(100,200,255,0.9)' : 'rgba(255,255,255,0.4)',
+          }}
+        >
+          100%
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); setVideoScale(66); }}
+          className="px-4 py-2 rounded-full text-[11px] font-bold transition-all"
+          style={{
+            background: videoScale === 66 ? 'rgba(100,200,255,0.2)' : 'rgba(255,255,255,0.05)',
+            border: `1px solid ${videoScale === 66 ? 'rgba(100,200,255,0.4)' : 'rgba(255,255,255,0.1)'}`,
+            color: videoScale === 66 ? 'rgba(100,200,255,0.9)' : 'rgba(255,255,255,0.4)',
+          }}
+        >
+          66%
+        </button>
+      </div>
+
+      {permissionNeeded && (
+        <button
+          onClick={(e) => { e.stopPropagation(); requestPermission(); }}
+          className="px-8 py-3 rounded-full text-sm font-bold mb-4"
+          style={{
+            background: 'linear-gradient(135deg, rgba(100,200,255,0.15), rgba(160,120,255,0.15))',
+            border: '1px solid rgba(100,200,255,0.25)',
+            color: 'rgba(255,255,255,0.85)',
+          }}
+        >
+          센서 권한 허용
+        </button>
+      )}
+
+      <button
+        onClick={(e) => { e.stopPropagation(); onStart(); }}
+        className="px-8 py-3 rounded-full text-sm font-bold"
+        style={{
+          background: 'linear-gradient(135deg, rgba(100,200,255,0.15), rgba(160,120,255,0.15))',
+          border: '1px solid rgba(100,200,255,0.25)',
+          color: 'rgba(255,255,255,0.85)',
+          animation: 'pulse 2s ease-in-out infinite',
+        }}
+      >
+        탭하여 바로 시작
+      </button>
+      <p className="text-[9px] text-white/20 mt-3">또는 핸드폰을 뒤집으세요</p>
     </div>
   );
 }

@@ -413,7 +413,7 @@ export default function ProfileListPage() {
                   onClick={handleAddProfile}
                   className="rounded-[var(--radius-lg)] overflow-hidden relative flex flex-col items-center justify-center transition-all active:scale-[0.97]"
                   style={{
-                    aspectRatio: '0.7',
+                    aspectRatio: '1',
                     border: '2px dashed var(--border-card)',
                     background: 'var(--bg-card)',
                   }}
@@ -561,61 +561,40 @@ function SampleCard({
   router: ReturnType<typeof useRouter>;
 }) {
   return (
-    <div
-      className="rounded-[var(--radius-lg)] overflow-hidden relative transition-all active:scale-[0.97]"
-      style={{
-        aspectRatio: '0.7',
-        background: 'linear-gradient(135deg, #1e1e1e 0%, #0d0d0d 100%)',
-        border: '1px solid var(--border-card)',
-      }}
-    >
-      {/* 홀로그램 글로우 효과 */}
-      <div
-        className="absolute inset-0 pointer-events-none"
+    <div className="flex flex-col gap-1.5">
+      {/* 1:1 이미지 — 클릭하면 설정 */}
+      <button
+        onClick={() => router.push(`/profiles/${sample.id}/settings`)}
+        className="rounded-[var(--radius-lg)] overflow-hidden relative transition-all active:scale-[0.97]"
         style={{
-          background:
-            'radial-gradient(circle at 50% 40%, rgba(100,200,255,0.08) 0%, transparent 70%)',
+          aspectRatio: '1',
+          background: 'linear-gradient(135deg, #1e1e1e 0%, #0d0d0d 100%)',
+          border: '1px solid var(--border-card)',
         }}
-      />
-      {/* 이모지 + 이름 */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-4xl mb-1.5">{sample.emoji}</span>
-        <p className="text-[10px] text-white/60 font-bold">{sample.petName}</p>
-        <p className="text-[8px] text-white/35 mt-0.5">{sample.name}</p>
-      </div>
-
-      {/* 상단 배지 */}
-      <div className="absolute top-1.5 left-1.5">
-        <Badge variant="info" pill={false}>
-          샘플
-        </Badge>
-      </div>
-
-      {/* 하단 아이콘 버튼 */}
-      <div className="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between">
-        <p className="text-[9px] font-bold text-white/50 truncate flex-1 mr-1">
-          {sample.petName}
-        </p>
-        <div className="flex gap-1">
-          <button
-            onClick={() => router.push(`/player/${sample.id}`)}
-            className="w-7 h-7 rounded-full flex items-center justify-center transition-all active:scale-[0.9]"
-            style={{ background: 'var(--accent-blue)' }}
-          >
-            <span className="text-[10px] text-white ml-0.5">▶</span>
-          </button>
-          <button
-            onClick={() => router.push(`/profiles/${sample.id}/settings`)}
-            className="w-7 h-7 rounded-full flex items-center justify-center transition-all active:scale-[0.9]"
-            style={{
-              background: 'rgba(255,255,255,0.15)',
-              backdropFilter: 'blur(4px)',
-            }}
-          >
-            <span className="text-[10px] text-white/70">⚙</span>
-          </button>
+      >
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'radial-gradient(circle at 50% 40%, rgba(100,200,255,0.08) 0%, transparent 70%)',
+          }}
+        />
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-4xl mb-1">{sample.emoji}</span>
+          <p className="text-[10px] text-white/60 font-bold">{sample.petName}</p>
         </div>
-      </div>
+        <div className="absolute top-1.5 left-1.5">
+          <Badge variant="info" pill={false}>샘플</Badge>
+        </div>
+      </button>
+
+      {/* 하단: 재생 버튼만 크게 */}
+      <button
+        onClick={() => router.push(`/player/${sample.id}`)}
+        className="w-full rounded-[var(--radius-sm)] flex items-center justify-center py-2 transition-all active:scale-[0.95]"
+        style={{ background: 'var(--accent-blue)' }}
+      >
+        <span className="text-sm text-white">▶</span>
+      </button>
     </div>
   );
 }
@@ -634,97 +613,63 @@ function ProfileCard({
   onToggleSave: () => void;
 }) {
   return (
-    <div
-      className="rounded-[var(--radius-lg)] overflow-hidden relative"
-      style={{
-        aspectRatio: '0.7',
-        background: '#0a0a0a',
-        border: isSaved
-          ? '2px solid var(--accent-orange)'
-          : '1px solid var(--border-card)',
-      }}
-    >
-      {/* 카드 전체 꽉 차는 썸네일 (기본베이스영상 gifUrl) */}
-      {profile.gifUrl ? (
-        <img
-          src={profile.gifUrl}
-          alt={`${profile.petName} ${profile.name}`}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      ) : (
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-3xl mb-1">🐾</span>
-          <span className="text-[8px] text-white/30">미리보기</span>
-        </div>
-      )}
-
-      {/* 상단 왼쪽: 타입 배지 */}
-      <div className="absolute top-1.5 left-1.5">
-        <Badge
-          pill={false}
-          color={
-            profile.type === 'STANDING'
-              ? 'var(--accent-blue)'
-              : 'var(--accent-warm)'
-          }
-        >
-          {profile.type}
-        </Badge>
-      </div>
-
-      {/* 상단 오른쪽: ⭐ 저장 토글 */}
+    <div className="flex flex-col gap-1.5">
+      {/* 1:1 이미지 — 클릭하면 설정 */}
       <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onToggleSave();
-        }}
-        className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full flex items-center justify-center transition-all active:scale-[0.85]"
+        onClick={() => router.push(`/profiles/${profile.id}/settings`)}
+        className="rounded-[var(--radius-lg)] overflow-hidden relative transition-all active:scale-[0.97]"
         style={{
-          background: isSaved
-            ? 'var(--accent-orange)'
-            : 'rgba(0,0,0,0.4)',
-          backdropFilter: 'blur(4px)',
+          aspectRatio: '1',
+          background: '#0a0a0a',
+          border: isSaved
+            ? '2px solid var(--accent-orange)'
+            : '1px solid var(--border-card)',
         }}
       >
-        <span className="text-[10px]">{isSaved ? '⭐' : '☆'}</span>
+        {profile.gifUrl ? (
+          <img
+            src={profile.gifUrl}
+            alt={`${profile.petName} ${profile.name}`}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-3xl mb-1">🐾</span>
+            <span className="text-[8px] text-white/30">미리보기</span>
+          </div>
+        )}
+
+        {/* 상단 왼쪽: 타입 배지 */}
+        <div className="absolute top-1.5 left-1.5">
+          <Badge
+            pill={false}
+            color={profile.type === 'STANDING' ? 'var(--accent-blue)' : 'var(--accent-warm)'}
+          >
+            {profile.type}
+          </Badge>
+        </div>
+
+        {/* 상단 오른쪽: ⭐ 저장 토글 */}
+        <div
+          onClick={(e) => { e.stopPropagation(); onToggleSave(); }}
+          className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full flex items-center justify-center transition-all active:scale-[0.85]"
+          style={{
+            background: isSaved ? 'var(--accent-orange)' : 'rgba(0,0,0,0.4)',
+            backdropFilter: 'blur(4px)',
+          }}
+        >
+          <span className="text-[10px]">{isSaved ? '⭐' : '☆'}</span>
+        </div>
       </button>
 
-      {/* 하단: 이름 + 아이콘 버튼 */}
-      <div
-        className="absolute bottom-0 left-0 right-0 p-1.5 pt-6"
-        style={{
-          background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
-        }}
+      {/* 하단: 재생 버튼만 크게 */}
+      <button
+        onClick={() => router.push(`/player/${profile.id}`)}
+        className="w-full rounded-[var(--radius-sm)] flex items-center justify-center py-2 transition-all active:scale-[0.95]"
+        style={{ background: 'var(--accent-blue)' }}
       >
-        <p className="text-[9px] font-bold text-white truncate mb-1">
-          {profile.petName}
-        </p>
-        <div className="flex items-center gap-1">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              router.push(`/player/${profile.id}`);
-            }}
-            className="w-7 h-7 rounded-full flex items-center justify-center transition-all active:scale-[0.9]"
-            style={{ background: 'var(--accent-blue)' }}
-          >
-            <span className="text-[10px] text-white ml-0.5">▶</span>
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              router.push(`/profiles/${profile.id}/settings`);
-            }}
-            className="w-7 h-7 rounded-full flex items-center justify-center transition-all active:scale-[0.9]"
-            style={{
-              background: 'rgba(255,255,255,0.15)',
-              backdropFilter: 'blur(4px)',
-            }}
-          >
-            <span className="text-[10px] text-white/70">⚙</span>
-          </button>
-        </div>
-      </div>
+        <span className="text-sm text-white">▶</span>
+      </button>
     </div>
   );
 }

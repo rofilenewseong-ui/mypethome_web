@@ -11,8 +11,13 @@ function Cafe24CallbackContent() {
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const { loginWithToken } = useAuthStore();
+  const calledRef = { current: false };
 
   useEffect(() => {
+    // React StrictMode 중복 실행 방지 — 코드는 1회만 교환 가능
+    if (calledRef.current) return;
+    calledRef.current = true;
+
     const handleCallback = async () => {
       const code = searchParams.get('code');
       const state = searchParams.get('state');
